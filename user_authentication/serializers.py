@@ -1,18 +1,24 @@
-from models import BaseUser
-
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from rest_framework import serializers
+from user_authentication.models import BaseUser
 
 
-class CustomUserSerializer(UserSerializer):
-    class Meta(UserSerializer.Meta):
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'individual_unique_number', 'phone_number',
-                  'date_of_birth', 'gender')
-
-
-class CustomUserCreateSerializer(UserCreateSerializer):
-    class Meta(UserCreateSerializer.Meta):
+class BaseUserSerializer(serializers.ModelSerializer):
+    class Meta:
         model = BaseUser
-        fields = (
-                'id', 'username', 'email', 'password', 'first_name', 'last_name', 'individual_unique_number',
-                'phone_number',
-                'date_of_birth', 'gender')
+        fields = '__all__'
+
+
+class BaseUserCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BaseUser
+        fields = ['individual_unique_number', 'first_name', 'last_name', 'gender', 'date_of_birth', 'email', 'password']
+        extra_kwargs = {
+            'password': {'write_only': True},
+        }
+
+    def create(self, validated_data):
+        user = BaseUser.objects.create(**validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
+        return user

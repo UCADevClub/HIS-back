@@ -1,5 +1,3 @@
-import uuid
-
 from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser,
@@ -35,6 +33,12 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
+    GENDER_CHOICES = [
+            ('M', 'Male'),
+            ('F', 'Female'),
+    ]
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='M')
+    date_of_birth = models.DateField(null=True, blank=True)
 
     objects = CustomUserManager()
 
@@ -43,3 +47,13 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f'User: {self.first_name} {self.last_name}'
+
+
+class Address(models.Model):
+    street = models.CharField(max_length=255)
+    city = models.CharField(max_length=255)
+    state = models.CharField(max_length=255)
+    postal_code = models.CharField(max_length=20, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.street}, {self.city}, {self.state} {self.postal_code}"
