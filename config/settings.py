@@ -42,12 +42,21 @@ INSTALLED_APPS = [
     'rest_framework',
     'djoser',
 
-    'user_authentication'
+    'user_authentication',
+    'staff',
+    'patient',
 
 
 ]
 
 AUTH_USER_MODEL = 'user_authentication.BaseUser'
+
+# Djoser configuration
+DJOSER = {
+    'SERIALIZERS': {
+        'user': 'user_authentication.serializers.UserSerializer',
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
