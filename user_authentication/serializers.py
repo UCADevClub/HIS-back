@@ -1,6 +1,6 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
-from user_authentication.models import BaseUser
+from user_authentication.models import BaseUser, Address
 
 
 class BaseUserSerializer(serializers.ModelSerializer):
@@ -8,6 +8,11 @@ class BaseUserSerializer(serializers.ModelSerializer):
         model = BaseUser
         fields = '__all__'
 
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = '__all__'
 
 class BaseUserCreateSerializer(serializers.ModelSerializer):
     class Meta:
