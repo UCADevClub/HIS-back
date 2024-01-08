@@ -2,7 +2,7 @@
 FROM python:3.11.3-alpine
 
 # set work directory
-WORKDIR ./HIS-back
+WORKDIR /HIS-BACK
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
