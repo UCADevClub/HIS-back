@@ -27,7 +27,7 @@ def create_emergency_contact(request):
 @require_http_methods(["PUT"])
 def edit_emergency_contact(request, contact_id):
     emergency_contact = get_object_or_404(EmergencyContact, pk=contact_id)
-    serializer = EmergencyContactSerializer(emergency_contact, data=request.data)
+    serializer = EmergencyContactSerializer(emergency_contact, data=request.POST, partial=True)
     if serializer.is_valid():
         emergency_contact = serializer.save()
         return JsonResponse({"status": "success", "contact_id": emergency_contact.pk})
@@ -47,7 +47,7 @@ def delete_emergency_contact(request, contact_id):
 def get_emergency_contact(request, contact_id):
     emergency_contact = get_object_or_404(EmergencyContact, pk=contact_id)
     serializer = EmergencyContactSerializer(emergency_contact)
-    return Response(serializer.data)
+    return JsonResponse(serializer.data)
 
 
 # ------------- Patient -------------
@@ -70,7 +70,7 @@ def create_patient(request):
 @require_http_methods(["PUT"])
 def edit_patient(request, patient_id):
     patient = get_object_or_404(Patient, pk=patient_id)
-    serializer = PatientSerializer(patient, data=request.data)
+    serializer = PatientSerializer(patient, data=request.POST, partial=True)
     if serializer.is_valid():
         patient = serializer.save()
         return JsonResponse({"status": "success", "patient_id": patient.pk})
