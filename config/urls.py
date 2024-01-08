@@ -17,6 +17,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from user.views import (
+    PatientListCreateView,
+    PatientRetrieveUpdateDestroyView,
+    EmergencyContactListCreateView,
+    EmergencyContactRetrieveUpdateDestroyView,
+)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('patients/', PatientListCreateView.as_view(), name='patient-list-create'),
+    path('patients/<int:pk>/', PatientRetrieveUpdateDestroyView.as_view(), name='patient-retrieve-update-destroy'),
+    path('emergency-contacts/', EmergencyContactListCreateView.as_view(), name='emergency-contact-list-create'),
+    path('emergency-contacts/<int:pk>/', EmergencyContactRetrieveUpdateDestroyView.as_view(), name='emergency-contact-retrieve-update-destroy'),
 ]

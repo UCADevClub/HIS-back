@@ -20,12 +20,20 @@ from secrets import token_hex
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+#print("SQL_ENGINE:", environ.get("SQL_ENGINE", "django.db.backends.sqlite3"))
+#print("SQL_DATABASE:", environ.get("SQL_DATABASE", BASE_DIR / "db.sqlite3"))
+#print("SQL_USER:", environ.get("SQL_USER", "user"))
+#print("SQL_PASSWORD:", environ.get("SQL_PASSWORD", "password"))
+#print("SQL_HOST:", environ.get("SQL_HOST", "localhost"))
+#print("SQL_PORT:", environ.get("SQL_PORT", "5432"))
+#print("SECRET_KEY", environ.get('SECRET_KEY'))
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = environ.get('SECRET_KEY')
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = environ.get('SECRET_KEY')
+#print(SECRET_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(environ.get('DEBUG', default=0))
