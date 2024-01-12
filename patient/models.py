@@ -13,11 +13,11 @@ class EmergencyContact(models.Model):
 
 
 class Patient(BaseUser):
-    primary_address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='primary_address', null=True)
+    primary_address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='primary_address', null=True, blank=True)
     primary_emergency_contact = models.ForeignKey(EmergencyContact, on_delete=models.CASCADE,
-                                                  related_name='primary_emergency_contact', null=True)
+                                                  related_name='primary_emergency_contact', null=True, blank=True)
     secondary_emergency_contact = models.ForeignKey(EmergencyContact, on_delete=models.CASCADE,
-                                                    related_name='secondary_emergency_contact', null=True)
+                                                    related_name='secondary_emergency_contact', null=True, blank=True)
 
     def __str__(self):
         return f"Patient: {self.first_name} {self.last_name}"
