@@ -28,24 +28,28 @@ class PatientSerializer(BaseUserSerializer):
 
     def create(self, validated_data):
         validated_data['primary_address'] = get_or_create(validated_data.pop('primary_address'), Address)
-        validated_data['primary_emergency_contact'] = get_or_create(validated_data.pop('primary_emergency_contact'), EmergencyContact)
-        validated_data['secondary_emergency_contact'] = get_or_create(validated_data.pop('secondary_emergency_contact'), EmergencyContact)
+        validated_data['primary_emergency_contact'] = get_or_create(validated_data.pop('primary_emergency_contact'),
+                                                                    EmergencyContact)
+        validated_data['secondary_emergency_contact'] = get_or_create(validated_data.pop('secondary_emergency_contact'),
+                                                                      EmergencyContact)
         return super(PatientSerializer, self).create(validated_data)
-
 
     def update(self, instance, validated_data):
         if validated_data.get('primary_address'):
             validated_data['primary_address'] = get_or_create(validated_data.pop('primary_address'), Address)
         if validated_data.get('primary_emergency_contact'):
-            validated_data['primary_emergency_contact'] = get_or_create(validated_data.pop('primary_emergency_contact'), EmergencyContact)
+            validated_data['primary_emergency_contact'] = get_or_create(validated_data.pop('primary_emergency_contact'),
+                                                                        EmergencyContact)
         if validated_data.get('secondary_emergency_contact'):
-            validated_data['secondary_emergency_contact'] = get_or_create(validated_data.pop('secondary_emergency_contact'), EmergencyContact)
-        
+            validated_data['secondary_emergency_contact'] = get_or_create(
+                validated_data.pop('secondary_emergency_contact'), EmergencyContact)
+
         return super().update(instance, validated_data)
 
     class Meta:
         model = Patient
         fields = '__all__'
+
 
 def get_or_create(data, model):
     # This function is needed because of the nested serializers
@@ -55,6 +59,6 @@ def get_or_create(data, model):
         return Address.objects.create(**data)
     elif model == EmergencyContact:
         return EmergencyContact.objects.create(
-            address = get_or_create(data.pop('address'), Address), 
+            address=get_or_create(data.pop('address'), Address),
             **data
         )

@@ -13,7 +13,8 @@ class EmergencyContact(models.Model):
 
 
 class Patient(BaseUser):
-    primary_address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='primary_address', null=True, blank=True)
+    primary_address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='primary_address', null=True,
+                                        blank=True)
     primary_emergency_contact = models.ForeignKey(EmergencyContact, on_delete=models.CASCADE,
                                                   related_name='primary_emergency_contact', null=True, blank=True)
     secondary_emergency_contact = models.ForeignKey(EmergencyContact, on_delete=models.CASCADE,
