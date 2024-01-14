@@ -4,6 +4,7 @@ from user_authentication.serializers import BaseUserSerializer, AddressSerialize
 
 
 class EmergencyContactSerializer(serializers.ModelSerializer):
+    address = AddressSerializer()
     class Meta:
         model = EmergencyContact
         fields = '__all__'
