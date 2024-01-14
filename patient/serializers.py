@@ -5,6 +5,7 @@ from user_authentication.models import Address
 from django.shortcuts import get_object_or_404
 
 class EmergencyContactSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
     address = AddressSerializer()
 
     def create(self, validated_data):
@@ -53,7 +54,9 @@ class PatientSerializer(BaseUserSerializer):
 
 def get_or_create(data, model):
     # This function is needed because of the nested serializers
-    if data.get('id'):
+    if type(data) == "<class 'str'>":
+        return get_object_or_404(model, id=data)
+    elif data.get('id'):
         return get_object_or_404(model, id=data.get('id'))
     elif model == Address:
         return Address.objects.create(**data)

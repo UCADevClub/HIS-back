@@ -10,6 +10,7 @@ class BaseUserSerializer(serializers.ModelSerializer):
 
 
 class AddressSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
     class Meta:
         model = Address
         fields = '__all__'
