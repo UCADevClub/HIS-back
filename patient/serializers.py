@@ -8,10 +8,12 @@ class EmergencyContactSerializer(serializers.ModelSerializer):
     address = AddressSerializer()
 
     def create(self, validated_data):
-        validated_data['address'] = get_or_create(validated_data.pop('address'), Address)
+        if validated_data.get('address'):
+            validated_data['address'] = get_or_create(validated_data.pop('address'), Address)
         return super(PatientSerializer, self).create(validated_data)
 
     def create(self, validated_data):
+        validated_data['address'] = get_or_create(validated_data.pop('address'), Address)
         return super().create(validated_data)
 
     class Meta:
