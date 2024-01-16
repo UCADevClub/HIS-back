@@ -10,8 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+from distutils import config
 from pathlib import Path
 from os import environ
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -27,7 +29,8 @@ SECRET_KEY = environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(environ.get('DEBUG', default=0))
 
-ALLOWED_HOSTS = environ.get('DJANGO_ALLOWED_HOSTS').split()
+#ALLOWED_HOSTS = environ.get('DJANGO_ALLOWED_HOSTS').split()
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost','127.0.0.1','[::1]']
 
 # Application definition
 
@@ -48,13 +51,17 @@ INSTALLED_APPS = [
     'patient',
 
 
+
 ]
 
 AUTH_USER_MODEL = 'user_authentication.BaseUser'
 
 # Djoser configuration
 DJOSER = {
+    'LOGIN_FIELD': 'inn',
+    'HIDE_USERS': False,
     'SERIALIZERS': {
+        
         'user': 'user_authentication.serializers.UserSerializer',
     },
 }
