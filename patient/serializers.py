@@ -58,7 +58,7 @@ class PatientSerializer(BaseUserSerializer):
 
 def get_or_create(data, model):
     # This function is needed because of the nested serializers
-    if type(data) == "<class 'str'>":
+    if type(data) == "<class 'str'>" or type(data) == "<class 'int'>":
         return get_object_or_404(model, id=data)
     elif data.get('id'):
         return get_object_or_404(model, id=data.get('id'))

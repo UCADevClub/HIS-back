@@ -12,8 +12,6 @@ class EmergencyContactDetail(RetrieveUpdateDestroyAPIView):
     queryset = EmergencyContact.objects.all()
     serializer_class = EmergencyContactSerializer
 
-
-
 class PatientList(ListCreateAPIView):
     queryset = Patient.objects.all()
     serializer_class = PatientSerializer
