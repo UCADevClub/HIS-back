@@ -64,7 +64,7 @@ class PatientSerializer(BaseUserSerializer):
             'first_name', 
             'last_name', 
             'email', 
-            'gender'
+            'gender',
             'phone_number', 
             'date_of_birth', 
             'primary_address', 
