@@ -43,7 +43,10 @@ class PatientSerializer(BaseUserSerializer):
         if validated_data.get('secondary_emergency_contact'):
             validated_data['secondary_emergency_contact'] = get_or_create(validated_data.pop('secondary_emergency_contact'),
                                                                       EmergencyContact)
-        return super(PatientSerializer, self).create(validated_data)
+        user = super(PatientSerializer, self).create(validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
 
     def update(self, instance, validated_data):
         if validated_data.get('primary_address'):
