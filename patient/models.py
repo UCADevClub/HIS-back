@@ -19,6 +19,7 @@ class Patient(BaseUser):
                                                   related_name='primary_emergency_contact', null=True, blank=True)
     secondary_emergency_contact = models.ForeignKey(EmergencyContact, on_delete=models.CASCADE,
                                                     related_name='secondary_emergency_contact', null=True, blank=True)
+    phone_number = models.CharField(max_length=32, null=True, blank=True)
 
     def __str__(self):
         return f"Patient: {self.first_name} {self.last_name}"
