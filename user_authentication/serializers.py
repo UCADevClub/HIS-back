@@ -13,7 +13,13 @@ class AddressSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
     class Meta:
         model = Address
-        fields = '__all__'
+        fields = [
+            'id',
+            'state',
+            'city',
+            'street',
+            'postal_code',
+        ]
 
 class BaseUserCreateSerializer(serializers.ModelSerializer):
     class Meta:

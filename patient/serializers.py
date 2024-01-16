@@ -20,7 +20,13 @@ class EmergencyContactSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EmergencyContact
-        fields = '__all__'
+        fields = [
+            'id',
+            'first_name',
+            'last_name',
+            'phone_number',
+            'address',
+        ]
 
 
 class PatientSerializer(BaseUserSerializer):
@@ -53,7 +59,18 @@ class PatientSerializer(BaseUserSerializer):
 
     class Meta:
         model = Patient
-        fields = '__all__'
+        fields = [
+            'inn', 
+            'first_name', 
+            'last_name', 
+            'email', 
+            'gender'
+            'phone_number', 
+            'date_of_birth', 
+            'primary_address', 
+            'primary_emergency_contact', 
+            'secondary_emergency_contact', 
+        ]
 
 
 def get_or_create(data, model):
