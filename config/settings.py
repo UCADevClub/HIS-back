@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'djoser',
+    'django_extensions',
 
     'user_authentication',
     'staff',
