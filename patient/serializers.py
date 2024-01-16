@@ -65,12 +65,16 @@ class PatientSerializer(BaseUserSerializer):
             'last_name', 
             'email', 
             'gender',
+            'password',
             'phone_number', 
             'date_of_birth', 
             'primary_address', 
             'primary_emergency_contact', 
             'secondary_emergency_contact', 
         ]
+        extra_kwargs = {
+            'password': {'write_only': True},
+        }
 
 
 def get_or_create(data, model):
