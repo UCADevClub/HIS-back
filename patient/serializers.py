@@ -44,7 +44,8 @@ class PatientSerializer(BaseUserSerializer):
             validated_data['secondary_emergency_contact'] = get_or_create(validated_data.pop('secondary_emergency_contact'),
                                                                       EmergencyContactSerializer)
         user = super(PatientSerializer, self).create(validated_data)
-        user.set_password(validated_data['password'])
+        if validated_data.get('password'):
+            user.set_password(validated_data['password'])
         user.save()
         return user
 
