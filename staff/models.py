@@ -8,4 +8,4 @@ class Doctor(BaseUser):
     address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='address', null=True)
 
     def __str__(self):
-        return f'{self.doctor} {self.position} {self.specialization}'
+        return f'{self.first_name} {self.last_name} {self.position} {self.specialization}'
