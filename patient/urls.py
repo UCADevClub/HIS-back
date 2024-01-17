@@ -13,6 +13,6 @@ urlpatterns = [
     path('emergency-contacts/', EmergencyContactList.as_view(), name='emergency-contact-list'),
     path('emergency-contacts/<int:pk>/', EmergencyContactDetail.as_view(), name='emergency-contact-detail'),
     # Patient URLs
-    path('patients/', PatientList.as_view(), name='patient-list'),
-    path('patients/<int:pk>/', PatientDetail.as_view(), name='patient-detail'),
+    path('', PatientList.as_view(), name='patient-list'),
+    path('<int:pk>/', PatientDetail.as_view(), name='patient-detail'),
 ]

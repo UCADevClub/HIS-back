@@ -10,10 +10,3 @@ class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
         fields = '__all__'
-
-    def create(self, validated_data):
-        doctor_data = validated_data.pop('doctor')
-        doctor_user = BaseUser.objects.create(**doctor_data)
-        doctor_object = Doctor()
-        doctor = doctor_object.doctor.objects.create(doctor=doctor_user, **validated_data)
-        return doctor
