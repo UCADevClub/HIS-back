@@ -10,8 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+from distutils import config
 from pathlib import Path
 from os import environ
+
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,11 +26,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = environ.get('SECRET_KEY')
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(environ.get('DEBUG', default=0))
 
-ALLOWED_HOSTS = environ.get('DJANGO_ALLOWED_HOSTS').split()
+#ALLOWED_HOSTS = environ.get('DJANGO_ALLOWED_HOSTS').split()
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost','127.0.0.1','[::1]']
 
 # Application definition
 
@@ -37,7 +41,36 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'rest_framework',
+    'djoser',
+
+    'user_authentication',
+    'staff',
+    'patient',
+
+
+
 ]
+
+AUTH_USER_MODEL = 'user_authentication.BaseUser'
+
+# Djoser configuration
+DJOSER = {
+    'LOGIN_FIELD': 'inn',
+    'HIDE_USERS': False,
+    'SERIALIZERS': {
+        
+        'user': 'user_authentication.serializers.UserSerializer',
+    },
+}
+# Also for Djoser
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -75,16 +108,14 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     "default": {
-        "ENGINE": environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
-        "NAME": environ.get("SQL_DATABASE", BASE_DIR / "db.sqlite3"),
-        "USER": environ.get("SQL_USER", "user"),
-        "PASSWORD": environ.get("SQL_PASSWORD", "password"),
-        "HOST": environ.get("SQL_HOST", "localhost"),
-        "PORT": environ.get("SQL_PORT", "5432"),
+        "ENGINE": environ.get("SQL_ENGINE", default="django.db.backends.sqlite3"),
+        "NAME": environ.get("SQL_DATABASE", default=BASE_DIR / "db.sqlite3"),
+        "USER": environ.get("SQL_USER", default="user"),
+        "PASSWORD": environ.get("SQL_PASSWORD", default="password"),
+        "HOST": environ.get("SQL_HOST", default="localhost"),
+        "PORT": environ.get("SQL_PORT", default="5432"),
     }
 }
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -126,3 +157,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Developer settings
+
+

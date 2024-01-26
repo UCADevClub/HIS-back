@@ -1,4 +1,5 @@
 .idea/
+.vscode/
 
 # Created by https://www.gitignore.io/api/macos,linux,django,python,pycharm
 
@@ -195,6 +196,7 @@ celerybeat-schedule
 
 # dotenv
 .env
+.env.dev
 
 # virtualenv
 .venv
