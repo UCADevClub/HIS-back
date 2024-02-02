@@ -31,6 +31,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     email = models.EmailField(max_length=255, unique=True)
+    date_of_birth = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
@@ -39,12 +40,10 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
             ('F', 'Female'),
     ]
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='M')
-    date_of_birth = models.DateField(null=True, blank=True)
-
     objects = CustomUserManager()
 
     USERNAME_FIELD = "inn"
-    REQUIRED_FIELDS = [ "first_name", "email", "last_name"]
+    REQUIRED_FIELDS = ["first_name", "last_name", "email"]
 
     def __str__(self):
         return f'User: {self.first_name} {self.last_name}'
@@ -58,3 +57,9 @@ class Address(models.Model):
 
     def __str__(self):
         return f"{self.street}, {self.city}, {self.state} {self.postal_code}"
+
+    @classmethod
+    def object(cls, **kwargs):
+        return cls(**kwargs)
+
+

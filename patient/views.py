@@ -1,22 +1,47 @@
-from .models import EmergencyContact, Patient
-from .serializers import EmergencyContactSerializer, PatientSerializer
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework import status
+from django.http import Http404
+
+from patient.serializers import PatientSerializer
+from patient.models import Patient
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 
-class EmergencyContactList(ListCreateAPIView):
-    queryset = EmergencyContact.objects.all()
-    serializer_class = EmergencyContactSerializer
+def get_patient_object(inn):
+    try:
+        return Patient.objects.get(inn=inn)
+    except Patient.DoesNotExist:
+        raise Http404(f"Patient with {inn} inn not found")
 
 
-class EmergencyContactDetail(RetrieveUpdateDestroyAPIView):
-    queryset = EmergencyContact.objects.all()
-    serializer_class = EmergencyContactSerializer
+class PatientDetail(APIView):
 
-class PatientList(ListCreateAPIView):
-    queryset = Patient.objects.all()
-    serializer_class = PatientSerializer
+    def get(self, request, inn):
+        try:
+            patient_instance = get_patient_object(inn=inn)
+            patient_serializer = PatientSerializer(patient_instance)
+            return Response(patient_serializer.data, status=status.HTTP_200_OK)
+        except Http404 as error:
+            return Response(data={f'{error=}'}, status=status.HTTP_404_NOT_FOUND)
+
+    def patch(self, request, inn):
+        try:
+            patient_instance = get_patient_object(inn=inn)
+            patient_serializer = PatientSerializer(patient_instance, data=request.data, partial=True)
+            if patient_serializer.is_valid():
+                patient_serializer.save()
+                return Response(patient_serializer.data, status=status.HTTP_200_OK)
+            return Response(patient_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Http404 as error:
+            return Response(data={f'{error=}'}, status=status.HTTP_404_NOT_FOUND)
 
 
-class PatientDetail(RetrieveUpdateDestroyAPIView):
-    queryset = Patient.objects.all()
-    serializer_class = PatientSerializer
+class PatientList(APIView):
+
+    def get(self, request):
+        patient_instance = Patient.objects.all()
+        patient_serializer = PatientSerializer(patient_instance, many=True)
+        return Response(patient_serializer.data, status=status.HTTP_200_OK)
+
+

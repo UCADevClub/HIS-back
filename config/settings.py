@@ -60,8 +60,7 @@ DJOSER = {
     'LOGIN_FIELD': 'inn',
     'HIDE_USERS': False,
     'SERIALIZERS': {
-        
-        'user': 'user_authentication.serializers.UserSerializer',
+        'user': 'user_authentication.serializers.BaseUserSerializer',
     },
 }
 # Also for Djoser
