@@ -1,97 +1,87 @@
-from rest_framework import serializers
-from .models import EmergencyContact, Patient
-from user_authentication.serializers import BaseUserSerializer, AddressSerializer
-from user_authentication.models import Address
-from django.shortcuts import get_object_or_404
+from rest_framework.serializers import ModelSerializer
 
-class EmergencyContactSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(required=False)
-    address = AddressSerializer()
+from user_authentication.serializers import BaseUserSerializer
+from patient.models import Patient, EmergencyContact
+from user_authentication.serializers import AddressSerializer
 
-    def create(self, validated_data):
-        if validated_data.get('address'):
-            validated_data['address'] = get_or_create(validated_data.pop('address'), AddressSerializer)
-        return super(EmergencyContactSerializer, self).create(validated_data)
 
-    def update(self, instance, validated_data):
-        if validated_data.get('address'):
-            validated_data['address'] = get_or_create(validated_data.pop('address'), AddressSerializer)
-        return super().update(instance, validated_data)
-
+class EmergencyContactSerializer(ModelSerializer):
     class Meta:
         model = EmergencyContact
-        fields = [
-            'id',
-            'first_name',
-            'last_name',
-            'phone_number',
-            'address',
-        ]
+        fields = ['first_name',
+                  'last_name',
+                  "phone_number",
+                  "address",
+                  ]
+
+    address = AddressSerializer()
+
+    def update(self, instance, validated_data):
+
+        instance.first_name = validated_data.get("first_name", instance.first_name)
+        instance.last_name = validated_data.get("last_name", instance.last_name)
+        instance.phone_number = validated_data.get("phone_number", instance.phone_number)
+
+        address_data = validated_data.pop('address', None)
+        address_instance = instance.address
+
+        if address_data:
+            address_serializer = AddressSerializer(address_instance, data=address_data)
+            if address_serializer.is_valid():
+                address_serializer.save()
+        instance.save()
+        return instance
 
 
 class PatientSerializer(BaseUserSerializer):
+
+    class Meta:
+        model = Patient
+        fields = ['inn',
+                  'first_name',
+                  'last_name',
+                  'email',
+                  'date_of_birth',
+                  'gender',
+                  "phone_number",
+                  "primary_address",
+                  "primary_emergency_contact",
+                  "secondary_emergency_contact",
+                  ]
+
     primary_address = AddressSerializer()
     primary_emergency_contact = EmergencyContactSerializer()
     secondary_emergency_contact = EmergencyContactSerializer()
 
-    def create(self, validated_data):
-        if validated_data.get('primary_address'):
-            validated_data['primary_address'] = get_or_create(validated_data.pop('primary_address'), AddressSerializer)
-        if validated_data.get('primary_emergency_contact'):
-            validated_data['primary_emergency_contact'] = get_or_create(validated_data.pop('primary_emergency_contact'),
-                                                                    EmergencyContactSerializer)
-        if validated_data.get('secondary_emergency_contact'):
-            validated_data['secondary_emergency_contact'] = get_or_create(validated_data.pop('secondary_emergency_contact'),
-                                                                      EmergencyContactSerializer)
-        user = super(PatientSerializer, self).create(validated_data)
-        if validated_data.get('password'):
-            user.set_password(validated_data['password'])
-        user.save()
-        return user
-
     def update(self, instance, validated_data):
-        if validated_data.get('primary_address'):
-            validated_data['primary_address'] = get_or_create(validated_data.pop('primary_address'), AddressSerializer)
-        if validated_data.get('primary_emergency_contact'):
-            validated_data['primary_emergency_contact'] = get_or_create(validated_data.pop('primary_emergency_contact'),
-                                                                        EmergencyContactSerializer)
-        if validated_data.get('secondary_emergency_contact'):
-            validated_data['secondary_emergency_contact'] = get_or_create(
-                validated_data.pop('secondary_emergency_contact'), EmergencyContactSerializer)
 
-        return super().update(instance, validated_data)
+        instance.email = validated_data.get('email', instance.email)
 
-    class Meta:
-        model = Patient
-        fields = [
-            'inn', 
-            'first_name', 
-            'last_name', 
-            'email', 
-            'gender',
-            'password',
-            'phone_number', 
-            'date_of_birth', 
-            'primary_address', 
-            'primary_emergency_contact', 
-            'secondary_emergency_contact', 
-        ]
-        extra_kwargs = {
-            'password': {
-                'write_only': True, 
-                'required': False},
-        }
+        primary_address_data = validated_data.pop('primary_address', None)
+        primary_address_instance = instance.primary_address
 
+        primary_emergency_contact_data = validated_data.pop('primary_emergency_contact', None)
+        primary_emergency_contact_instance = instance.primary_emergency_contact
 
-def get_or_create(data, serializer):
-    # This function is needed because of the nested serializers
-    if isinstance(data, (int, str)):
-        return get_object_or_404(serializer.Meta.model, id=data)
-    elif data.get('id'):
-        return get_object_or_404(serializer.Meta.model, id=data.get('id'))
-    s = serializer(data=data)
-    if s.is_valid():
-        return s.save()
-    else:
-        print(s.errors)
-        return s.errors
+        secondary_emergency_contact_data = validated_data.pop('secondary_emergency_contact', None)
+        secondary_emergency_contact_instance = instance.secondary_emergency_contact
+
+        if primary_address_data:
+            primary_address_serializer = AddressSerializer(primary_address_instance, data=primary_address_data)
+            if primary_address_serializer.is_valid():
+                primary_address_serializer.save()
+
+        if primary_emergency_contact_data:
+            primary_emergency_contact_serializer = EmergencyContactSerializer(primary_emergency_contact_instance, data=primary_emergency_contact_data)
+            if primary_emergency_contact_serializer.is_valid():
+                primary_emergency_contact_serializer.save()
+
+        if secondary_emergency_contact_data:
+            secondary_emergency_contact_serializer = EmergencyContactSerializer(secondary_emergency_contact_instance, data=secondary_emergency_contact_data)
+            if secondary_emergency_contact_serializer.is_valid():
+                secondary_emergency_contact_serializer.save()
+
+        instance.save()
+
+        return instance
+

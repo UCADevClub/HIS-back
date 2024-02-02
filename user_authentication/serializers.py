@@ -1,36 +1,27 @@
-from djoser.serializers import UserCreateSerializer, UserSerializer
-from rest_framework import serializers
+from rest_framework.serializers import ModelSerializer
 from user_authentication.models import BaseUser, Address
 
 
-class BaseUserSerializer(serializers.ModelSerializer):
+class BaseUserSerializer(ModelSerializer):
     class Meta:
         model = BaseUser
         fields = '__all__'
 
 
-class AddressSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(required=False)
+class AddressSerializer(ModelSerializer):
+
     class Meta:
         model = Address
-        fields = [
-            'id',
-            'state',
-            'city',
-            'street',
-            'postal_code',
-        ]
+        fields = ['street',
+                  'city',
+                  'state',
+                  'postal_code']
 
-class BaseUserCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BaseUser
-        fields = ['individual_unique_number', 'first_name', 'last_name', 'gender', 'date_of_birth', 'email', 'password']
-        extra_kwargs = {
-            'password': {'write_only': True},
-        }
+    def update(self, instance, validated_data):
+        instance.street = validated_data.get("street", instance.street)
+        instance.city = validated_data.get("city", instance.city)
+        instance.state = validated_data.get("state", instance.state)
+        instance.postal_code = validated_data.get("postal_code", instance.postal_code)
+        instance.save()
+        return instance
 
-    def create(self, validated_data):
-        user = BaseUser.objects.create(**validated_data)
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
