@@ -42,7 +42,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='M')
     objects = CustomUserManager()
 
-    USERNAME_FIELD = "inn"
+    USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "email"]
 
     def __str__(self):
