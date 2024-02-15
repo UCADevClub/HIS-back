@@ -29,8 +29,7 @@ SECRET_KEY = environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(environ.get('DEBUG', default=0))
 
-#ALLOWED_HOSTS = environ.get('DJANGO_ALLOWED_HOSTS').split()
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost','127.0.0.1','[::1]']
+ALLOWED_HOSTS = environ.get('DJANGO_ALLOWED_HOSTS').split()
 
 # Application definition
 
@@ -115,6 +114,7 @@ DATABASES = {
         "PORT": environ.get("SQL_PORT", default="5432"),
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
