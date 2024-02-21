@@ -17,7 +17,8 @@ def get_patient_object(inn):
 
 class PatientDetail(APIView):
 
-    def get(self, request, inn):
+    @staticmethod
+    def get(request, inn):
         try:
             patient_instance = get_patient_object(inn=inn)
             patient_serializer = PatientSerializer(patient_instance)
@@ -25,7 +26,8 @@ class PatientDetail(APIView):
         except Http404 as error:
             return Response(data={f'{error=}'}, status=status.HTTP_404_NOT_FOUND)
 
-    def patch(self, request, inn):
+    @staticmethod
+    def patch(request, inn):
         try:
             patient_instance = get_patient_object(inn=inn)
             patient_serializer = PatientSerializer(patient_instance, data=request.data, partial=True)
