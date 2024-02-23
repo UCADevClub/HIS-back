@@ -65,7 +65,6 @@ class PatientSerializer(BaseUserSerializer):
     secondary_emergency_contact = EmergencyContactSerializer()
 
     def create(self, validated_data):
-        print(f'68 {validated_data=}')
         primary_address = validated_data.pop('primary_address', None)
         primary_emergency_contact = validated_data.pop('primary_emergency_contact', None)
         secondary_emergency_contact = validated_data.pop('secondary_emergency_contact', None)

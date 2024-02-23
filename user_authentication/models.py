@@ -5,17 +5,13 @@ from django.contrib.auth.models import (
     PermissionsMixin,
     BaseUserManager,
 )
+from django.utils.crypto import get_random_string
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, inn, password=None, **extra_fields):
-        if not email:
-            raise ValueError("User must have an email")
+    def create_user(self, email, inn, **extra_fields):
         email = self.normalize_email(email)
-
-        if not password:
-            password = make_password(password=None)
-
+        password = get_random_string(8)
         user = self.model(email=email, inn=inn, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
@@ -38,7 +34,6 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=64)
     email = models.EmailField(max_length=128, unique=True)
     date_of_birth = models.DateField(null=True)
-    password = models.CharField(max_length=128, default=inn)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
