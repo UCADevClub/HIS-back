@@ -24,8 +24,6 @@ class Patient(BaseUser):
     )
 
     marital_status = models.CharField(max_length=64, choices=MARITAL_OPTIONS, default='single')
-    phone_number = models.CharField(max_length=32)
-    primary_address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='primary_address')
     primary_emergency_contact = models.ForeignKey(EmergencyContact, on_delete=models.CASCADE, related_name='primary_emergency_contact')
     secondary_emergency_contact = models.ForeignKey(EmergencyContact, on_delete=models.CASCADE, related_name='secondary_emergency_contact', blank=True)
 

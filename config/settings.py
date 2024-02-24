@@ -43,9 +43,9 @@ INSTALLED_APPS = [
     'djoser',
 
     'user_authentication',
-    'staff',
+    # 'staff',
     'patient',
-    'hospital',
+    # 'hospital',
 ]
 
 AUTH_USER_MODEL = 'user_authentication.BaseUser'
@@ -58,8 +58,8 @@ DJOSER = {
     'LOGIN_FIELD': 'email',
     'HIDE_USERS': False,
     'SERIALIZERS': {
-        'user': 'user_authentication.serializers.CustomUserCreateSerializer',
-        'user_create': 'user_authentication.serializers.CustomUserCreateSerializer',
+        'user': 'user_authentication.serializers.BaseUserCreateSerializer',
+        'user_create': 'user_authentication.serializers.BaseUserCreateSerializer',
         'user_delete': 'djoser.serializers.UserDeleteSerializer',
     },
 }

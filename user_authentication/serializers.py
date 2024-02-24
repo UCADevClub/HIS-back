@@ -1,34 +1,56 @@
 from rest_framework.serializers import ModelSerializer
-from djoser.serializers import UserCreateSerializer
+from djoser.serializers import UserCreateSerializer, UserSerializer
 from user_authentication.models import BaseUser, Address
+from django.utils.crypto import get_random_string
 
 
-class CustomUserCreateSerializer(UserCreateSerializer):
-    class Meta(UserCreateSerializer.Meta):
-        model = BaseUser
-        fields = ['inn', 'email', 'first_name', 'last_name']
+class AddressCreateSerializer(ModelSerializer):
 
-
-class BaseUserSerializer(ModelSerializer):
     class Meta:
-        model = BaseUser
+        model = Address
         fields = '__all__'
+
+
+class BaseUserCreateSerializer(UserCreateSerializer):
+    address = AddressCreateSerializer()
+
+    class Meta(UserSerializer.Meta):
+        model = BaseUser
+        fields = (
+                'inn',
+                'email',
+                'first_name',
+                'last_name',
+                'middle_name',
+                'date_of_birth',
+                'gender',
+                'phone_number',
+                'address'
+        )
+
+    def create(self, validated_data):
+        address_data = validated_data.pop('address')
+        address_instance = Address.objects.create(**address_data)
+        base_user_instance = BaseUser.objects.create(**validated_data, address=address_instance)
+        return base_user_instance
+
+
+class BaseUserSerializer(UserSerializer):
+    class Meta(UserSerializer.Meta):
+        model = BaseUser
+        fields = (
+                'phone_number',
+                'address'
+
+        )
 
     def update(self, instance, validated_data):
 
-        instance.first_name = validated_data.get('first_name', instance.first_name)
-        instance.last_name = validated_data.get('last_name', instance.last_name)
-        instance.middle_name = validated_data.get('middle_name', instance.middle_name)
-        instance.email = validated_data.get('email', instance.email)
+        instance.phone_number = validated_data.get('phone_number', instance.phone_number)
+        instance.address = validated_data.get('address', instance.address)
         instance.save()
 
         return instance
-
-    def create(self, validated_data):
-        base_user = BaseUser(**validated_data)
-        base_user.objects.create_user()
-        base_user.save()
-        return base_user
 
 
 class AddressSerializer(ModelSerializer):
@@ -49,7 +71,8 @@ class AddressSerializer(ModelSerializer):
         return instance
 
     def create(self, validated_data):
-        address = Address(**validated_data)
+        address = Address(validated_data)
+        print(f'{validated_data=}')
         address.save()
         return address
 

@@ -1,11 +1,22 @@
 from rest_framework import status
 from django.http import Http404
 
-from patient.serializers import PatientSerializer
-from patient.models import Patient
+from patient.serializers import (
+    PatientSerializer,
+    PatientCreateSerializer,
+    EmergencyContactCreateSerializer
+)
+from patient.models import (
+    Patient,
+    EmergencyContact,
+)
+
+from user_authentication.models import BaseUser
+from user_authentication.serializers import BaseUserCreateSerializer
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from djoser.views import UserViewSet
 
 
 def get_patient_object(inn):
@@ -13,6 +24,20 @@ def get_patient_object(inn):
         return Patient.objects.get(inn=inn)
     except Patient.DoesNotExist:
         raise Http404(f"Patient with {inn} inn not found")
+
+
+class PatientCreateSet(APIView):
+
+    @staticmethod
+    def post(request):
+        # print(request.data.pop('address'))
+        serializer = BaseUserCreateSerializer(data=request.data)
+        print(serializer.is_valid())
+        if serializer.is_valid():
+            patient = BaseUser(serializer.data)
+            patient.save()
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class PatientDetail(APIView):
