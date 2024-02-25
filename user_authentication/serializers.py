@@ -5,47 +5,64 @@ from django.utils.crypto import get_random_string
 
 
 class AddressCreateSerializer(ModelSerializer):
-
     class Meta:
         model = Address
-        fields = '__all__'
+        fields = (
+            'country',
+            'oblast',
+            'city_village',
+            'street',
+            'house',
+            'apartment',
+            'postal_code',
+        )
+
+    def create(self, validated_data):
+        address_instance = Address.objects.create(**validated_data)
+        return address_instance
 
 
-class BaseUserCreateSerializer(UserCreateSerializer):
+class BaseUserCreateSerializer(ModelSerializer):
     address = AddressCreateSerializer()
 
-    class Meta(UserSerializer.Meta):
+    class Meta:
         model = BaseUser
         fields = (
-                'inn',
-                'email',
-                'first_name',
-                'last_name',
-                'middle_name',
-                'date_of_birth',
-                'gender',
-                'phone_number',
-                'address'
+            'inn',
+            'email',
+            'first_name',
+            'last_name',
+            'middle_name',
+            'date_of_birth',
+            'gender',
+            'phone_number',
+            'address',
         )
 
     def create(self, validated_data):
         address_data = validated_data.pop('address')
         address_instance = Address.objects.create(**address_data)
-        base_user_instance = BaseUser.objects.create(**validated_data, address=address_instance)
+        password = get_random_string(8)
+        base_user_instance = BaseUser.objects.create(**validated_data, password=password, address=address_instance)
         return base_user_instance
 
 
-class BaseUserSerializer(UserSerializer):
-    class Meta(UserSerializer.Meta):
+class BaseUserSerializer(ModelSerializer):
+    class Meta:
         model = BaseUser
         fields = (
-                'phone_number',
-                'address'
-
+            'inn',
+            'email',
+            'first_name',
+            'last_name',
+            'middle_name',
+            'date_of_birth',
+            'gender',
+            'phone_number',
+            'address',
         )
 
     def update(self, instance, validated_data):
-
         instance.phone_number = validated_data.get('phone_number', instance.phone_number)
         instance.address = validated_data.get('address', instance.address)
         instance.save()
@@ -53,8 +70,20 @@ class BaseUserSerializer(UserSerializer):
         return instance
 
 
-class AddressSerializer(ModelSerializer):
+class MainBaseUserSerializer(ModelSerializer):
 
+    class Meta:
+        fields = (
+            'inn',
+            'email',
+            'first_name',
+            'last_name',
+            'middle_name',
+            'password'
+        )
+
+
+class AddressSerializer(ModelSerializer):
     class Meta:
         model = Address
         fields = '__all__'
@@ -72,7 +101,6 @@ class AddressSerializer(ModelSerializer):
 
     def create(self, validated_data):
         address = Address(validated_data)
-        print(f'{validated_data=}')
         address.save()
         return address
 

@@ -21,10 +21,9 @@ class Address(models.Model):
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, inn, **extra_fields):
+    def create_user(self, email, inn, password, **extra_fields):
         email = self.normalize_email(email)
         user = self.model(email=email, inn=inn, **extra_fields)
-        password = get_random_string(8)
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -45,12 +44,13 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     middle_name = models.CharField(max_length=64, blank=True)
     last_name = models.CharField(max_length=64)
     email = models.EmailField(max_length=128, unique=True)
+    password = models.CharField(max_length=128, default=get_random_string(8))
     date_of_birth = models.DateField(null=True)
     phone_number = models.CharField(max_length=128)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
-    address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='address')
+    address = models.OneToOneField(Address, on_delete=models.CASCADE, related_name='base_user', null=True)
     GENDER_CHOICES = [
             ('M', 'Male'),
             ('F', 'Female'),

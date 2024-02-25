@@ -3,10 +3,10 @@ from user_authentication.models import BaseUser, Address
 
 
 class EmergencyContact(models.Model):
-    first_name = models.CharField(max_length=64)
-    middle_name = models.CharField(max_length=64, blank=True)
-    last_name = models.CharField(max_length=64)
-    phone_number = models.CharField(max_length=32)
+    first_name = models.CharField(max_length=128)
+    middle_name = models.CharField(max_length=128, blank=True)
+    last_name = models.CharField(max_length=128)
+    phone_number = models.CharField(max_length=128)
     address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='emergency_contacts')
 
     def __str__(self):

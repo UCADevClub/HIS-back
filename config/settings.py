@@ -58,8 +58,8 @@ DJOSER = {
     'LOGIN_FIELD': 'email',
     'HIDE_USERS': False,
     'SERIALIZERS': {
-        'user': 'user_authentication.serializers.BaseUserCreateSerializer',
-        'user_create': 'user_authentication.serializers.BaseUserCreateSerializer',
+        'user': 'user_authentication.serializers.MainBaseUserSerializer',
+        'user_create': 'user_authentication.serializers.MainBaseUserSerializer',
         'user_delete': 'djoser.serializers.UserDeleteSerializer',
     },
 }
