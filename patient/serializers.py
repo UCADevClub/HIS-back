@@ -2,8 +2,7 @@ from rest_framework.serializers import ModelSerializer, Serializer
 from user_authentication.serializers import (
     BaseUserCreateSerializer,
     BaseUserSerializer,
-    AddressSerializer,
-    AddressCreateSerializer
+    AddressSerializer
 )
 from patient.models import Patient, EmergencyContact
 from user_authentication.models import Address
@@ -46,15 +45,19 @@ class EmergencyContactSerializer(ModelSerializer):
 
     def update(self, instance, validated_data):
 
-        instance.first_name = validated_data.get("first_name", instance.first_name)
-        instance.last_name = validated_data.get("last_name", instance.last_name)
-        instance.phone_number = validated_data.get("phone_number", instance.phone_number)
+        instance.first_name = validated_data.get(
+            "first_name", instance.first_name)
+        instance.last_name = validated_data.get(
+            "last_name", instance.last_name)
+        instance.phone_number = validated_data.get(
+            "phone_number", instance.phone_number)
 
         address_data = validated_data.pop('address', None)
         address_instance = instance.address
 
         if address_data:
-            address_serializer = AddressSerializer(address_instance, data=address_data)
+            address_serializer = AddressSerializer(
+                address_instance, data=address_data)
             if address_serializer.is_valid():
                 address_serializer.save()
         instance.save()
@@ -64,8 +67,10 @@ class EmergencyContactSerializer(ModelSerializer):
         address_data = validated_data.pop('address', None)
         print(f'{validated_data=}')
         print(f'{address_data=}')
-        emergency_contact_instance = EmergencyContact(validated_data=validated_data)
-        emergency_contact_instance.address = Address(validated_data=address_data)
+        emergency_contact_instance = EmergencyContact(
+            validated_data=validated_data)
+        emergency_contact_instance.address = Address(
+            validated_data=address_data)
         return emergency_contact_instance
 
 
@@ -82,8 +87,10 @@ class PatientCreateSerializer(BaseUserCreateSerializer):
         )
 
     def create(self, validated_data):
-        primary_emergency_contact_data = validated_data.pop('primary_emergency_contact')
-        secondary_emergency_contact_data = validated_data.pop('secondary_emergency_contact')
+        primary_emergency_contact_data = validated_data.pop(
+            'primary_emergency_contact')
+        secondary_emergency_contact_data = validated_data.pop(
+            'secondary_emergency_contact')
 
         primary_emergency_contact_instance = EmergencyContactCreateSerializer.create(
             EmergencyContactCreateSerializer(), validated_data=primary_emergency_contact_data
@@ -120,22 +127,14 @@ class PatientSerializer(BaseUserSerializer):
     secondary_emergency_contact = EmergencyContactSerializer()
 
     def update(self, instance, validated_data):
-<<<<<<< HEAD
-
         super().update(instance, validated_data)
 
-        instance.phone_number = validated_data.get('phone_number', instance.phone_number)
-
-        primary_address_data = validated_data.pop('primary_address', None)
-        primary_address_instance = instance.primary_address
-=======
-        super().update(instance, validated_data)
->>>>>>> cf1a8777eb6e838685a1ef4bda499c4024008297
-
-        primary_emergency_contact_data = validated_data.pop('primary_emergency_contact', None)
+        primary_emergency_contact_data = validated_data.pop(
+            'primary_emergency_contact', None)
         primary_emergency_contact_instance = instance.primary_emergency_contact
 
-        secondary_emergency_contact_data = validated_data.pop('secondary_emergency_contact', None)
+        secondary_emergency_contact_data = validated_data.pop(
+            'secondary_emergency_contact', None)
         secondary_emergency_contact_instance = instance.secondary_emergency_contact
 
         if primary_emergency_contact_data:
