@@ -17,13 +17,13 @@ class Address(models.Model):
     postal_code = models.CharField(max_length=128)
 
     def __str__(self):
-        return f"{self.street}, {self.house}, {self.country} {self.oblast}"
+        return f"{self.street}, {self.house}, {self.country}, {self.oblast}"
 
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, inn, password, **extra_fields):
         email = self.normalize_email(email)
-        user = self.model(email=email, inn=inn, **extra_fields)
+        user = self.model(email=email, inn=inn, password=password, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -44,7 +44,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     middle_name = models.CharField(max_length=64, blank=True)
     last_name = models.CharField(max_length=64)
     email = models.EmailField(max_length=128, unique=True)
-    password = models.CharField(max_length=128, default=get_random_string(8))
+    password = models.CharField(max_length=512)
     date_of_birth = models.DateField(null=True)
     phone_number = models.CharField(max_length=128)
     is_active = models.BooleanField(default=True)
