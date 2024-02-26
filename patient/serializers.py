@@ -91,7 +91,8 @@ class PatientCreateSerializer(BaseUserCreateSerializer):
         patient_instance = Patient.objects.create_user(
             **validated_data,
             address=address_instance,
-            password=get_random_string(length=8),
+            # password=get_random_string(length=8),
+            password='admin',
             marital_status=marital_status,
             primary_emergency_contact=primary_emergency_contact_instance,
             secondary_emergency_contact=secondary_emergency_contact_instance

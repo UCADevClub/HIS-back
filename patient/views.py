@@ -11,6 +11,7 @@ from patient.models import (
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 
 def get_patient_object(inn):
@@ -31,16 +32,16 @@ class PatientCreateView(APIView):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-def get(request, inn):
-    patient = Patient.objects.filter(inn=inn).first()
-    if patient:
-        serializer = PatientSerializer(patient)
-        return Response(serializer.data)
-    else:
-        return Response({"detail": "Patient not found"}, status=status.HTTP_404_NOT_FOUND)
-
-
 class PatientDetail(APIView):
+    # permission_classes = [IsAuthenticated]
+
+    @staticmethod
+    def get(request, inn):
+        patiet_instance = Patient.objects.filter(baseuser_ptr=inn).first()
+        if patiet_instance:
+            patient_serializer = PatientSerializer(patiet_instance)
+            return Response(data=patient_serializer.data, status=status.HTTP_200_OK)
+        return Response(data={'response: ': 'patient not found'}, status=status.HTTP_404_NOT_FOUND)
 
     @staticmethod
     def patch(request, inn):
