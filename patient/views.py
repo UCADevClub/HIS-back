@@ -11,6 +11,7 @@ from rest_framework.response import Response
 def get_patient_object(inn):
     try:
         return Patient.objects.get(inn=inn)
+    # pylint: disable=no-member
     except Patient.DoesNotExist:
         raise Http404(f"Patient with {inn} inn not found")
 
@@ -26,6 +27,15 @@ class PatientDetail(APIView):
             return Response(data={f'{error=}'}, status=status.HTTP_404_NOT_FOUND)
 
     def patch(self, request, inn):
+        """Updates fields in Patient Model
+
+        Args:
+            request (): 
+            inn (CHAR): is a primary key of a Patient Model
+
+        Returns:
+            _type_: _description_
+        """        
         try:
             patient_instance = get_patient_object(inn=inn)
             patient_serializer = PatientSerializer(patient_instance, data=request.data, partial=True)

@@ -55,7 +55,8 @@ class PatientSerializer(BaseUserSerializer):
 
     def update(self, instance, validated_data):
 
-        instance.email = validated_data.get('email', instance.email)
+        super().update(instance, validated_data)
+
         instance.phone_number = validated_data.get('phone_number', instance.phone_number)
 
         primary_address_data = validated_data.pop('primary_address', None)
