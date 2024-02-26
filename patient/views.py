@@ -15,7 +15,7 @@ from rest_framework.response import Response
 
 def get_patient_object(inn):
     try:
-        return Patient.super().objects.get(baseuser_id=inn)
+        return get(baseuser_id=inn)
     except Patient.DoesNotExist:
         raise Http404(f"Patient with {inn} inn not found")
 
@@ -31,15 +31,16 @@ class PatientCreateView(APIView):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class PatientDetail(APIView):
+def get(request, inn):
+    patient = Patient.objects.filter(inn=inn).first()
+    if patient:
+        serializer = PatientSerializer(patient)
+        return Response(serializer.data)
+    else:
+        return Response({"detail": "Patient not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    def get(self, request, inn, format=None):
-        patient = Patient.objects.filter(inn=inn).first()
-        if patient:
-            serializer = PatientSerializer(patient)
-            return Response(serializer.data)
-        else:
-            return Response({"detail": "Patient not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class PatientDetail(APIView):
 
     @staticmethod
     def patch(request, inn):
@@ -61,5 +62,3 @@ class PatientList(APIView):
         patient_instance = Patient.objects.all()
         patient_serializer = PatientSerializer(patient_instance, many=True)
         return Response(patient_serializer.data, status=status.HTTP_200_OK)
-
-
