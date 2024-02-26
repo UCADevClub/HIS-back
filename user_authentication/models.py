@@ -17,25 +17,19 @@ class Address(models.Model):
     postal_code = models.CharField(max_length=128)
 
     def __str__(self):
-        return f"{self.street}, {self.house}, {self.country} {self.oblast}"
+        return f"{self.street}, {self.house}, {self.country}, {self.oblast}"
 
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, inn, password, **extra_fields):
         email = self.normalize_email(email)
-<<<<<<< HEAD
-        user = self.model(email=email, inn=inn,
-                          password=password, **extra_fields)
-=======
-        user = self.model(email=email, inn=inn, **extra_fields)
->>>>>>> cf1a8777eb6e838685a1ef4bda499c4024008297
+        user = self.model(email=email, inn=inn, password=password, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
     def create_superuser(self, email, inn, password=None, **extra_fields):
-        user = self.create_user(email=email, inn=inn,
-                                password=password, **extra_fields)
+        user = self.create_user(email=email, inn=inn, password=password, **extra_fields)
         user.is_active = True
         user.is_staff = True
         user.is_admin = True
@@ -50,7 +44,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     middle_name = models.CharField(max_length=64, blank=True)
     last_name = models.CharField(max_length=64)
     email = models.EmailField(max_length=128, unique=True)
-    password = models.CharField(max_length=128, default=get_random_string(8))
+    password = models.CharField(max_length=512)
     date_of_birth = models.DateField(null=True)
     phone_number = models.CharField(max_length=128)
     is_active = models.BooleanField(default=True)
@@ -58,30 +52,14 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     address = models.OneToOneField(Address, on_delete=models.CASCADE, related_name='base_user', null=True)
     GENDER_CHOICES = [
-        ('M', 'Male'),
-        ('F', 'Female'),
+            ('M', 'Male'),
+            ('F', 'Female'),
     ]
-    gender = models.CharField(
-        max_length=1, choices=GENDER_CHOICES, default='M')
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='M')
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "inn"]
 
     def __str__(self):
-<<<<<<< HEAD
-        return f'User: {self.first_name} {self.last_name}'
-
-
-class Address(models.Model):
-    id = models.AutoField(primary_key=True) 
-    street = models.CharField(max_length=255)
-    city = models.CharField(max_length=255)
-    state = models.CharField(max_length=255)
-    postal_code = models.CharField(max_length=20, null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.street}, {self.city}, {self.state} {self.postal_code}" 
-=======
         return f'User: {self.first_name} {self.last_name} {self.middle_name}'
->>>>>>> cf1a8777eb6e838685a1ef4bda499c4024008297

@@ -1,8 +1,10 @@
-from rest_framework.serializers import ModelSerializer, Serializer
+from django.utils.crypto import get_random_string
+from rest_framework.serializers import ModelSerializer
+
 from user_authentication.serializers import (
     BaseUserCreateSerializer,
     BaseUserSerializer,
-    AddressSerializer
+    AddressSerializer,
 )
 from patient.models import Patient, EmergencyContact
 from user_authentication.models import Address
@@ -63,16 +65,6 @@ class EmergencyContactSerializer(ModelSerializer):
         instance.save()
         return instance
 
-    def create(self, validated_data):
-        address_data = validated_data.pop('address', None)
-        print(f'{validated_data=}')
-        print(f'{address_data=}')
-        emergency_contact_instance = EmergencyContact(
-            validated_data=validated_data)
-        emergency_contact_instance.address = Address(
-            validated_data=address_data)
-        return emergency_contact_instance
-
 
 class PatientCreateSerializer(BaseUserCreateSerializer):
     primary_emergency_contact = EmergencyContactCreateSerializer()
@@ -100,14 +92,13 @@ class PatientCreateSerializer(BaseUserCreateSerializer):
         )
 
         marital_status = validated_data.pop('marital_status')
-
         address_data = validated_data.pop('address')
         address_instance = Address.objects.create(**address_data)
-
-        patient_instance = Patient.objects.create(
+        patient_instance = Patient.objects.create_user(
             **validated_data,
+            address=address_instance,
+            password=get_random_string(length=8),
             marital_status=marital_status,
-            address=address_instance,  # Assign the Address instance to the 'address' field
             primary_emergency_contact=primary_emergency_contact_instance,
             secondary_emergency_contact=secondary_emergency_contact_instance
         )
