@@ -4,15 +4,31 @@ from django.contrib.auth.models import (
     PermissionsMixin,
     BaseUserManager,
 )
+from django.utils.crypto import get_random_string
+
+
+class Address(models.Model):
+    country = models.CharField(max_length=128)
+    oblast = models.CharField(max_length=128)
+    city_village = models.CharField(max_length=128)
+    street = models.CharField(max_length=128)
+    house = models.CharField(max_length=128)
+    apartment = models.CharField(max_length=128, blank=True)
+    postal_code = models.CharField(max_length=128)
+
+    def __str__(self):
+        return f"{self.street}, {self.house}, {self.country} {self.oblast}"
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, inn, password=None, **extra_fields):
-        if not email:
-            raise ValueError("User must have an email")
+    def create_user(self, email, inn, password, **extra_fields):
         email = self.normalize_email(email)
+<<<<<<< HEAD
         user = self.model(email=email, inn=inn,
                           password=password, **extra_fields)
+=======
+        user = self.model(email=email, inn=inn, **extra_fields)
+>>>>>>> cf1a8777eb6e838685a1ef4bda499c4024008297
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -29,14 +45,18 @@ class CustomUserManager(BaseUserManager):
 
 
 class BaseUser(AbstractBaseUser, PermissionsMixin):
-    inn = models.CharField(unique=True, primary_key=True, max_length=255)
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
-    email = models.EmailField(max_length=255, unique=True)
-    date_of_birth = models.DateField(null=True, blank=True)
+    inn = models.CharField(unique=True, primary_key=True, max_length=64)
+    first_name = models.CharField(max_length=64)
+    middle_name = models.CharField(max_length=64, blank=True)
+    last_name = models.CharField(max_length=64)
+    email = models.EmailField(max_length=128, unique=True)
+    password = models.CharField(max_length=128, default=get_random_string(8))
+    date_of_birth = models.DateField(null=True)
+    phone_number = models.CharField(max_length=128)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
+    address = models.OneToOneField(Address, on_delete=models.CASCADE, related_name='base_user', null=True)
     GENDER_CHOICES = [
         ('M', 'Male'),
         ('F', 'Female'),
@@ -49,6 +69,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ["first_name", "last_name", "inn"]
 
     def __str__(self):
+<<<<<<< HEAD
         return f'User: {self.first_name} {self.last_name}'
 
 
@@ -61,3 +82,6 @@ class Address(models.Model):
 
     def __str__(self):
         return f"{self.street}, {self.city}, {self.state} {self.postal_code}" 
+=======
+        return f'User: {self.first_name} {self.last_name} {self.middle_name}'
+>>>>>>> cf1a8777eb6e838685a1ef4bda499c4024008297

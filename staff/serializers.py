@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 from user_authentication.serializers import BaseUserSerializer, AddressSerializer
 from staff.models import Staff
+=======
+from rest_framework import serializers
+from staff.models import Doctor
+from patient.serializers import AddressSerializer
+>>>>>>> cf1a8777eb6e838685a1ef4bda499c4024008297
 
 
 class StaffSerializer(BaseUserSerializer):
