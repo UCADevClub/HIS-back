@@ -212,3 +212,6 @@ ENV/
 
 # mkdocs documentation
 /site
+
+# developer settings
+local_test.py 
