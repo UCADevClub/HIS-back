@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from user_authentication.serializers import BaseUserSerializer
 from staff.models import Doctor
-from patient.serializers import get_or_create, AddressSerializer
+from patient.serializers import AddressSerializer
 
 
 class DoctorSerializer(serializers.ModelSerializer):
