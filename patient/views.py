@@ -14,18 +14,12 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 
-def get_patient_object(inn):
-    try:
-        return get(baseuser_id=inn)
-    except Patient.DoesNotExist:
-        raise Http404(f"Patient with {inn} inn not found")
-
-
 class PatientCreateView(APIView):
 
     @staticmethod
     def post(request):
         patient_serializer = PatientCreateSerializer(data=request.data)
+        print(patient_serializer.is_valid(), request.data)
         if patient_serializer.is_valid():
             patient_serializer.save()
             return Response(data=patient_serializer.data, status=status.HTTP_200_OK)
@@ -46,7 +40,7 @@ class PatientDetail(APIView):
     @staticmethod
     def patch(request, inn):
         try:
-            patient_instance = get_patient_object(inn=inn)
+            patient_instance = Patient.objects.filter(baseuser_ptr=inn).first()
             patient_serializer = PatientSerializer(patient_instance, data=request.data, partial=True)
             if patient_serializer.is_valid():
                 patient_serializer.save()
