@@ -31,9 +31,9 @@ class PatientDetail(APIView):
 
     @staticmethod
     def get(request, inn):
-        patiet_instance = Patient.objects.filter(baseuser_ptr=inn).first()
-        if patiet_instance:
-            patient_serializer = PatientSerializer(patiet_instance)
+        patient_instance = Patient.objects.filter(baseuser_ptr=inn).first()
+        if patient_instance:
+            patient_serializer = PatientSerializer(patient_instance)
             return Response(data=patient_serializer.data, status=status.HTTP_200_OK)
         return Response(data={'response: ': 'patient not found'}, status=status.HTTP_404_NOT_FOUND)
 

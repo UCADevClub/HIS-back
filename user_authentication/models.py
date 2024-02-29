@@ -4,7 +4,6 @@ from django.contrib.auth.models import (
     PermissionsMixin,
     BaseUserManager,
 )
-from django.utils.crypto import get_random_string
 
 
 class Address(models.Model):
