@@ -1,5 +1,6 @@
 from django.utils.crypto import get_random_string
 from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 
 from user_authentication.serializers import (
     BaseUserCreateSerializer,

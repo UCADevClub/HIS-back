@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from django.http import Http404
 
@@ -20,11 +21,21 @@ def get_patient_object(inn):
     except Patient.DoesNotExist:
         raise Http404(f"Patient with {inn} inn not found")
 
-
 class PatientCreateView(APIView):
+    '''
+        Patient Create View
+    '''
 
-    @staticmethod
-    def post(request):
+    serializer_class = PatientCreateSerializer
+
+    @swagger_auto_schema(
+        request_body=PatientSerializer,
+        responses={
+            200: PatientSerializer,
+            400: 'Invalid request data'
+        }
+    )
+    def post(self, request):
         patient_serializer = PatientCreateSerializer(data=request.data)
         if patient_serializer.is_valid():
             patient_serializer.save()
