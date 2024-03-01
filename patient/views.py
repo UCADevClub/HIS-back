@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from django.http import Http404
 
@@ -16,7 +17,13 @@ from rest_framework.permissions import IsAuthenticated
 
 class PatientCreateView(APIView):
 
-    @staticmethod
+    @swagger_auto_schema(
+        request_body=PatientSerializer,
+        responses={
+            200: PatientSerializer,
+            400: 'Invalid request data'
+        }
+    )
     def post(request):
         patient_serializer = PatientCreateSerializer(data=request.data)
         print(patient_serializer.is_valid(), request.data)
