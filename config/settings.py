@@ -44,9 +44,7 @@ INSTALLED_APPS = [
     'djoser',
 
     'user_authentication',
-    # 'staff',
     'patient',
-    # 'hospital',
 ]
 
 AUTH_USER_MODEL = 'user_authentication.BaseUser'
@@ -193,3 +191,5 @@ STATIC_ROOT = path.join(PROJECT_DIR, 'static_media/')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Developer settings
+
+

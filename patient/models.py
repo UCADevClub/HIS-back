@@ -15,12 +15,12 @@ class EmergencyContact(models.Model):
 
 class Patient(BaseUser):
     MARITAL_OPTIONS = (
-            ('single', 'Single'),
-            ('married', 'Married'),
-            ('widowed', 'Widowed'),
-            ('separated', 'Separated'),
-            ('divorced', 'Divorced'),
-            ('common_law', 'Common-Law')
+        ('single', 'Single'),
+        ('married', 'Married'),
+        ('widowed', 'Widowed'),
+        ('separated', 'Separated'),
+        ('divorced', 'Divorced'),
+        ('common_law', 'Common-Law')
     )
 
     marital_status = models.CharField(max_length=64, choices=MARITAL_OPTIONS, default='single')

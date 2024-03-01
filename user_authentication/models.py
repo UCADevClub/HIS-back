@@ -51,8 +51,8 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     address = models.OneToOneField(Address, on_delete=models.CASCADE, related_name='base_user', null=True)
     GENDER_CHOICES = [
-            ('M', 'Male'),
-            ('F', 'Female'),
+        ('M', 'Male'),
+        ('F', 'Female'),
     ]
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='M')
     objects = CustomUserManager()

@@ -14,5 +14,4 @@ def phone_number_validator(phone_number: str):
 
 
 def inn_validator(inn_string: str):
-    pattern_for_kyrgyzstan = ''
-    ...
+    pass
