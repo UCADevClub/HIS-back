@@ -1,6 +1,9 @@
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from django.http import Http404
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from patient.serializers import (
     PatientSerializer,
@@ -10,13 +13,10 @@ from patient.models import (
     Patient,
 )
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-
 
 class PatientCreateView(APIView):
 
+    @staticmethod
     @swagger_auto_schema(
         request_body=PatientSerializer,
         responses={
@@ -24,20 +24,27 @@ class PatientCreateView(APIView):
             400: 'Invalid request data'
         }
     )
-    def post(request):
-        patient_serializer = PatientCreateSerializer(data=request.data)
-        print(patient_serializer.is_valid(), request.data)
+    def post(request, *args, **kwargs):
+        patient_serializer = PatientCreateSerializer(
+            data=request.data
+        )
         if patient_serializer.is_valid():
             patient_serializer.save()
-            return Response(data=patient_serializer.data, status=status.HTTP_200_OK)
+            return Response(
+                data=patient_serializer.data,
+                status=status.HTTP_200_OK,
+            )
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class PatientDetail(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     @staticmethod
     def get(request, inn):
+        if request.data != inn:
+            return Response(data={'response': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
         patient_instance = Patient.objects.filter(baseuser_ptr=inn).first()
         if patient_instance:
             patient_serializer = PatientSerializer(patient_instance)

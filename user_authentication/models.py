@@ -4,6 +4,7 @@ from django.contrib.auth.models import (
     PermissionsMixin,
     BaseUserManager,
 )
+from user_authentication.mail.mail import send_password
 
 
 class Address(models.Model):
@@ -25,6 +26,7 @@ class CustomUserManager(BaseUserManager):
         user = self.model(email=email, inn=inn, password=password, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
+        send_password(password=password, targets=[email])
         return user
 
     def create_superuser(self, email, inn, password=None, **extra_fields):
