@@ -28,6 +28,7 @@ PROJECT_DIR = path.dirname(__file__)
 SECRET_KEY = environ.get('SECRET_KEY')
 DEBUG = bool(environ.get('DEBUG', default=0))
 ALLOWED_HOSTS = environ.get('DJANGO_ALLOWED_HOSTS').split()
+CSRF_TRUSTED_ORIGINS = ['http://5.59.233.199:1337',]
 
 # Application definition
 
