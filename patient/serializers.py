@@ -8,6 +8,7 @@ from user_authentication.serializers import (
 )
 from patient.models import Patient, EmergencyContact
 from user_authentication.models import Address
+from user_authentication.mail.mail import send_password
 
 
 class EmergencyContactCreateSerializer(ModelSerializer):
@@ -68,7 +69,7 @@ class EmergencyContactSerializer(ModelSerializer):
 
 class PatientCreateSerializer(BaseUserCreateSerializer):
     primary_emergency_contact = EmergencyContactCreateSerializer()
-    secondary_emergency_contact = EmergencyContactCreateSerializer()
+    secondary_emergency_contact = EmergencyContactCreateSerializer(required=False, default=None)
 
     class Meta:
         model = Patient
@@ -94,14 +95,20 @@ class PatientCreateSerializer(BaseUserCreateSerializer):
         marital_status = validated_data.pop('marital_status')
         address_data = validated_data.pop('address')
         address_instance = Address.objects.create(**address_data)
+        password = get_random_string(length=8)
         patient_instance = Patient.objects.create_user(
             **validated_data,
             address=address_instance,
-            password=get_random_string(length=8),
+            password=password,
             marital_status=marital_status,
             primary_emergency_contact=primary_emergency_contact_instance,
             secondary_emergency_contact=secondary_emergency_contact_instance
         )
+        # if secondary_emergency_contact_data:
+        #     secondary_emergency_contact_instance = EmergencyContactCreateSerializer.create(
+        #         EmergencyContactCreateSerializer(), validated_data=secondary_emergency_contact_data
+        #     )
+        #     patient_instance.secondary_emergency_contact = secondary_emergency_contact_instance
         return patient_instance
 
 

@@ -25,12 +25,12 @@ class AddressSerializer(ModelSerializer):
         model = Address
         fields = (
             'country',
-                    'oblast',
-                    'city_village',
-                    'street',
-                    'house',
-                    'apartment',
-                    'postal_code',
+            'oblast',
+            'city_village',
+            'street',
+            'house',
+            'apartment',
+            'postal_code',
         )
 
     def update(self, instance, validated_data):
@@ -82,6 +82,7 @@ class BaseUserSerializer(ModelSerializer):
             'phone_number',
             'address',
         )
+
     address = AddressSerializer()
 
     def update(self, instance, validated_data):
@@ -102,4 +103,3 @@ class MainBaseUserSerializer(ModelSerializer):
             'middle_name',
             'password',
         )
-

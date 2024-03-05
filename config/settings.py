@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
-from os import environ
+from os import environ, path
 
 from dotenv import load_dotenv
 from datetime import timedelta
@@ -19,6 +19,7 @@ load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+PROJECT_DIR = path.dirname(__file__)
 
 
 # Quick-start development settings - unsuitable for production
@@ -27,6 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = environ.get('SECRET_KEY')
 DEBUG = bool(environ.get('DEBUG', default=0))
 ALLOWED_HOSTS = environ.get('DJANGO_ALLOWED_HOSTS').split()
+CSRF_TRUSTED_ORIGINS = ['http://5.59.233.199:1337',]
 
 # Application definition
 
@@ -41,11 +43,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
+    'drf_yasg',
 
     'user_authentication',
-    # 'staff',
     'patient',
-    # 'hospital',
 ]
 
 AUTH_USER_MODEL = 'user_authentication.BaseUser'
@@ -56,6 +57,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication'
     ),
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     'rest_framework.permissions.IsAuthenticated',
+    # )
 }
 
 
@@ -180,7 +184,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = 'static_files/'
+STATIC_ROOT = path.join(BASE_DIR, 'static_files/')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -188,3 +193,12 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Developer settings
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp-mail.outlook.com'
+EMAIL_HOST_USER = environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = environ.get("EMAIL_HOST_PASSWORD")
+SMTP_SKIP_TLS = False
+SMTP_SKIP_LOGIN	= False

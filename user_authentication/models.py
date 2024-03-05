@@ -4,7 +4,7 @@ from django.contrib.auth.models import (
     PermissionsMixin,
     BaseUserManager,
 )
-from django.utils.crypto import get_random_string
+from user_authentication.mail.mail import send_password
 
 
 class Address(models.Model):
@@ -26,6 +26,7 @@ class CustomUserManager(BaseUserManager):
         user = self.model(email=email, inn=inn, password=password, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
+        send_password(password=password, targets=[email])
         return user
 
     def create_superuser(self, email, inn, password=None, **extra_fields):
@@ -52,8 +53,8 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     address = models.OneToOneField(Address, on_delete=models.CASCADE, related_name='base_user', null=True)
     GENDER_CHOICES = [
-            ('M', 'Male'),
-            ('F', 'Female'),
+        ('M', 'Male'),
+        ('F', 'Female'),
     ]
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='M')
     objects = CustomUserManager()
