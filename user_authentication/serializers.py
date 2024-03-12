@@ -52,6 +52,7 @@ class BaseUserCreateSerializer(ModelSerializer):
         model = BaseUser
         fields = (
             'inn',
+            'nationality',
             'email',
             'first_name',
             'last_name',
@@ -72,6 +73,7 @@ class BaseUserSerializer(ModelSerializer):
         model = BaseUser
         fields = (
             'inn',
+            'nationality',
             'email',
             'first_name',
             'last_name',
@@ -89,15 +91,3 @@ class BaseUserSerializer(ModelSerializer):
         instance.address = validated_data.get('address', instance.address)
         instance.save()
         return instance
-
-
-class MainBaseUserSerializer(ModelSerializer):
-    class Meta:
-        fields = (
-            'inn',
-            'email',
-            'first_name',
-            'last_name',
-            'middle_name',
-            'password',
-        )
