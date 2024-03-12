@@ -41,6 +41,13 @@ class PatientDetail(APIView):
     permission_classes = [AllowAny]
 
     @staticmethod
+    @swagger_auto_schema(
+        request_body=PatientSerializer,
+        responses={
+                200: PatientSerializer,
+                400: 'Invalid request data'
+        }
+    )
     def get(request, inn):
         if request.data != inn:
             return Response(data={'response': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -48,10 +55,20 @@ class PatientDetail(APIView):
         patient_instance = Patient.objects.filter(baseuser_ptr=inn).first()
         if patient_instance:
             patient_serializer = PatientSerializer(patient_instance)
-            return Response(data=patient_serializer.data, status=status.HTTP_200_OK)
+            return Response(
+                data=patient_serializer.data,
+                status=status.HTTP_200_OK,
+            )
         return Response(data={'response: ': 'patient not found'}, status=status.HTTP_404_NOT_FOUND)
 
     @staticmethod
+    @swagger_auto_schema(
+        request_body=PatientSerializer,
+        responses={
+                200: PatientSerializer,
+                400: 'Invalid request data'
+        }
+    )
     def patch(request, inn):
         try:
             patient_instance = Patient.objects.filter(baseuser_ptr=inn).first()
@@ -67,6 +84,13 @@ class PatientDetail(APIView):
 class PatientList(APIView):
 
     @staticmethod
+    @swagger_auto_schema(
+        request_body=PatientSerializer,
+        responses={
+                200: PatientSerializer,
+                400: 'Invalid request data'
+        }
+    )
     def get(request):
         patient_instance = Patient.objects.all()
         patient_serializer = PatientSerializer(patient_instance, many=True)

@@ -14,7 +14,7 @@ class Address(models.Model):
     street = models.CharField(max_length=128)
     house = models.CharField(max_length=128)
     apartment = models.CharField(max_length=128, blank=True)
-    postal_code = models.CharField(max_length=128)
+    postal_code = models.CharField(max_length=128, blank=True)
 
     def __str__(self):
         return f"{self.street}, {self.house}, {self.country}, {self.oblast}"
