@@ -14,7 +14,7 @@ schema_view = get_schema_view(
       description="API for Hospital Information System",
       terms_of_service="https://www.google.com/policies/terms/", # TODO: Change this
       contact=openapi.Contact(email="contact@snippets.local"), # TODO: Change this
-      license=openapi.License(name="BSD License"), # TODO: Change this
+      license=openapi.License(name="BSD License") # TODO: Change this
    ),
    public=True,
    permission_classes=(permissions.AllowAny,),
