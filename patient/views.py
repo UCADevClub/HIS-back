@@ -98,6 +98,8 @@ class PatientList(APIView):
         return Response(patient_serializer.data, status=status.HTTP_200_OK)
 
 
+from django.db.models import Q
+
 class PatientSearch(APIView):
     """
     A Django REST Framework APIView for searching patients by name.
@@ -116,7 +118,8 @@ class PatientSearch(APIView):
         request (HttpRequest):
             The incoming GET request containing query parameters.
 
-                - 'name' (str): The name to search for.
+                - 'firstname' (str): The first name to search for.
+                - 'lastname' (str): The last name to search for.
 
         Returns:
         --------
@@ -136,7 +139,8 @@ class PatientSearch(APIView):
         request (HttpRequest):
             The incoming GET request containing query parameters.
 
-                - 'name' (str): The name to search for.
+                - 'firstname' (str): The first name to search for.
+                - 'lastname' (str): The last name to search for.
 
         Returns:
         --------
@@ -146,13 +150,20 @@ class PatientSearch(APIView):
         -------
         None
         """
-        query = request.query_params.get('name', '')
+        first_name = request.query_params.get('firstname', '')
+        last_name = request.query_params.get('lastname', '')
 
-        if query:
-            # Perform a case-insensitive partial match on first_name and last_name
-            results = Patient.objects.filter(
-                first_name__icontains=query) | Patient.objects.filter(last_name__icontains=query)
-            serializer = PatientSerializer(results, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response({'message': 'Please provide a search query'}, status=status.HTTP_400_BAD_REQUEST)
+        # Create a query that matches either the first name or the last name
+        query = Q()
+
+        if first_name:
+            query |= Q(first_name__icontains=first_name)
+        if last_name:
+            query |= Q(last_name__icontains=last_name)
+
+        # Perform the search
+        results = Patient.objects.filter(query)
+
+        serializer = PatientSerializer(results, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
