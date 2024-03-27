@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
-from os import environ, path
+from os import environ, path, getenv
 
 from dotenv import load_dotenv
 from datetime import timedelta
@@ -21,12 +21,12 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 PROJECT_DIR = path.dirname(__file__)
 
-
+print("SQL_HOST:", getenv("SQL_HOST"))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 SECRET_KEY = environ.get('SECRET_KEY')
-DEBUG = bool(environ.get('DEBUG', default=0))
+DEBUG = bool(environ.get('DEBUG', default=1))
 ALLOWED_HOSTS = environ.get('DJANGO_ALLOWED_HOSTS').split()
 CSRF_TRUSTED_ORIGINS = ['http://5.59.233.199:1337',]
 
@@ -103,7 +103,7 @@ DATABASES = {
         "NAME": environ.get("SQL_DATABASE", default=BASE_DIR / "db.sqlite3"),
         "USER": environ.get("SQL_USER", default="user"),
         "PASSWORD": environ.get("SQL_PASSWORD", default="password"),
-        "HOST": environ.get("SQL_HOST", default="localhost"),
+        "HOST": environ.get("SQL_HOST", default="db"),
         "PORT": environ.get("SQL_PORT", default="5432"),
     }
 }

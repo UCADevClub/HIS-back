@@ -55,7 +55,8 @@ class PatientDetail(APIView):
     def patch(request, inn):
         try:
             patient_instance = Patient.objects.filter(baseuser_ptr=inn).first()
-            patient_serializer = PatientSerializer(patient_instance, data=request.data, partial=True)
+            patient_serializer = PatientSerializer(
+                patient_instance, data=request.data, partial=True)
             if patient_serializer.is_valid():
                 patient_serializer.save()
                 return Response(patient_serializer.data, status=status.HTTP_200_OK)
@@ -71,3 +72,63 @@ class PatientList(APIView):
         patient_instance = Patient.objects.all()
         patient_serializer = PatientSerializer(patient_instance, many=True)
         return Response(patient_serializer.data, status=status.HTTP_200_OK)
+
+
+class PatientSearch(APIView):
+    """
+    A Django REST Framework APIView for searching patients by name.
+
+    Attributes:
+    -----------
+    None
+
+    Methods:
+    --------
+    get(request):
+        Handle GET requests to search for patients by name.
+
+        Parameters:
+        -----------
+        request (HttpRequest):
+            The incoming GET request containing query parameters.
+
+                - 'name' (str): The name to search for.
+
+        Returns:
+        --------
+        Response: A JSON response containing the search results.
+
+        Raises:
+        -------
+        None
+    """
+
+    def get(self, request):
+        """
+        Handle GET requests to search for patients by name.
+
+        Parameters:
+        -----------
+        request (HttpRequest):
+            The incoming GET request containing query parameters.
+
+                - 'name' (str): The name to search for.
+
+        Returns:
+        --------
+        Response: A JSON response containing the search results.
+
+        Raises:
+        -------
+        None
+        """
+        query = request.query_params.get('name', '')
+
+        if query:
+            # Perform a case-insensitive partial match on first_name and last_name
+            results = Patient.objects.filter(
+                first_name__icontains=query) | Patient.objects.filter(last_name__icontains=query)
+            serializer = PatientSerializer(results, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'Please provide a search query'}, status=status.HTTP_400_BAD_REQUEST)
