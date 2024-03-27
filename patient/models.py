@@ -7,7 +7,6 @@ class EmergencyContact(models.Model):
     middle_name = models.CharField(max_length=128, blank=True)
     last_name = models.CharField(max_length=128)
     phone_number = models.CharField(max_length=128)
-    address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='emergency_contacts')
 
     def __str__(self):
         return f"Emergency Contact: {self.first_name} {self.last_name}"
@@ -26,6 +25,6 @@ class Patient(BaseUser):
     marital_status = models.CharField(max_length=64, choices=MARITAL_OPTIONS, default='single')
     primary_emergency_contact = models.ForeignKey(EmergencyContact, on_delete=models.CASCADE, related_name='primary_emergency_contact')
     secondary_emergency_contact = models.ForeignKey(EmergencyContact, on_delete=models.CASCADE, related_name='secondary_emergency_contact', null=True, blank=True)
-
+    
     def __str__(self):
         return f"Patient: {self.first_name} {self.last_name}"

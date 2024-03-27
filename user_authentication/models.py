@@ -14,7 +14,7 @@ class Address(models.Model):
     street = models.CharField(max_length=128)
     house = models.CharField(max_length=128)
     apartment = models.CharField(max_length=128, blank=True)
-    postal_code = models.CharField(max_length=128)
+    postal_code = models.CharField(max_length=128, blank=True)
 
     def __str__(self):
         return f"{self.street}, {self.house}, {self.country}, {self.oblast}"
@@ -41,6 +41,7 @@ class CustomUserManager(BaseUserManager):
 
 class BaseUser(AbstractBaseUser, PermissionsMixin):
     inn = models.CharField(unique=True, primary_key=True, max_length=64)
+    nationality = models.CharField(max_length=64)
     first_name = models.CharField(max_length=64)
     middle_name = models.CharField(max_length=64, blank=True)
     last_name = models.CharField(max_length=64)
@@ -57,10 +58,14 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
         ('F', 'Female'),
     ]
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='M')
+
     objects = CustomUserManager()
 
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["first_name", "last_name", "inn"]
+    class Meta:
+        unique_together = ('nationality', 'inn')
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'inn', 'nationality']
 
     def __str__(self):
-        return f'User: {self.first_name} {self.last_name} {self.middle_name}'
+        return f'User: {self.first_name} {self.last_name} {self.middle_name} {self.nationality}'
