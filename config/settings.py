@@ -187,11 +187,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Developer settings
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp-mail.outlook.com'
-EMAIL_HOST_USER = environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = environ.get("EMAIL_HOST_PASSWORD")
-SMTP_SKIP_TLS = False
-SMTP_SKIP_LOGIN = False
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST = 'smtp-mail.outlook.com'
+# EMAIL_HOST_USER = environ.get("EMAIL_HOST_USER")
+# EMAIL_HOST_PASSWORD = environ.get("EMAIL_HOST_PASSWORD")
+# SMTP_SKIP_TLS = False
+# SMTP_SKIP_LOGIN = False
