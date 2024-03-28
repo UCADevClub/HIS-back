@@ -191,7 +191,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = ["*"]
-CORS_ALLOWED_ORIGIN_REGEXES = ["*"]
+
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
