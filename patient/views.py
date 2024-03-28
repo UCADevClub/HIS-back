@@ -41,10 +41,10 @@ class PatientDetail(APIView):
 
     @staticmethod
     @swagger_auto_schema(
-        request_body=PatientSerializer,
         responses={
-                200: PatientSerializer,
-                400: 'Invalid request data'
+            200: PatientSerializer,
+            401: 'Unauthorized',
+            404: 'Patient not found'
         }
     )
     def get(request, inn):
@@ -85,10 +85,10 @@ class PatientList(APIView):
 
     @staticmethod
     @swagger_auto_schema(
-        request_body=PatientSerializer,
         responses={
-                200: PatientSerializer,
-                400: 'Invalid request data'
+            200: PatientSerializer,
+            401: 'Unauthorized',
+            404: 'Patient not found'
         }
     )
     def get(request):

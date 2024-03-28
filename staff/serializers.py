@@ -1,12 +1,6 @@
-<<<<<<< HEAD
 from user_authentication.serializers import BaseUserSerializer, AddressSerializer
 from staff.models import Staff
-=======
-from rest_framework import serializers
-<<<<<<< HEAD
-from staff.models import Doctor
 from patient.serializers import AddressSerializer
->>>>>>> cf1a8777eb6e838685a1ef4bda499c4024008297
 
 
 class StaffSerializer(BaseUserSerializer):
@@ -54,6 +48,4 @@ class StaffSerializer(BaseUserSerializer):
         instance.save()
 
         return instance
-=======
-# from staff.models import Doctor
->>>>>>> c43a188192303a239d42efb63a7689b68ab8f348
+
