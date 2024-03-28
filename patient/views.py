@@ -13,7 +13,6 @@ from patient.models import (
     Patient,
 )
 
-
 class PatientCreateView(APIView):
 
     @staticmethod
