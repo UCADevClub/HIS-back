@@ -13,11 +13,12 @@ from patient.models import (
     Patient,
 )
 
+
 class PatientCreateView(APIView):
 
     @staticmethod
     @swagger_auto_schema(
-        request_body=PatientSerializer,
+        request_body=PatientCreateSerializer,
         responses={
             200: PatientSerializer,
             400: 'Invalid request data'
@@ -64,8 +65,8 @@ class PatientDetail(APIView):
     @swagger_auto_schema(
         request_body=PatientSerializer,
         responses={
-                200: PatientSerializer,
-                400: 'Invalid request data'
+            200: PatientSerializer,
+            400: 'Invalid request data'
         }
     )
     def patch(request, inn):
@@ -98,6 +99,7 @@ class PatientList(APIView):
 
 
 from django.db.models import Q
+
 
 class PatientSearch(APIView):
     """
@@ -165,4 +167,3 @@ class PatientSearch(APIView):
 
         serializer = PatientSerializer(results, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
