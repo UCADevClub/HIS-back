@@ -64,7 +64,6 @@ class BaseUserCreateSerializer(ModelSerializer):
         )
 
     def create(self, validated_data):
-
         base_user_instance = BaseUser.objects.create_user(**validated_data)
         return base_user_instance
 
@@ -90,6 +89,12 @@ class BaseUserSerializer(ModelSerializer):
     def update(self, instance, validated_data):
         instance.phone_number = validated_data.get(
             'phone_number', instance.phone_number)
-        instance.address = validated_data.get('address', instance.address)
+        address_data = validated_data.pop('address', None)
+        address_instance = instance.address
+        if address_data:
+            address_serializer = AddressSerializer(address_instance,
+                                                   data=address_data)
+            if address_serializer.is_valid():
+                address_serializer.save()
         instance.save()
         return instance

@@ -3,7 +3,12 @@ from rest_framework import status
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
+from django.db.models import Q
+# from rest_framework.authentication import (
+#     SessionAuthentication,
+#     BasicAuthentication
+# )
 
 from patient.serializers import (
     PatientSerializer,
@@ -38,7 +43,8 @@ class PatientCreateView(APIView):
 
 
 class PatientDetail(APIView):
-    permission_classes = [AllowAny]
+    # authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
 
     @staticmethod
     @swagger_auto_schema(
@@ -49,10 +55,9 @@ class PatientDetail(APIView):
         }
     )
     def get(request, inn):
-        if request.data != inn:
-            return Response(data={'response': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        patient_instance = Patient.objects.filter(baseuser_ptr=inn).first()
+        patient_instance = Patient.objects.filter(
+            baseuser_ptr=inn,
+        ).first()
         if patient_instance:
             patient_serializer = PatientSerializer(patient_instance)
             return Response(
@@ -96,9 +101,6 @@ class PatientList(APIView):
         patient_instance = Patient.objects.all()
         patient_serializer = PatientSerializer(patient_instance, many=True)
         return Response(patient_serializer.data, status=status.HTTP_200_OK)
-
-
-from django.db.models import Q
 
 
 class PatientSearch(APIView):
@@ -153,6 +155,7 @@ class PatientSearch(APIView):
         """
         first_name = request.query_params.get('firstname', '')
         last_name = request.query_params.get('lastname', '')
+        inn = request.query_params.get('inn', '')
 
         # Create a query that matches either the first name or the last name
         query = Q()
@@ -161,6 +164,8 @@ class PatientSearch(APIView):
             query |= Q(first_name__icontains=first_name)
         if last_name:
             query |= Q(last_name__icontains=last_name)
+        if inn:
+            query |= Q(inn__icontains=inn)
 
         # Perform the search
         results = Patient.objects.filter(query)
