@@ -12,13 +12,11 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='EmergencyContact',
+            name='Department',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('first_name', models.CharField(max_length=128)),
-                ('middle_name', models.CharField(blank=True, max_length=128)),
-                ('last_name', models.CharField(max_length=128)),
-                ('phone_number', models.CharField(max_length=128)),
+                ('department_name', models.CharField(max_length=128)),
+                ('description', models.TextField()),
             ],
         ),
     ]
