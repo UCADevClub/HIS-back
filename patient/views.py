@@ -5,10 +5,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
-# from rest_framework.authentication import (
-#     SessionAuthentication,
-#     BasicAuthentication
-# )
+from rest_framework.authentication import (
+    SessionAuthentication,
+    BasicAuthentication
+)
 
 from patient.serializers import (
     PatientSerializer,
@@ -43,8 +43,8 @@ class PatientCreateView(APIView):
 
 
 class PatientDetail(APIView):
-    # authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated,]
 
     @staticmethod
     @swagger_auto_schema(

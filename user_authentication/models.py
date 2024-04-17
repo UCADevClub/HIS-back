@@ -43,8 +43,8 @@ class CustomUserManager(BaseUserManager):
 
 
 class BaseUser(AbstractBaseUser, PermissionsMixin):
-    inn = models.CharField(unique=True, primary_key=True, max_length=64)
-    nationality = models.CharField(max_length=64)
+    user_id = models.CharField(unique=True, max_length=64)
+    citizenship = models.CharField(max_length=64)
     first_name = models.CharField(max_length=64)
     middle_name = models.CharField(max_length=64, blank=True)
     last_name = models.CharField(max_length=64)
@@ -68,4 +68,4 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['first_name', 'last_name', 'middle_name', 'inn', 'nationality']
 
     def __str__(self):
-        return f'User: {self.first_name} {self.last_name} {self.middle_name} {self.nationality}'
+        return f'User: {self.first_name} {self.last_name} {self.middle_name} {self.citizenship}'

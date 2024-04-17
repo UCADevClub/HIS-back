@@ -51,7 +51,7 @@ class BaseUserCreateSerializer(ModelSerializer):
     class Meta:
         model = BaseUser
         fields = (
-            'inn',
+            'user_id',
             'nationality',
             'email',
             'first_name',
@@ -72,7 +72,7 @@ class BaseUserSerializer(ModelSerializer):
     class Meta:
         model = BaseUser
         fields = (
-            'inn',
+            'user_id',
             'nationality',
             'email',
             'first_name',
