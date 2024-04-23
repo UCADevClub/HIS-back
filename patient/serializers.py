@@ -4,8 +4,8 @@ from user_authentication.serializers import (
     BaseUserCreateSerializer,
     BaseUserSerializer,
 )
-from patient.models import Patient, EmergencyContact
-from user_authentication.models import Address
+from patient.models import Patient
+from user_authentication.models import Address, EmergencyContact
 
 
 class EmergencyContactCreateSerializer(ModelSerializer):
