@@ -1,4 +1,5 @@
 from rest_framework.serializers import ModelSerializer
+from django.contrib.auth import hashers
 from staff.models import (
     PatientManager,
     BranchAdministrator,
@@ -22,7 +23,24 @@ class BranchAdministratorSerializer(ModelSerializer):
 class HospitalAdministratorSerializer(ModelSerializer):
     class Meta:
         model = HospitalAdministrator
-        exclude = ['password']
+        exclude = ['password',]
+
+    def create(self, validated_data):
+        """
+        Creates a new HospitalAdministrator instance with hashed password.
+        """
+
+        # Hash the password before saving
+        validated_data['password'] = hashers.make_password(validated_data['password'])
+        hospital_administrator = HospitalAdministrator.objects.create(**validated_data)
+        return hospital_administrator
+    
+    def update(self, instance, validated_data):
+        del validated_data['user_id']
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
 
 class DoctorSerializer(ModelSerializer):
