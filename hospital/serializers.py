@@ -2,12 +2,18 @@ from rest_framework.serializers import (
     ModelSerializer,
 )
 from hospital.models import (
+    Department,
     Hospital,
     Branch,
     BranchPhoneNumber,
     BranchAddress,
 )
-from staff.models import Doctor
+from staff.models import (
+    BranchAdministrator, 
+    Doctor,
+    HospitalAdministrator, 
+    PatientManager
+    )
 from staff.serializers import (
     DoctorSerializer,
     PatientManagerSerializer,
@@ -20,9 +26,7 @@ class PhoneNumberSerializer(ModelSerializer):
 
     class Meta:
         model = BranchPhoneNumber
-        fields = (
-            'phone_number',
-        )
+        fields = "__all__"
 
     def create(self, validated_data):
         instance = BranchPhoneNumber.objects.create(**validated_data)
@@ -42,14 +46,7 @@ class BranchAddressSerializer(ModelSerializer):
 
     class Meta:
         model = BranchAddress
-        fields = (
-            'street_address',
-            'building_number',
-            'city',
-            'state',
-            'postal_code',
-            'country',
-        )
+        fields = "__all__"
 
     def create(self, validated_data):
         instance = BranchAddress.objects.create(**validated_data)
@@ -70,12 +67,44 @@ class BranchAddressSerializer(ModelSerializer):
         instance.delete()
 
 
+class HospitalSerializer(ModelSerializer):
+
+    class Meta:
+        model = Hospital
+        fields = "__all__"
+
+    hospital_administrator = HospitalAdministratorSerializer()
+
+    def create(self, validated_data):
+        hospital_administrator_data = validated_data.pop('hospital_administrator')
+        hospital_administrator_instance = HospitalAdministrator.objects.create(**hospital_administrator_data)
+        hospital_instance = Hospital.objects.create(
+            hospital_administrator=hospital_administrator_instance,
+            **validated_data, 
+            )
+        return hospital_instance
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.description = validated_data.get('description', instance.description)
+        instance.website = validated_data.get('website', instance.website)
+        hospital_administrator_data = validated_data.get('hospital_administrator')
+        if hospital_administrator_data:
+            hospital_administrator_instance = instance.hospital_administrator
+            for attr, value in hospital_administrator_data.items():
+                setattr(hospital_administrator_instance, attr, value)
+            hospital_administrator_instance.save()
+        instance.save()
+        return instance
+
+
+
 class BranchSerializer(ModelSerializer):
     address = BranchAddressSerializer()
-    phone_number = PhoneNumberSerializer(many=True)
+    phone_numbers = PhoneNumberSerializer(many=True)
     director = DoctorSerializer(required=False)
-    Hospital = HospitalAdministratorSerializer()
-    doctor = DoctorSerializer(many=True)
+    hospital = HospitalSerializer()
+    doctors = DoctorSerializer(many=True)
     branch_administrator = BranchAdministratorSerializer()
     patient_manager = PatientManagerSerializer()
 
@@ -84,52 +113,88 @@ class BranchSerializer(ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        address_data = validated_data.get('address')
+        address_data = validated_data.pop('address')
+        phone_numbers_data = validated_data.pop('phone_numbers')
+        director_data = validated_data.pop('director', None)
+        hospital_data = validated_data.pop('hospital')
+        doctors_data = validated_data.pop('doctors', [])
+        branch_administrator_data = validated_data.pop('branch_administrator', None)
+        patient_manager_data = validated_data.pop('patient_manager', None)
+
         address_instance = BranchAddress.objects.create(**address_data)
-        phone_numbers_data = validated_data.get('phone_number')
-        phone_numbers_instance = [
-            BranchPhoneNumber.objects.create(**phone_numbers_data) for phone_numbers_data in phone_numbers_data
-        ]
-        director_data = validated_data.get('director')
+        phone_numbers_instances = [BranchPhoneNumber.objects.create(**data) for data in phone_numbers_data]
+
+        hospital_instance = Hospital.objects.create(**hospital_data)
 
         branch_instance = Branch.objects.create(
             address=address_instance,
+            hospital=hospital_instance,
             **validated_data,
         )
-        branch_instance.phone_number.set(phone_numbers_instance)
+        branch_instance.phone_numbers.set(phone_numbers_instances)
+
         if director_data:
             director_instance = Doctor.objects.create(**director_data)
-            branch_instance.directors.set(director_instance)
+            branch_instance.director = director_instance
+
+        branch_instance.doctors.set([Doctor.objects.create(**data) for data in doctors_data])
+
+        if branch_administrator_data:
+            branch_administrator_instance = BranchAdministrator.objects.create(**branch_administrator_data)
+            branch_instance.branch_administrator = branch_administrator_instance
+
+        if patient_manager_data:
+            patient_manager_instance = PatientManager.objects.create(**patient_manager_data)
+            branch_instance.patient_manager = patient_manager_instance
 
         return branch_instance
 
     def update(self, instance, validated_data):
-        ...
+        address_data = validated_data.pop('address', None)
+        phone_numbers_data = validated_data.pop('phone_numbers', None)
+        director_data = validated_data.pop('director', None)
+        hospital_data = validated_data.pop('hospital', None)
+        doctors_data = validated_data.pop('doctors', None)
+        branch_administrator_data = validated_data.pop('branch_administrator', None)
+        patient_manager_data = validated_data.pop('patient_manager', None)
 
+        if address_data:
+            address_serializer = BranchAddressSerializer(instance.address, data=address_data)
+            if address_serializer.is_valid():
+                address_serializer.save()
 
-class HospitalSerializer(ModelSerializer):
-    branches = BranchAddressSerializer(many=True)
+        if phone_numbers_data:
+            phone_numbers_instances = [BranchPhoneNumber.objects.create(**data) for data in phone_numbers_data]
+            instance.phone_numbers.set(phone_numbers_instances)
 
-    class Meta:
-        model = Hospital
-        fields = "__all__"
+        if director_data:
+            director_instance = Doctor.objects.create(**director_data)
+            instance.director = director_instance
 
-    def create(self, validated_data):
-        hospital_instance = Hospital.objects.create(**validated_data)
-        return hospital_instance
+        if hospital_data:
+            hospital_serializer = HospitalSerializer(instance.hospital, data=hospital_data)
+            if hospital_serializer.is_valid():
+                hospital_serializer.save()
 
-    def update(self, instance, validated_data):
-        instance.name = validated_data.get('name', instance.name)
-        instance.description = validated_data.get('description', instance.description)
-        instance.website = validated_data.get('website', instance.website)
-        instance.hospital_administrator = validated_data.get('hospital_administrator', instance.hospital_administrator)
+        if doctors_data:
+            instance.doctors.clear()
+            for data in doctors_data:
+                doctor_instance = Doctor.objects.create(**data)
+                instance.doctors.add(doctor_instance)
+
+        if branch_administrator_data:
+            branch_administrator_instance = BranchAdministrator.objects.create(**branch_administrator_data)
+            instance.branch_administrator = branch_administrator_instance
+
+        if patient_manager_data:
+            patient_manager_instance = PatientManager.objects.create(**patient_manager_data)
+            instance.patient_manager = patient_manager_instance
+
         instance.save()
-
-        branches_data = validated_data.get('branches', [])
-        for branch_data in branches_data:
-            branch_id = branch_data.get('id', None)
-            if branch_id:
-                branch_instance = Branch.objects.get(id=branch_id)
-                branch_instance.address.street_address = branch_data.get('address', {}).get('street_address', branch_instance.address.street_address)
-                branch_instance.save()
         return instance
+
+
+class DepartmentSerializer(ModelSerializer):
+    class Meta:
+        model = Department
+        fields = "__all__"
