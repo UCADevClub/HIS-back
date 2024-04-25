@@ -3,3 +3,5 @@ from .models import Address, StandardUser
 
 admin.site.register(Address)
 admin.site.register(StandardUser)
+
+

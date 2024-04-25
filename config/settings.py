@@ -47,7 +47,8 @@ INSTALLED_APPS = [
 
     'user_authentication',
     'patient',
-    'staff'
+    'staff',
+    'hospital',
 ]
 
 AUTH_USER_MODEL = 'user_authentication.BaseUser'
@@ -196,7 +197,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:1337',
+    'http://localhost:8000',
     'http://5.59.233.199:1337'
 ]
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

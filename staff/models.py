@@ -1,6 +1,5 @@
 from django.db import models
 from user_authentication.models import StandardUser, BaseUser
-from hospital.models import Department
 
 
 class Speciality(models.Model):
@@ -12,17 +11,11 @@ class Speciality(models.Model):
 
 
 class Doctor(StandardUser):
-    is_staff = True
-    speciality = models.OneToOneField(
+    speciality = models.ManyToManyField(
         Speciality,
-        on_delete=models.CASCADE,
-        related_name='speciality',
+        related_name='doctors',
     )
-    department = models.ForeignKey(
-        Department,
-        on_delete=models.CASCADE,
-        related_name='department',
-    )
+    is_doctor = True
     is_branch_director = models.BooleanField(default=False)
     is_department_director = models.BooleanField(default=False)
 
@@ -30,10 +23,16 @@ class Doctor(StandardUser):
         return f'{self.first_name} {self.middle_name} {self.last_name} {self.speciality}'
 
 
+class PatientManager(StandardUser):
+    is_staff = True
+    is_patient_manager = True
+
+
 class BranchAdministrator(BaseUser):
-    is_manager = True
+    is_branch_administrator = True
     is_staff = True
 
 
-class HospitalManager(BranchAdministrator):
-    is_admin = True
+class HospitalAdministrator(BaseUser):
+    is_hospital_administrator = True
+    is_staff = True

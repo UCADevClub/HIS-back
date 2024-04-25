@@ -1,43 +1,31 @@
 from rest_framework.serializers import ModelSerializer
-from staff.models import Department, Speciality, Doctor
+from staff.models import (
+    PatientManager,
+    BranchAdministrator,
+    HospitalAdministrator,
+    Doctor,
+)
 
 
-class SpecialitySerializer(ModelSerializer):
+class PatientManagerSerializer(ModelSerializer):
     class Meta:
-        model = Speciality
-        fields = (
-            'position',
-            'description',
-        )
+        model = PatientManager
+        fields = '__all__'
 
-    def create(self, validated_data):
-        instance = Speciality.objects.create(**validated_data)
-        return instance
 
-    def update(self, instance, validated_data):
-        instance.position = validated_data.get('position', instance.position)
-        instance.description = validated_data.get('description', instance.description)
-        instance.save()
-        return instance
+class BranchAdministratorSerializer(ModelSerializer):
+    class Meta:
+        model = BranchAdministrator
+        fields = '__all__'
 
-    @classmethod
-    def delete(cls, instance):
-        instance.delete()
+
+class HospitalAdministratorSerializer(ModelSerializer):
+    class Meta:
+        model = HospitalAdministrator
+        fields = '__all__'
 
 
 class DoctorSerializer(ModelSerializer):
     class Meta:
         model = Doctor
-        fields = (
-            ''
-        )
-
-
-class DepartmentSerializer(ModelSerializer):
-    class Meta:
-        model = Department
-        fields = (
-            'name',
-            'description'
-        )
-
+        fields = '__all__'
