@@ -152,7 +152,7 @@ class PatientSearch(APIView):
     )
     def get(self, request):
 
-        full_name_or_inn = request.query_params.get('name', '')
+        full_name_or_inn = request.query_params.get('name', )
 
         if full_name_or_inn.isdigit():
             inn = full_name_or_inn

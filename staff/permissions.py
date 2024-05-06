@@ -9,12 +9,12 @@ class IsSuperUser(BasePermission):
         return request.user.is_superuser
 
 
-class IsHospitalAdmin(BasePermission):
+class IsHospitalAdministrator(BasePermission):
     def has_permission(self, request, view):
         return request.user.is_hospital_administrator
 
 
-class IsBranchAdmin(BasePermission):
+class IsBranchAdministrator(BasePermission):
     def has_permission(self, request, view):
         return request.user.is_branch_administrator
 

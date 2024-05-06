@@ -69,7 +69,6 @@ class CustomUserManager(BaseUserManager):
 
 
 class BaseUser(AbstractBaseUser, PermissionsMixin):
-    # id = models.AutoField(primary_key=True)
     user_id = models.CharField(unique=True, max_length=64)
     first_name = models.CharField(max_length=64)
     middle_name = models.CharField(max_length=64, blank=True)
