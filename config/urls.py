@@ -6,6 +6,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.conf import settings
 from django.conf.urls.static import static
+from user_authentication.views import TokenObtainView
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -26,6 +27,7 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
     path('admin/', admin.site.urls),
+    path('api/auth/login/', TokenObtainView.as_view(), name='custom_login'),
     path('api_auth/', include('rest_framework.urls')),
     path('user_authentication/auth/', include('djoser.urls')),
     path('user_authentication/auth/', include('djoser.urls.authtoken')),
@@ -35,4 +37,5 @@ urlpatterns = [
 
     #hospital
     path('hospital/', include('hospital.urls')),
+    
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
