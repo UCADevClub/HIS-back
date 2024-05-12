@@ -30,5 +30,10 @@ urlpatterns = [
     path('user_authentication/auth/', include('djoser.urls')),
     path('user_authentication/auth/', include('djoser.urls.authtoken')),
     path('user_authentication/auth/', include('djoser.urls.jwt')),
-    path('patient/', include('patient.urls'))
+    path('patient/', include('patient.urls')),
+
+    path('staff/', include('staff.urls')),
+
+    # hospital
+    path('hospital/', include('hospital.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

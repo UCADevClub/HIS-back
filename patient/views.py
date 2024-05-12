@@ -12,25 +12,39 @@ from rest_framework.authentication import (
 
 from patient.serializers import (
     PatientSerializer,
-    PatientCreateSerializer,
+    PatientSerializer,
 )
 from patient.models import (
     Patient,
 )
+from patient.permissions import (
+    IsPatient,
+)
+from staff.permissions import (
+    IsPatientManager,
+)
 
 
 class PatientCreateView(APIView):
+    authentication_classes = (
+        SessionAuthentication,
+        BasicAuthentication,
+    )
+    permission_classes = (
+        IsAuthenticated,
+        IsPatientManager,
+    )
 
     @staticmethod
     @swagger_auto_schema(
-        request_body=PatientCreateSerializer,
+        request_body=PatientSerializer,
         responses={
             200: PatientSerializer,
             400: 'Invalid request data'
         }
     )
     def post(request, *args, **kwargs):
-        patient_serializer = PatientCreateSerializer(
+        patient_serializer = PatientSerializer(
             data=request.data
         )
         if patient_serializer.is_valid():
@@ -44,7 +58,7 @@ class PatientCreateView(APIView):
 
 class PatientDetail(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated,]
+    permission_classes = [IsAuthenticated]
 
     @staticmethod
     @swagger_auto_schema(
@@ -74,9 +88,9 @@ class PatientDetail(APIView):
             400: 'Invalid request data'
         }
     )
-    def patch(request, inn):
+    def patch(request, user_id):
         try:
-            patient_instance = Patient.objects.filter(baseuser_ptr=inn).first()
+            patient_instance = Patient.objects.filter(baseuser_ptr=user_id).first()
             patient_serializer = PatientSerializer(
                 patient_instance, data=request.data, partial=True)
             if patient_serializer.is_valid():
@@ -115,7 +129,7 @@ class PatientSearch(APIView):
             - INN (digits only): Filters patients based on their INN number (case-insensitive).
         
         Query Parameters:
-            - name (str): A full name or inn to search for.
+            - name (str): A full name or user_id to search for.
                 -Example: 
                     1) GET http://request/?name=John Smith
                     2) GET http://request/?name=John
@@ -128,9 +142,17 @@ class PatientSearch(APIView):
             - 404 (Not Found): Raised if no patients match the search criteria.
     """
 
+    @staticmethod
+    @swagger_auto_schema(
+        responses={
+            200: PatientSerializer,
+            401: 'Unauthorized',
+            404: 'Patient not found'
+        }
+    )
     def get(self, request):
 
-        full_name_or_inn = request.query_params.get('name', '')
+        full_name_or_inn = request.query_params.get('name', )
 
         if full_name_or_inn.isdigit():
             inn = full_name_or_inn

@@ -1,100 +1,85 @@
 from rest_framework.serializers import ModelSerializer
-from user_authentication.models import BaseUser, Address
-
-
-class AddressCreateSerializer(ModelSerializer):
-    class Meta:
-        model = Address
-        fields = (
-            'country',
-            'oblast',
-            'city_village',
-            'street',
-            'house',
-            'apartment',
-            'postal_code',
-        )
-
-    def create(self, validated_data):
-        address_instance = Address.objects.create(**validated_data)
-        return address_instance
+from user_authentication.models import (
+    Address,
+    EmergencyContact,
+    BaseUser,
+    StandardUser,
+)
 
 
 class AddressSerializer(ModelSerializer):
     class Meta:
         model = Address
-        fields = (
-            'country',
-            'oblast',
-            'city_village',
-            'street',
-            'house',
-            'apartment',
-            'postal_code',
-        )
-
-    def update(self, instance, validated_data):
-        instance.country = validated_data.get("country", instance.country)
-        instance.oblast = validated_data.get("oblast", instance.oblast)
-        instance.city_village = validated_data.get("city_village", instance.city_village)
-        instance.street = validated_data.get("street", instance.street)
-        instance.house = validated_data.get("house", instance.house)
-        instance.apartment = validated_data.get("apartment", instance.apartment)
-        instance.postal_code = validated_data.get("postal_code", instance.postal_code)
-        instance.save()
-        return instance
+        fields = '__all__'
 
 
-class BaseUserCreateSerializer(ModelSerializer):
-    address = AddressCreateSerializer()
-
+class EmergencyContactSerializer(ModelSerializer):
     class Meta:
-        model = BaseUser
-        fields = (
-            'user_id',
-            'nationality',
-            'email',
-            'first_name',
-            'last_name',
-            'middle_name',
-            'date_of_birth',
-            'gender',
-            'phone_number',
-            'address',
-        )
-
-    def create(self, validated_data):
-        base_user_instance = BaseUser.objects.create_user(**validated_data)
-        return base_user_instance
+        model = EmergencyContact
+        fields = '__all__'
 
 
 class BaseUserSerializer(ModelSerializer):
     class Meta:
         model = BaseUser
-        fields = (
-            'user_id',
-            'nationality',
-            'email',
-            'first_name',
-            'last_name',
-            'middle_name',
-            'date_of_birth',
-            'gender',
-            'phone_number',
-            'address',
-        )
+        fields = '__all__'
 
+
+class StandardUserSerializer(ModelSerializer):
     address = AddressSerializer()
+    primary_emergency_contact = EmergencyContactSerializer()
+    secondary_emergency_contact = EmergencyContactSerializer(required=False)
 
-    def update(self, instance, validated_data):
-        instance.phone_number = validated_data.get(
-            'phone_number', instance.phone_number)
-        address_data = validated_data.pop('address', None)
-        address_instance = instance.address
-        if address_data:
-            address_serializer = AddressSerializer(address_instance,
-                                                   data=address_data)
-            if address_serializer.is_valid():
-                address_serializer.save()
-        instance.save()
-        return instance
+    class Meta:
+        model = StandardUser
+        fields = '__all__'
+
+    def create(self, validated_data):
+        address_data = validated_data.pop('address')
+        primary_emergency_contact_data = validated_data.pop('primary_emergency_contact')
+        secondary_emergency_contact_data = validated_data.pop('secondary_emergency_contact')
+
+        address = Address.objects.create(**address_data)
+        primary_emergency_contact = EmergencyContact.objects.create(**primary_emergency_contact_data)
+        if secondary_emergency_contact_data:
+            secondary_emergency_contact = EmergencyContact.objects.create(**secondary_emergency_contact_data)
+        else:
+            secondary_emergency_contact = None
+
+        validated_data['address'] = address
+        validated_data['primary_emergency_contact'] = primary_emergency_contact
+        validated_data['secondary_emergency_contact'] = secondary_emergency_contact
+
+        return StandardUser.objects.create(**validated_data)
+
+    # def update(self, instance, validated_data):
+    #
+    #     primary_emergency_contact_data = validated_data.pop(
+    #         'primary_emergency_contact', None)
+    #     validated_data['primary_emergency_contact'] =
+    #     primary_emergency_contact_instance = instance.primary_emergency_contact
+    #     if primary_emergency_contact_data:
+    #         primary_emergency_contact_serializer = EmergencyContactSerializer(
+    #             primary_emergency_contact_instance,
+    #             data=primary_emergency_contact_data)
+    #         if primary_emergency_contact_serializer.is_valid():
+    #             primary_emergency_contact_serializer.save()
+    #
+    #     secondary_emergency_contact_data = validated_data.pop('secondary_emergency_contact', None)
+    #     if secondary_emergency_contact_data is not None:  # Check if secondary_emergency_contact_data is provided
+    #         # If secondary_emergency_contact_data is provided, create or update the secondary emergency contact
+    #         if instance.secondary_emergency_contact:  # If the secondary emergency contact already exists, update it
+    #             secondary_emergency_contact_instance = instance.secondary_emergency_contact
+    #             secondary_emergency_contact_serializer = EmergencyContactSerializer(
+    #                 secondary_emergency_contact_instance, data=secondary_emergency_contact_data)
+    #         else:  # If the secondary emergency contact doesn't exist, create it
+    #             secondary_emergency_contact_serializer = EmergencyContactSerializer(
+    #                 data=secondary_emergency_contact_data)
+    #         if secondary_emergency_contact_serializer.is_valid():
+    #             secondary_emergency_contact_serializer.save()
+    #             instance.secondary_emergency_contact = secondary_emergency_contact_serializer.instance  # Assign the
+    #             # newly created or updated instance to the secondary_emergency_contact field
+    #
+    #     instance.save()
+    #
+    #     return instance
