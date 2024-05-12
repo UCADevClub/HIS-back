@@ -17,7 +17,21 @@ class PatientManagerSerializer(ModelSerializer):
 class BranchAdministratorSerializer(ModelSerializer):
     class Meta:
         model = BranchAdministrator
-        exclude = ['password']
+        fields = (
+            'user_id',
+            'first_name',
+            'middle_name',
+            'last_name',
+            'email',
+        )
+
+    def create(self, validated_data):
+        """
+        Creates a new BranchAdministrator instance with hashed password.
+        """
+
+        hospital_administrator = HospitalAdministrator.objects.create_hospital_administrator(**validated_data)
+        return hospital_administrator
 
 
 class HospitalAdministratorSerializer(ModelSerializer):
@@ -29,8 +43,6 @@ class HospitalAdministratorSerializer(ModelSerializer):
             'middle_name',
             'last_name',
             'email',
-            'is_staff',
-            'is_hospital_administrator'
         )
 
     def create(self, validated_data):

@@ -2,6 +2,7 @@ from rest_framework.serializers import (
     ModelSerializer,
     ValidationError,
     IntegerField,
+    CharField,
 )
 from hospital.models import (
     Department,
@@ -11,11 +12,11 @@ from hospital.models import (
     BranchAddress,
 )
 from staff.models import (
-    BranchAdministrator, 
+    BranchAdministrator,
     Doctor,
-    HospitalAdministrator, 
+    HospitalAdministrator,
     PatientManager
-    )
+)
 from staff.serializers import (
     DoctorSerializer,
     PatientManagerSerializer,
@@ -25,7 +26,6 @@ from staff.serializers import (
 
 
 class PhoneNumberSerializer(ModelSerializer):
-
     class Meta:
         model = BranchPhoneNumber
         fields = "__all__"
@@ -45,7 +45,6 @@ class PhoneNumberSerializer(ModelSerializer):
 
 
 class BranchAddressSerializer(ModelSerializer):
-
     class Meta:
         model = BranchAddress
         fields = "__all__"
@@ -70,21 +69,33 @@ class BranchAddressSerializer(ModelSerializer):
 
 
 class HospitalSerializer(ModelSerializer):
-
-    hospital_administrator = HospitalAdministratorSerializer()
+    hospital_administrator = HospitalAdministratorSerializer(required=False)
+    hospital_administrator_id = CharField(required=False)
 
     class Meta:
         model = Hospital
-        fields = '__all__'
+        fields = (
+            'name',
+            'description',
+            'website',
+            'hospital_administrator',
+            'hospital_administrator_id',
+        )
 
     def create(self, validated_data):
-        hospital_administrator_data = validated_data.pop('hospital_administrator')
-        validated_data['hospital_administrator'] = HospitalAdministrator.objects.create_hospital_administrator(
-            **hospital_administrator_data
-        )
+        hospital_administrator_data = validated_data.pop('hospital_administrator', None)
+        hospital_administrator_id = validated_data.pop('hospital_administrator_id', None)
+        if hospital_administrator_data:
+            validated_data['hospital_administrator'] = HospitalAdministrator.objects.create_hospital_administrator(
+                **hospital_administrator_data
+            )
+        else:
+            validated_data['hospital_administrator'] = HospitalAdministrator.objects.get(
+                user_id=hospital_administrator_id
+            )
         hospital_instance = Hospital.objects.create(
             **validated_data,
-            )
+        )
         return hospital_instance
 
     def update(self, instance, validated_data):
@@ -113,6 +124,7 @@ class BranchSerializer(ModelSerializer):
     class Meta:
         model = Branch
         fields = (
+            'id',
             'name',
             'email',
             'website',
@@ -129,7 +141,7 @@ class BranchSerializer(ModelSerializer):
         address_data = validated_data.pop('address')
         phone_numbers_data = validated_data.pop('phone_numbers', None)
         director_data = validated_data.pop('director', None)
-        hospital_id = validated_data.pop('hospital_id')
+        hospital_id = validated_data.pop('hospital_id', None)
         doctors_data = validated_data.pop('doctors', [])
         branch_administrator_data = validated_data.pop('branch_administrator', None)
         patient_manager_data = validated_data.pop('patient_manager', None)

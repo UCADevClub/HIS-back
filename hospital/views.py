@@ -19,6 +19,7 @@ from hospital.serializers import (
 from staff.permissions import (
     IsSuperUser,
     IsHospitalAdministrator,
+    IsBranchAdministrator,
 )
 
 
@@ -30,7 +31,7 @@ class HospitalCreateView(APIView):
         TokenAuthentication,
     )
     permission_classes = (
-        IsSuperUser | IsHospitalAdministrator,
+        IsHospitalAdministrator,
     )
 
     @staticmethod
@@ -52,6 +53,91 @@ class HospitalCreateView(APIView):
             'data': hospital_serializer.errors
         },
             status=status.HTTP_400_BAD_REQUEST)
+
+
+class BranchView(APIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsHospitalAdministrator,)
+
+    @staticmethod
+    def get(request, pk):
+        try:
+            branch_instance = Branch.objects.filter(id=pk).first()
+            branch_serializer = BranchSerializer(branch_instance)
+            return Response(
+                    data={
+                        'message': None,
+                        'data': branch_serializer.data,
+                    },
+                    status=status.HTTP_200_OK
+                )
+        except Branch.DoesNotExist:
+            return Response(
+                data={
+                    'message': f'Branch with id={pk} does not exists',
+                    'data': {},
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    @staticmethod
+    def patch(request, pk):
+        try:
+            branch_instance = Branch.objects.filter(id=pk).first()
+            branch_serializer = BranchSerializer(
+                branch_instance,
+                data=request.data,
+                partial=True,
+            )
+            if branch_serializer.is_valid():
+                branch_serializer.save()
+                return Response(
+                    data={
+                        'message': 'Updated successfully',
+                        'data': branch_serializer.data,
+                    },
+                    status=status.HTTP_200_OK
+                )
+            return Response(
+                data={
+                    'message': 'Invalid data provided',
+                    'data': branch_serializer.data,
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+        except Branch.DoesNotExist:
+            return Response(
+                data={
+                    'message': f'Branch with id={pk} does not exists',
+                    'data': {},
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @staticmethod
+    def post(request):
+        branch_serializer = BranchSerializer(data=request.data)
+        if branch_serializer.is_valid():
+            branch_serializer.save()
+            return Response(
+                data={
+                    'message': 'Branch created successfully',
+                    'data': branch_serializer.data,
+                },
+                status=status.HTTP_201_CREATED
+
+            )
+        return Response(
+            data={
+                'message': 'Invalid data provided',
+                'data': branch_serializer.data,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+
+        )
+
+    @staticmethod
+    def patch(request):
+        ...
 
 
 class HospitalUpdateView(APIView):
@@ -119,6 +205,8 @@ class BranchListCreateAPIView(APIView):
 
     @staticmethod
     def post(request):
+        token = request.headers.get('Authorization')
+        print(f'{token=}')
         serializer = BranchSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -127,7 +215,7 @@ class BranchListCreateAPIView(APIView):
                     'message': 'Branch created successfully',
                     'data': serializer.data
                 },
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_201_CREATED
             )
         return Response(
             {
@@ -140,8 +228,8 @@ class BranchListCreateAPIView(APIView):
 
 class BranchRetrieveUpdateAPIView(APIView):
 
-    permission_classes = (IsSuperUser,)
     authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsSuperUser,)
 
     def get(self, request, pk):
         try:

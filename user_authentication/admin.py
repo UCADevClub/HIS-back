@@ -1,7 +1,6 @@
 from django.contrib import admin
-from .models import Address, StandardUser
+from .models import Address, StandardUser, BaseUser
 
-admin.site.register(Address)
+admin.site.register(BaseUser)
 admin.site.register(StandardUser)
-
-
+admin.site.register(Address)

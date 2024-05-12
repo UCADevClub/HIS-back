@@ -33,7 +33,7 @@ class Hospital(models.Model):
     hospital_administrator = models.OneToOneField(
         HospitalAdministrator,
         on_delete=models.CASCADE,
-        related_name='hospital_administrator',
+        related_name='hospital',
     )
 
     def __str__(self):
@@ -47,19 +47,19 @@ class Branch(models.Model):
     address = models.OneToOneField(
         BranchAddress,
         on_delete=models.CASCADE,
-        related_name='address',
+        related_name='branch',
     )
     phone_numbers = models.ForeignKey(
         BranchPhoneNumber,
         on_delete=models.SET_NULL,
         null=True,
-        related_name='phone_numbers',
+        related_name='branch',
     )
     director = models.OneToOneField(
         Doctor,
         on_delete=models.SET_NULL,
         null=True,
-        related_name='director',
+        related_name='branch',
     )
     hospital = models.ForeignKey(
         Hospital,
@@ -74,7 +74,7 @@ class Branch(models.Model):
         BranchAdministrator,
         on_delete=models.SET_NULL,
         null=True,
-        related_name='branch_administrator',
+        related_name='branch',
     )
     patient_manager = models.ForeignKey(
         PatientManager,

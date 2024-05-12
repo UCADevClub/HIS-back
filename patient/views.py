@@ -88,9 +88,9 @@ class PatientDetail(APIView):
             400: 'Invalid request data'
         }
     )
-    def patch(request, inn):
+    def patch(request, user_id):
         try:
-            patient_instance = Patient.objects.filter(baseuser_ptr=inn).first()
+            patient_instance = Patient.objects.filter(baseuser_ptr=user_id).first()
             patient_serializer = PatientSerializer(
                 patient_instance, data=request.data, partial=True)
             if patient_serializer.is_valid():
@@ -129,7 +129,7 @@ class PatientSearch(APIView):
             - INN (digits only): Filters patients based on their INN number (case-insensitive).
         
         Query Parameters:
-            - name (str): A full name or inn to search for.
+            - name (str): A full name or user_id to search for.
                 -Example: 
                     1) GET http://request/?name=John Smith
                     2) GET http://request/?name=John
