@@ -15,7 +15,6 @@ class Address(models.Model):
     street = models.CharField(max_length=128)
     house = models.CharField(max_length=128)
     apartment = models.CharField(max_length=128, blank=True)
-    postal_code = models.CharField(max_length=128, blank=True)
 
     def __str__(self):
         return f"{self.street}, {self.house}, {self.country}, {self.oblast}"
@@ -53,14 +52,17 @@ class CustomUserManager(BaseUserManager):
 
     def create_patient_manager(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_patient_manager', True)
+        extra_fields.setdefault('is_staff', True)
         return self.create_user(email=email, password=password, **extra_fields)
 
     def create_branch_administrator(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_branch_administrator', True)
+        extra_fields.setdefault('is_staff', True)
         return self.create_user(email=email, password=password, **extra_fields)
 
     def create_hospital_administrator(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_hospital_administrator', True)
+        extra_fields.setdefault('is_staff', True)
         return self.create_user(email=email, password=password, **extra_fields)
 
     def create_patient(self, email, password=None, **extra_fields):

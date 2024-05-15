@@ -10,8 +10,8 @@ from staff.permissions import (
     IsBranchAdministrator,
     IsPatientManager,
 )
-from staff.serializers import HospitalAdministratorSerializer
-from staff.models import HospitalAdministrator
+from staff.serializers import HospitalAdministratorSerializer, BranchAdministratorSerializer
+from staff.models import HospitalAdministrator, BranchAdministrator
 
 
 class HospitalAdministratorSingleView(APIView):
@@ -67,5 +67,32 @@ class HospitalAdministratorView(APIView):
 
         return Response(
             data={'message': hospital_administrator_serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class BranchAdministratorView(APIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsSuperUser | IsHospitalAdministrator,)
+
+    @staticmethod
+    def post(request):
+        branch_admistrator_serializer = BranchAdministratorSerializer(
+            data=request.data
+        )
+        if branch_admistrator_serializer.is_valid():
+            branch_admistrator_serializer.save()
+            return Response(
+                data={
+                    'message': 'BranchAdministrator created successfully',
+                    'data': branch_admistrator_serializer.data,
+                },
+                status=status.HTTP_201_CREATED
+            )
+        return Response(
+            data={
+                'message': 'Icorrect data',
+                'data': branch_admistrator_serializer.data
+            },
             status=status.HTTP_400_BAD_REQUEST
         )
