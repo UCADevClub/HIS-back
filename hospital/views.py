@@ -144,10 +144,6 @@ class HospitalUpdateView(APIView):
     """
     API endpoint for updating hospital data.
     """
-    # authentication_classes = (
-    #     SessionAuthentication,
-    #     BasicAuthentication,
-    # )
     permission_classes = (
         IsAuthenticated,
         IsSuperUser,
@@ -205,8 +201,6 @@ class BranchListCreateAPIView(APIView):
 
     @staticmethod
     def post(request):
-        token = request.headers.get('Authorization')
-        print(f'{token=}')
         serializer = BranchSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
