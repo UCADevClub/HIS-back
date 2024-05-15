@@ -51,7 +51,7 @@ class HospitalAdministratorView(APIView):
         hospital_administrator_query = HospitalAdministrator.objects.all()
         if not hospital_administrator_query:
             return Response(data=hospital_administrator_query, status=status.HTTP_200_OK)
-        return Response(data={'response': 'hospital administrators not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(data={'response': 'hospital administrator is not found'}, status=status.HTTP_404_NOT_FOUND)
 
     @staticmethod
     def post(request, *args, **kwargs):
@@ -77,22 +77,22 @@ class BranchAdministratorView(APIView):
 
     @staticmethod
     def post(request):
-        branch_admistrator_serializer = BranchAdministratorSerializer(
+        branch_administrator_serializer = BranchAdministratorSerializer(
             data=request.data
         )
-        if branch_admistrator_serializer.is_valid():
-            branch_admistrator_serializer.save()
+        if branch_administrator_serializer.is_valid():
+            branch_administrator_serializer.save()
             return Response(
                 data={
                     'message': 'BranchAdministrator created successfully',
-                    'data': branch_admistrator_serializer.data,
+                    'data': branch_administrator_serializer.data,
                 },
                 status=status.HTTP_201_CREATED
             )
         return Response(
             data={
-                'message': 'Icorrect data',
-                'data': branch_admistrator_serializer.data
+                'message': 'Incorrect data',
+                'data': branch_administrator_serializer.data
             },
             status=status.HTTP_400_BAD_REQUEST
         )
