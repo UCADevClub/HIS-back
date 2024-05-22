@@ -13,14 +13,15 @@ from patient.models import (
     Patient,
 )
 
+
 class PatientCreateView(APIView):
 
     @staticmethod
     @swagger_auto_schema(
         request_body=PatientSerializer,
         responses={
-            200: PatientSerializer,
-            400: 'Invalid request data'
+                200: PatientSerializer,
+                400: 'Invalid request data'
         }
     )
     def post(request, *args, **kwargs):
@@ -42,9 +43,9 @@ class PatientDetail(APIView):
     @staticmethod
     @swagger_auto_schema(
         responses={
-            200: PatientSerializer,
-            401: 'Unauthorized',
-            404: 'Patient not found'
+                200: PatientSerializer,
+                401: 'Unauthorized',
+                404: 'Patient not found'
         }
     )
     def get(request, inn):
@@ -86,9 +87,9 @@ class PatientList(APIView):
     @staticmethod
     @swagger_auto_schema(
         responses={
-            200: PatientSerializer,
-            401: 'Unauthorized',
-            404: 'Patient not found'
+                200: PatientSerializer,
+                401: 'Unauthorized',
+                404: 'Patient not found'
         }
     )
     def get(request):
@@ -98,6 +99,7 @@ class PatientList(APIView):
 
 
 from django.db.models import Q
+
 
 class PatientSearch(APIView):
     """
@@ -165,4 +167,3 @@ class PatientSearch(APIView):
 
         serializer = PatientSerializer(results, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-

@@ -195,11 +195,11 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:1337',
     'http://5.59.233.199:1337'
 ]
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST = 'smtp-mail.outlook.com'
-# EMAIL_HOST_USER = environ.get("EMAIL_HOST_USER")
-# EMAIL_HOST_PASSWORD = environ.get("EMAIL_HOST_PASSWORD")
-# SMTP_SKIP_TLS = False
-# SMTP_SKIP_LOGIN = False
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp-mail.outlook.com'
+EMAIL_HOST_USER = environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = environ.get("EMAIL_HOST_PASSWORD")
+SMTP_SKIP_TLS = False
+SMTP_SKIP_LOGIN = False
