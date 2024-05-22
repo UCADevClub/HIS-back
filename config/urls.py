@@ -12,12 +12,12 @@ schema_view = get_schema_view(
       title="HIS API",
       default_version='v1',
       description="API for Hospital Information System",
-      terms_of_service="https://www.google.com/policies/terms/", # TODO: Change this
-      contact=openapi.Contact(email="contact@snippets.local"), # TODO: Change this
-      license=openapi.License(name="BSD License") # TODO: Change this
+      terms_of_service="https://www.google.com/policies/terms/",  # TODO: Change this
+      contact=openapi.Contact(email="contact@snippets.local"),  # TODO: Change this
+      license=openapi.License(name="BSD License")  # TODO: Change this
    ),
    public=True,
-   permission_classes=(permissions.AllowAny,),
+   permission_classes=[permissions.AllowAny],
 )
 urlpatterns = [
     # Swagger API documentation
@@ -30,5 +30,12 @@ urlpatterns = [
     path('user_authentication/auth/', include('djoser.urls')),
     path('user_authentication/auth/', include('djoser.urls.authtoken')),
     path('user_authentication/auth/', include('djoser.urls.jwt')),
-    path('patient/', include('patient.urls'))
+    path('user_authentication/', include('user_authentication.urls')),
+    path('patient/', include('patient.urls')),
+
+    path('staff/', include('staff.urls')),
+
+    # hospital
+    path('hospital/', include('hospital.urls')),
+    
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

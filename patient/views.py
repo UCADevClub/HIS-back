@@ -3,29 +3,48 @@ from rest_framework import status
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
+from django.db.models import Q
+from rest_framework.authentication import (
+    SessionAuthentication,
+    BasicAuthentication
+)
 
 from patient.serializers import (
     PatientSerializer,
-    PatientCreateSerializer,
+    PatientSerializer,
 )
 from patient.models import (
     Patient,
 )
+from patient.permissions import (
+    IsPatient,
+)
+from staff.permissions import (
+    IsPatientManager,
+)
 
 
 class PatientCreateView(APIView):
+    authentication_classes = (
+        SessionAuthentication,
+        BasicAuthentication,
+    )
+    permission_classes = (
+        IsAuthenticated,
+        IsPatientManager,
+    )
 
     @staticmethod
     @swagger_auto_schema(
         request_body=PatientSerializer,
         responses={
-                200: PatientSerializer,
-                400: 'Invalid request data'
+            200: PatientSerializer,
+            400: 'Invalid request data'
         }
     )
     def post(request, *args, **kwargs):
-        patient_serializer = PatientCreateSerializer(
+        patient_serializer = PatientSerializer(
             data=request.data
         )
         if patient_serializer.is_valid():
@@ -38,21 +57,21 @@ class PatientCreateView(APIView):
 
 
 class PatientDetail(APIView):
-    permission_classes = [AllowAny]
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
 
     @staticmethod
     @swagger_auto_schema(
         responses={
-                200: PatientSerializer,
-                401: 'Unauthorized',
-                404: 'Patient not found'
+            200: PatientSerializer,
+            401: 'Unauthorized',
+            404: 'Patient not found'
         }
     )
     def get(request, inn):
-        if request.data != inn:
-            return Response(data={'response': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        patient_instance = Patient.objects.filter(baseuser_ptr=inn).first()
+        patient_instance = Patient.objects.filter(
+            baseuser_ptr=inn,
+        ).first()
         if patient_instance:
             patient_serializer = PatientSerializer(patient_instance)
             return Response(
@@ -65,13 +84,13 @@ class PatientDetail(APIView):
     @swagger_auto_schema(
         request_body=PatientSerializer,
         responses={
-                200: PatientSerializer,
-                400: 'Invalid request data'
+            200: PatientSerializer,
+            400: 'Invalid request data'
         }
     )
-    def patch(request, inn):
+    def patch(request, user_id):
         try:
-            patient_instance = Patient.objects.filter(baseuser_ptr=inn).first()
+            patient_instance = Patient.objects.filter(baseuser_ptr=user_id).first()
             patient_serializer = PatientSerializer(
                 patient_instance, data=request.data, partial=True)
             if patient_serializer.is_valid():
@@ -87,9 +106,9 @@ class PatientList(APIView):
     @staticmethod
     @swagger_auto_schema(
         responses={
-                200: PatientSerializer,
-                401: 'Unauthorized',
-                404: 'Patient not found'
+            200: PatientSerializer,
+            401: 'Unauthorized',
+            404: 'Patient not found'
         }
     )
     def get(request):
@@ -98,72 +117,70 @@ class PatientList(APIView):
         return Response(patient_serializer.data, status=status.HTTP_200_OK)
 
 
-from django.db.models import Q
-
-
 class PatientSearch(APIView):
     """
-    A Django REST Framework APIView for searching patients by name.
+        An APIView for searching Patient objects based on either full name or INN (Individual Taxpayer Number).
 
-    Attributes:
-    -----------
-    None
+        Handles GET requests to search for patients using a single query parameter named 'name'. 
+        The length of the query parameter should be more than 1 character.
 
-    Methods:
-    --------
-    get(request):
-        Handle GET requests to search for patients by name.
+        The search can be performed by:
+            - Full name (space-separated first and last name): Supports partial matching in both names.
+            - INN (digits only): Filters patients based on their INN number (case-insensitive).
+        
+        Query Parameters:
+            - name (str): A full name or user_id to search for.
+                -Example: 
+                    1) GET http://request/?name=John Smith
+                    2) GET http://request/?name=John
+                    3) GET http://request/?name=Smith
+                    4) GET http://request/?name=22512199945678            
 
-        Parameters:
-        -----------
-        request (HttpRequest):
-            The incoming GET request containing query parameters.
-
-                - 'firstname' (str): The first name to search for.
-                - 'lastname' (str): The last name to search for.
-
-        Returns:
-        --------
-        Response: A JSON response containing the search results.
-
-        Raises:
-        -------
-        None
+        Response:
+            A JSON response containing a list of matching Patient objects, serialized using PatientSerializer.
+            - 200 (OK): Returned if patients are found matching the search criteria.
+            - 404 (Not Found): Raised if no patients match the search criteria.
     """
 
+    @staticmethod
+    @swagger_auto_schema(
+        responses={
+            200: PatientSerializer,
+            401: 'Unauthorized',
+            404: 'Patient not found'
+        }
+    )
     def get(self, request):
-        """
-        Handle GET requests to search for patients by name.
 
-        Parameters:
-        -----------
-        request (HttpRequest):
-            The incoming GET request containing query parameters.
+        full_name_or_inn = request.query_params.get('name', )
 
-                - 'firstname' (str): The first name to search for.
-                - 'lastname' (str): The last name to search for.
+        if full_name_or_inn.isdigit():
+            inn = full_name_or_inn
+            query = Q(inn__icontains=inn)
+        else:
+            inn = None
+            names = full_name_or_inn.split(" ")
+            first_name = names[0]
+            last_name = names[-1] if len(names) > 1 else ""
 
-        Returns:
-        --------
-        Response: A JSON response containing the search results.
+            query = Q()
 
-        Raises:
-        -------
-        None
-        """
-        first_name = request.query_params.get('firstname', '')
-        last_name = request.query_params.get('lastname', '')
+            if first_name and last_name:
+                # If both first name and last name are provided, only include records
+                # where both names match
+                query |= (Q(first_name__icontains=first_name) & Q(last_name__icontains=last_name)) | (Q(first_name__icontains=last_name) & Q(last_name__icontains=first_name))
+            else:
+                if first_name:
+                    # Check if the first name matches either first_name or last_name column
+                    query |= Q(first_name__icontains=first_name) | Q(last_name__icontains=first_name)
+                if last_name:
+                    # Check if the last name matches either first_name or last_name column
+                    query |= Q(first_name__icontains=last_name) | Q(last_name__icontains=last_name)
 
-        # Create a query that matches either the first name or the last name
-        query = Q()
-
-        if first_name:
-            query |= Q(first_name__icontains=first_name)
-        if last_name:
-            query |= Q(last_name__icontains=last_name)
-
-        # Perform the search
         results = Patient.objects.filter(query)
+
+        if not results:
+            raise Http404("No matching patients found")
 
         serializer = PatientSerializer(results, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

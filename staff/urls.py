@@ -1,11 +1,14 @@
 from django.urls import path
-from .views import (
-    DoctorList,
-    DoctorDetail
+from staff.views import (
+    HospitalAdministratorSingleView,
+    HospitalAdministratorView,
+    BranchAdministratorView,
 )
 
 app_name = 'staff'
+
 urlpatterns = [
-    path('doctors/', DoctorList.as_view(), name='doctor-list'),
-    path('doctors/<int:pk>/', DoctorDetail.as_view(), name='doctor-detail'),
+    path('view-hospital-administrator/<int:pk>', HospitalAdministratorSingleView.as_view(), name='hospital-administrator-single'),
+    path('create-hospital-administrator', HospitalAdministratorView.as_view(), name='hospital-administrator'),
+    path('create-branch-administrator', BranchAdministratorView.as_view(), name='branch-administrator'),
 ]

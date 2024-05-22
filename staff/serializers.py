@@ -1,51 +1,60 @@
-from user_authentication.serializers import BaseUserSerializer, AddressSerializer
-from staff.models import Staff
-from patient.serializers import AddressSerializer
+from rest_framework.serializers import ModelSerializer
+from django.contrib.auth import hashers
+from staff.models import (
+    PatientManager,
+    BranchAdministrator,
+    HospitalAdministrator,
+    Doctor,
+)
 
 
-class StaffSerializer(BaseUserSerializer):
+class PatientManagerSerializer(ModelSerializer):
     class Meta:
-        model = Staff
-        fields = [
-            'inn',
+        model = PatientManager
+        exclude = ['password']
+
+
+class BranchAdministratorSerializer(ModelSerializer):
+    class Meta:
+        model = BranchAdministrator
+        fields = (
+            'user_id',
             'first_name',
+            'middle_name',
             'last_name',
             'email',
-            'date_of_birth',
-            'gender',
-            "phone_number",
-            "primary_address",
-            'position',
-            'specialization',
-        ]
+        )
 
-    # def create(self, validated_data):
-    #     if validated_data.get('address'):
-    #         validated_data['address'] = get_or_create(
-    #             validated_data.pop('address'), AddressSerializer)
-    #     user = super(StaffSerializer, self).create(validated_data)
-    #     user.set_password(validated_data['password'])
-    #     user.save()
-    #     return user
-    primary_address = AddressSerializer()
+    def create(self, validated_data):
+        """
+        Creates a new BranchAdministrator instance with hashed password.
+        """
 
-    def update(self, instance, validated_data):
+        hospital_administrator = HospitalAdministrator.objects.create_hospital_administrator(**validated_data)
+        return hospital_administrator
 
-        super().update(instance, validated_data)
 
-        instance.phone_number = validated_data.get(
-            'phone_number', instance.phone_number)
+class HospitalAdministratorSerializer(ModelSerializer):
+    class Meta:
+        model = HospitalAdministrator
+        fields = (
+            'user_id',
+            'first_name',
+            'middle_name',
+            'last_name',
+            'email',
+        )
 
-        primary_address_data = validated_data.pop('primary_address', None)
-        primary_address_instance = instance.primary_address
+    def create(self, validated_data):
+        """
+        Creates a new HospitalAdministrator instance with hashed password.
+        """
 
-        if primary_address_data:
-            primary_address_serializer = AddressSerializer(
-                primary_address_instance, data=primary_address_data)
-            if primary_address_serializer.is_valid():
-                primary_address_serializer.save()
+        hospital_administrator = HospitalAdministrator.objects.create_hospital_administrator(**validated_data)
+        return hospital_administrator
 
-        instance.save()
 
-        return instance
-
+class DoctorSerializer(ModelSerializer):
+    class Meta:
+        model = Doctor
+        exclude = ['password']

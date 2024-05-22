@@ -1,21 +1,38 @@
 from django.db import models
-from user_authentication.models import BaseUser, Address
+from user_authentication.models import StandardUser, BaseUser
 
 
-<<<<<<< HEAD
-class Staff(BaseUser):
-    position = models.CharField(max_length=128)
-    specialization = models.CharField(max_length=128)
+class Speciality(models.Model):
+    position = models.CharField(max_length=256)
+    description = models.TextField()
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name} {self.position} {self.specialization}'
+        return self.position
 
 
-=======
-# class Doctor(BaseUser):
-#     position = models.CharField(max_length=128)
-#     specialization = models.CharField(max_length=128)
-#
-#     def __str__(self):
-#         return f'{self.first_name} {self.last_name} {self.position} {self.specialization}'
->>>>>>> c43a188192303a239d42efb63a7689b68ab8f348
+class Doctor(StandardUser):
+    speciality = models.ManyToManyField(
+        Speciality,
+        related_name='doctors',
+    )
+    is_doctor = True
+    is_branch_director = models.BooleanField(default=False)
+    is_department_director = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.first_name} {self.middle_name} {self.last_name} {self.speciality}'
+
+
+class PatientManager(StandardUser):
+    is_staff = True
+    is_patient_manager = True
+
+
+class BranchAdministrator(BaseUser):
+    is_branch_administrator = True
+    is_staff = True
+
+
+class HospitalAdministrator(BaseUser):
+    is_hospital_administrator = True
+    is_staff = True
