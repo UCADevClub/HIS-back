@@ -214,4 +214,5 @@ ENV/
 /site
 
 # developer settings
-local_test.py 
+local_test.py
+docker-compose.yml
