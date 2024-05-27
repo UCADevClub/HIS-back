@@ -7,18 +7,17 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 from rest_framework.authentication import (
     SessionAuthentication,
-    BasicAuthentication
+    BasicAuthentication, TokenAuthentication
 )
 
 from patient.serializers import (
-    PatientSerializer,
     PatientSerializer,
 )
 from patient.models import (
     Patient,
 )
 from patient.permissions import (
-    IsPatient,
+    IsPatient
 )
 from staff.permissions import (
     IsPatientManager,
@@ -27,11 +26,9 @@ from staff.permissions import (
 
 class PatientCreateView(APIView):
     authentication_classes = (
-        SessionAuthentication,
-        BasicAuthentication,
+            TokenAuthentication,
     )
     permission_classes = (
-        IsAuthenticated,
         IsPatientManager,
     )
 
@@ -57,8 +54,12 @@ class PatientCreateView(APIView):
 
 
 class PatientDetail(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    authentication_classes = (
+            TokenAuthentication,
+    )
+    permission_classes = (
+            IsPatientManager | IsPatient,
+    )
 
     @staticmethod
     @swagger_auto_schema(
@@ -102,6 +103,10 @@ class PatientDetail(APIView):
 
 
 class PatientList(APIView):
+
+    authentication_classes = (
+            TokenAuthentication,
+    )
 
     @staticmethod
     @swagger_auto_schema(
@@ -150,7 +155,7 @@ class PatientSearch(APIView):
             404: 'Patient not found'
         }
     )
-    def get(self, request):
+    def get(request):
 
         full_name_or_inn = request.query_params.get('name', )
 
