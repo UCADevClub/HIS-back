@@ -34,7 +34,21 @@ class StandardUserSerializer(ModelSerializer):
 
     class Meta:
         model = StandardUser
-        fields = '__all__'
+        fields = (
+                'user_id',
+                'first_name',
+                'last_name',
+                'middle_name',
+                'email',
+                'citizenship',
+                'date_of_birth',
+                'phone_number',
+                'gender',
+                'address',
+                'primary_emergency_contact',
+                'secondary_emergency_contact',
+                'marital_status'
+        )
 
     def create(self, validated_data):
         address_data = validated_data.pop('address')

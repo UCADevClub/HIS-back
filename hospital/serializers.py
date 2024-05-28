@@ -70,7 +70,6 @@ class BranchAddressSerializer(ModelSerializer):
 
 class HospitalSerializer(ModelSerializer):
     hospital_administrator = HospitalAdministratorSerializer(required=False)
-    hospital_administrator_id = CharField(required=False)
 
     class Meta:
         model = Hospital
@@ -79,20 +78,13 @@ class HospitalSerializer(ModelSerializer):
             'description',
             'website',
             'hospital_administrator',
-            'hospital_administrator_id',
         )
 
     def create(self, validated_data):
         hospital_administrator_data = validated_data.pop('hospital_administrator', None)
-        hospital_administrator_id = validated_data.pop('hospital_administrator_id', None)
-        if hospital_administrator_data:
-            validated_data['hospital_administrator'] = HospitalAdministrator.objects.create_hospital_administrator(
-                **hospital_administrator_data
-            )
-        else:
-            validated_data['hospital_administrator'] = HospitalAdministrator.objects.get(
-                user_id=hospital_administrator_id
-            )
+        validated_data['hospital_administrator'] = HospitalAdministrator.objects.create_hospital_administrator(
+            **hospital_administrator_data
+        )
         hospital_instance = Hospital.objects.create(
             **validated_data,
         )
@@ -168,7 +160,7 @@ class BranchSerializer(ModelSerializer):
             branch_instance.branch_administrator = branch_administrator_instance
 
         if patient_manager_data:
-            patient_manager_instance = PatientManager.objects.create(**patient_manager_data)
+            patient_manager_instance = PatientManagerSerializer().create(patient_manager_data)
             branch_instance.patient_manager = patient_manager_instance
 
         return branch_instance

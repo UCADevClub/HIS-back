@@ -31,7 +31,7 @@ class EmergencyContact(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.middle_name} {self.last_name}"
-    
+
     class Meta:
         db_table = 'EmergencyContact'
 
@@ -97,16 +97,15 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f'{self.first_name} {self.middle_name} {self.last_name}'
-    
-    
+
 
 class StandardUser(BaseUser):
     citizenship = models.CharField(max_length=64)
     date_of_birth = models.DateField(null=True)
     phone_number = models.CharField(max_length=128)
     GENDER_CHOICES = [
-        ('M', 'Male'),
-        ('F', 'Female'),
+            ('M', 'Male'),
+            ('F', 'Female'),
     ]
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='M')
     address = models.OneToOneField(
@@ -128,12 +127,12 @@ class StandardUser(BaseUser):
         blank=True,
     )
     MARITAL_OPTIONS = (
-        ('single', 'Single'),
-        ('married', 'Married'),
-        ('widowed', 'Widowed'),
-        ('separated', 'Separated'),
-        ('divorced', 'Divorced'),
-        ('common_law', 'Common-Law')
+            ('single', 'Single'),
+            ('married', 'Married'),
+            ('widowed', 'Widowed'),
+            ('separated', 'Separated'),
+            ('divorced', 'Divorced'),
+            ('common_law', 'Common-Law')
     )
 
     marital_status = models.CharField(

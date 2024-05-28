@@ -1,17 +1,47 @@
 from rest_framework.serializers import ModelSerializer
-from django.contrib.auth import hashers
 from staff.models import (
     PatientManager,
     BranchAdministrator,
     HospitalAdministrator,
     Doctor,
 )
+from user_authentication.models import (
+    Address,
+    EmergencyContact,
+)
+from user_authentication.serializers import (
+    StandardUserSerializer,
+    AddressSerializer,
+    EmergencyContactSerializer,
+)
 
 
-class PatientManagerSerializer(ModelSerializer):
-    class Meta:
+class PatientManagerSerializer(StandardUserSerializer):
+    address = AddressSerializer()
+    primary_emergency_contact = EmergencyContactSerializer()
+    secondary_emergency_contact = EmergencyContactSerializer(required=False)
+
+    class Meta(StandardUserSerializer.Meta):
         model = PatientManager
-        exclude = ['password']
+        fields = StandardUserSerializer.Meta.fields
+
+    def create(self, validated_data):
+        address_data = validated_data.pop('address')
+        primary_emergency_contact_data = validated_data.pop('primary_emergency_contact', None)
+        secondary_emergency_contact_data = validated_data.pop('secondary_emergency_contact', None)
+
+        address = Address.objects.create(**address_data)
+        primary_emergency_contact = EmergencyContact.objects.create(**primary_emergency_contact_data)
+        if secondary_emergency_contact_data:
+            secondary_emergency_contact = EmergencyContact.objects.create(**secondary_emergency_contact_data)
+        else:
+            secondary_emergency_contact = None
+
+        validated_data['address'] = address
+        validated_data['primary_emergency_contact'] = primary_emergency_contact
+        validated_data['secondary_emergency_contact'] = secondary_emergency_contact
+
+        return PatientManager.objects.create_patient_manager(**validated_data)
 
 
 class BranchAdministratorSerializer(ModelSerializer):

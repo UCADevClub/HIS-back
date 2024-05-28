@@ -28,10 +28,10 @@ class HospitalCreateView(APIView):
     API endpoint for creating and updating hospital data.
     """
     authentication_classes = (
-        TokenAuthentication,
+            TokenAuthentication,
     )
     permission_classes = (
-        IsHospitalAdministrator,
+            IsHospitalAdministrator | IsSuperUser,
     )
 
     @staticmethod
@@ -43,42 +43,26 @@ class HospitalCreateView(APIView):
         if hospital_serializer.is_valid():
             hospital_serializer.save()
             return Response({
-                'message': 'Hospital created successfully',
-                'data': hospital_serializer.data
+                    'message': 'Hospital created successfully',
+                    'data': hospital_serializer.data
             },
                 status=status.HTTP_201_CREATED
             )
         return Response({
-            'message': 'Wrong data provided',
-            'data': hospital_serializer.errors
+                'message': 'Wrong data provided',
+                'data': hospital_serializer.errors
         },
             status=status.HTTP_400_BAD_REQUEST)
 
 
 class BranchView(APIView):
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsHospitalAdministrator,)
+    authentication_classes = (
+            TokenAuthentication,
+    )
+    permission_classes = (
+            IsHospitalAdministrator,
+    )
 
-    @staticmethod
-    def get(request, pk):
-        try:
-            branch_instance = Branch.objects.filter(id=pk).first()
-            branch_serializer = BranchSerializer(branch_instance)
-            return Response(
-                    data={
-                        'message': None,
-                        'data': branch_serializer.data,
-                    },
-                    status=status.HTTP_200_OK
-                )
-        except Branch.DoesNotExist:
-            return Response(
-                data={
-                    'message': f'Branch with id={pk} does not exists',
-                    'data': {},
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
     @staticmethod
     def patch(request, pk):
         try:
@@ -92,23 +76,23 @@ class BranchView(APIView):
                 branch_serializer.save()
                 return Response(
                     data={
-                        'message': 'Updated successfully',
-                        'data': branch_serializer.data,
+                            'message': 'Updated successfully',
+                            'data': branch_serializer.data,
                     },
                     status=status.HTTP_200_OK
                 )
             return Response(
                 data={
-                    'message': 'Invalid data provided',
-                    'data': branch_serializer.data,
+                        'message': 'Invalid data provided',
+                        'data': branch_serializer.data,
                 },
                 status=status.HTTP_403_FORBIDDEN
             )
         except Branch.DoesNotExist:
             return Response(
                 data={
-                    'message': f'Branch with id={pk} does not exists',
-                    'data': {},
+                        'message': f'Branch with id={pk} does not exists',
+                        'data': {},
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
@@ -120,24 +104,20 @@ class BranchView(APIView):
             branch_serializer.save()
             return Response(
                 data={
-                    'message': 'Branch created successfully',
-                    'data': branch_serializer.data,
+                        'message': 'Branch created successfully',
+                        'data': branch_serializer.data,
                 },
                 status=status.HTTP_201_CREATED
 
             )
         return Response(
             data={
-                'message': 'Invalid data provided',
-                'data': branch_serializer.data,
+                    'message': 'Invalid data provided',
+                    'data': branch_serializer.errors,
             },
             status=status.HTTP_400_BAD_REQUEST,
 
         )
-
-    @staticmethod
-    def patch(request):
-        ...
 
 
 class HospitalUpdateView(APIView):
@@ -145,8 +125,8 @@ class HospitalUpdateView(APIView):
     API endpoint for updating hospital data.
     """
     permission_classes = (
-        IsAuthenticated,
-        IsSuperUser,
+            IsAuthenticated,
+            IsSuperUser,
     )
 
     def patch(self, request, pk):
@@ -206,22 +186,21 @@ class BranchListCreateAPIView(APIView):
             serializer.save()
             return Response(
                 {
-                    'message': 'Branch created successfully',
-                    'data': serializer.data
+                        'message': 'Branch created successfully',
+                        'data': serializer.data
                 },
                 status=status.HTTP_201_CREATED
             )
         return Response(
             {
-                'message': 'Branch not created.',
-                'error': serializer.errors,
+                    'message': 'Branch not created.',
+                    'error': serializer.errors,
             },
             status=status.HTTP_400_BAD_REQUEST
         )
 
 
 class BranchRetrieveUpdateAPIView(APIView):
-
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsSuperUser,)
 
