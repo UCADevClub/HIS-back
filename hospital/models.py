@@ -12,6 +12,9 @@ class BranchPhoneNumber(models.Model):
 
     def __str__(self):
         return f'{self.phone_number}'
+    
+    class Meta:
+        db_table = 'BranchPhoneNumber'
 
 
 class BranchAddress(models.Model):
@@ -24,7 +27,9 @@ class BranchAddress(models.Model):
 
     def __str__(self):
         return f"{self.street_address}, {self.building_number}, {self.city}, {self.country}"
-
+    
+    class Meta:
+        db_table = 'BranchAddress'
 
 class Hospital(models.Model):
     name = models.CharField(max_length=128)
@@ -38,6 +43,9 @@ class Hospital(models.Model):
 
     def __str__(self):
         return f'{self.name}'
+    
+    class Meta:
+        db_table = 'Hospital'
 
 
 class Branch(models.Model):
@@ -85,6 +93,9 @@ class Branch(models.Model):
 
     def __str__(self):
         return f'{self.name}'
+    
+    class Meta:
+        db_table = 'Branch'
 
 
 class Department(models.Model):
@@ -104,3 +115,6 @@ class Department(models.Model):
 
     def __str__(self):
         return f'{self.name}'
+    
+    class Meta:
+        db_table = 'Department'
