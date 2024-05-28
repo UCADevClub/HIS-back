@@ -19,6 +19,9 @@ class Address(models.Model):
     def __str__(self):
         return f"{self.street}, {self.house}, {self.country}, {self.oblast}"
 
+    class Meta:
+        db_table = 'Address'
+
 
 class EmergencyContact(models.Model):
     first_name = models.CharField(max_length=128)
@@ -28,6 +31,9 @@ class EmergencyContact(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.middle_name} {self.last_name}"
+    
+    class Meta:
+        db_table = 'EmergencyContact'
 
 
 class CustomUserManager(BaseUserManager):
@@ -91,7 +97,8 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f'{self.first_name} {self.middle_name} {self.last_name}'
-
+    
+    
 
 class StandardUser(BaseUser):
     citizenship = models.CharField(max_length=64)
@@ -136,4 +143,3 @@ class StandardUser(BaseUser):
     )
     is_doctor = models.BooleanField(default=False)
     is_patient = models.BooleanField(default=False)
-

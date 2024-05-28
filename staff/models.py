@@ -8,6 +8,9 @@ class Speciality(models.Model):
 
     def __str__(self):
         return self.position
+    
+    class Meta:
+        db_table = 'Speciality'
 
 
 class Doctor(StandardUser):
@@ -21,18 +24,29 @@ class Doctor(StandardUser):
 
     def __str__(self):
         return f'{self.first_name} {self.middle_name} {self.last_name} {self.speciality}'
+    
+    class Meta:
+        db_table = 'Doctor'
 
 
 class PatientManager(StandardUser):
     is_staff = True
     is_patient_manager = True
 
+    class Meta:
+        db_table = 'PatientManager'
+
 
 class BranchAdministrator(BaseUser):
     is_branch_administrator = True
     is_staff = True
 
+    class Meta:
+        db_table = 'BranchAdministrator'
 
 class HospitalAdministrator(BaseUser):
     is_hospital_administrator = True
     is_staff = True
+
+    class Meta:
+        db_table = 'HospitalAdministrator'
