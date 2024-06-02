@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -35,6 +36,14 @@ class HospitalCreateView(APIView):
     )
 
     @staticmethod
+    @swagger_auto_schema(
+        request_body=HospitalSerializer,
+        responses={
+            200: HospitalSerializer,
+            400: 'Invalid request data'
+        }
+    )
+    
     def post(request):
         """
         Creates a new hospital instance.
@@ -64,6 +73,14 @@ class BranchView(APIView):
     )
 
     @staticmethod
+    @swagger_auto_schema(
+        request_body=BranchSerializer,
+        responses={
+            200:BranchSerializer,
+            400:'Invalid request data'
+
+        }
+    )
     def patch(request, pk):
         try:
             branch_instance = Branch.objects.filter(id=pk).first()
@@ -98,6 +115,13 @@ class BranchView(APIView):
             )
 
     @staticmethod
+    @swagger_auto_schema(
+        request_body= BranchSerializer,
+        responses={
+            200:BranchSerializer,
+            400:'Invalid request data'
+        }
+    )
     def post(request):
         branch_serializer = BranchSerializer(data=request.data)
         if branch_serializer.is_valid():
@@ -128,7 +152,14 @@ class HospitalUpdateView(APIView):
             IsAuthenticated,
             IsSuperUser,
     )
-
+    
+    @swagger_auto_schema(
+        request_body= HospitalSerializer,
+        responses= {
+            200: HospitalSerializer,
+            400: 'Invalid request data'
+        }
+    )
     def patch(self, request, pk):
         """
         Partially updates an existing hospital instance.
@@ -148,7 +179,14 @@ class HospitalListView(APIView):
     """
     API endpoint for retrieving hospital data.
     """
-
+    
+    @swagger_auto_schema(
+        responses={
+            200: HospitalSerializer,
+            401: 'Unauthorized',
+            404: 'Hospital not found'
+        }
+    )
     def get(self, request):
         """
         Retrieves a list of all hospitals or a single hospital by ID.
@@ -174,12 +212,27 @@ class BranchListCreateAPIView(APIView):
     permission_classes = (IsHospitalAdministrator | IsSuperUser,)
 
     @staticmethod
+    @swagger_auto_schema(
+        responses={
+            200: BranchSerializer,
+            401: 'Unauthorized',
+            404: 'Branch not found'
+        }
+    )
+    
     def get(request):
         branches = Branch.objects.all()
         serializer = BranchSerializer(branches, many=True)
         return Response(serializer.data)
 
     @staticmethod
+    @swagger_auto_schema(
+        request_body=BranchSerializer,
+        responses={
+            200:BranchSerializer,
+            400: 'Invalid request data'
+        }
+    )
     def post(request):
         serializer = BranchSerializer(data=request.data)
         if serializer.is_valid():
@@ -204,6 +257,13 @@ class BranchRetrieveUpdateAPIView(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsSuperUser,)
 
+    @swagger_auto_schema(
+        responses={
+            200: BranchSerializer,
+            404: 'Branch not found'
+        }
+    )
+
     def get(self, request, pk):
         try:
             branch = Branch.objects.get(pk=pk)
@@ -225,6 +285,14 @@ class BranchRetrieveUpdateAPIView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    
+    @swagger_auto_schema(
+        request_body= BranchSerializer,
+        responses={
+            200: BranchSerializer,
+            400: 'Invalid request data'
+        }
+    )
     def patch(self, request, pk):
         try:
             branch = Branch.objects.get(pk=pk)
@@ -236,7 +304,15 @@ class BranchRetrieveUpdateAPIView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    
+   
+    @swagger_auto_schema(
+        request_body=BranchSerializer,
+        responses={
+            204: 'Branch deleted successfully',
+            404: 'Branch not found'
+        }
+    )
     def delete(self, request, pk):
         try:
             branch = Branch.objects.get(pk=pk)
