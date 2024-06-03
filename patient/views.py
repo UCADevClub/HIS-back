@@ -48,9 +48,11 @@ class PatientCreateView(APIView):
             patient_serializer.save()
             return Response(
                 data=patient_serializer.data,
-                status=status.HTTP_200_OK,
+                status=status.HTTP_201_CREATED,
             )
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            data=patient_serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST)
 
 
 class PatientDetail(APIView):
@@ -119,7 +121,7 @@ class PatientList(APIView):
     def get(request):
         patient_instance = Patient.objects.all()
         patient_serializer = PatientSerializer(patient_instance, many=True)
-        return Response(patient_serializer.data, status=status.HTTP_200_OK)
+        return Response(patient_serializer.dgata, status=status.HTTP_200_OK)
 
 
 class PatientSearch(APIView):
