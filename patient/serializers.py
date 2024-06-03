@@ -1,11 +1,9 @@
-from rest_framework.serializers import ModelSerializer
 from patient.models import Patient
 from user_authentication.serializers import (
     StandardUserSerializer,
 )
 from user_authentication.models import (
     Address,
-    StandardUser,
     EmergencyContact,
 )
 
@@ -46,4 +44,5 @@ class PatientSerializer(StandardUserSerializer):
         validated_data['primary_emergency_contact'] = primary_emergency_contact
         validated_data['secondary_emergency_contact'] = secondary_emergency_contact
 
-        return StandardUser.objects.create_patient(**validated_data)
+        return Patient.objects.create_patient(**validated_data)
+    g
