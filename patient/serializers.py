@@ -45,4 +45,3 @@ class PatientSerializer(StandardUserSerializer):
         validated_data['secondary_emergency_contact'] = secondary_emergency_contact
 
         return Patient.objects.create_patient(**validated_data)
-    g
