@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -24,6 +25,13 @@ class HospitalAdministratorSingleView(APIView):
     )
 
     @staticmethod
+    @swagger_auto_schema(
+        responses={
+            200: HospitalAdministratorSerializer(),
+            401: 'Unauthorized',
+            404: 'Hospital administrator not found'
+        }
+    )
     def get(request, pk):
         hospital_administrator_instance = HospitalAdministrator.objects.filter(
             user_id=pk,
@@ -47,6 +55,13 @@ class HospitalAdministratorView(APIView):
     )
 
     @staticmethod
+    @swagger_auto_schema(
+        responses={
+            200: HospitalAdministratorSerializer(many=True),
+            401: 'Unauthorized',
+            404: 'No hospital administrators found'
+        }
+    )   
     def get(request, pk):
         hospital_administrator_query = HospitalAdministrator.objects.all()
         if not hospital_administrator_query:
@@ -54,6 +69,13 @@ class HospitalAdministratorView(APIView):
         return Response(data={'response': 'hospital administrator is not found'}, status=status.HTTP_404_NOT_FOUND)
 
     @staticmethod
+    @swagger_auto_schema(
+        request_body=HospitalAdministratorSerializer,
+        responses={
+            200:HospitalAdministratorSerializer,
+            400: 'Invalid request data'
+        }
+    )
     def post(request, *args, **kwargs):
         hospital_administrator_serializer = HospitalAdministratorSerializer(
             data=request.data,
@@ -76,6 +98,13 @@ class BranchAdministratorView(APIView):
     permission_classes = (IsSuperUser | IsHospitalAdministrator,)
 
     @staticmethod
+    @swagger_auto_schema(
+        request_body=BranchAdministratorSerializer,
+        responses={
+            200:BranchAdministratorSerializer,
+            400: 'Invalid request data'
+        }
+    )
     def post(request):
         branch_administrator_serializer = BranchAdministratorSerializer(
             data=request.data
