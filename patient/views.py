@@ -121,7 +121,7 @@ class PatientList(APIView):
     def get(request):
         patient_instance = Patient.objects.all()
         patient_serializer = PatientSerializer(patient_instance, many=True)
-        return Response(patient_serializer.dgata, status=status.HTTP_200_OK)
+        return Response(patient_serializer.data, status=status.HTTP_200_OK)
 
 
 class PatientSearch(APIView):
