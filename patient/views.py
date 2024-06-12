@@ -63,7 +63,7 @@ class PatientDetail(APIView):
             IsPatientManager | IsPatient,
     )
 
-    @staticmethod
+  
     @swagger_auto_schema(
         responses={
             200: PatientSerializer,
@@ -71,9 +71,9 @@ class PatientDetail(APIView):
             404: 'Patient not found'
         }
     )
-    def get(request, inn):
+    def get(self, request, user_id):
         patient_instance = Patient.objects.filter(
-            baseuser_ptr=inn,
+            user_id=user_id,
         ).first()
         if patient_instance:
             patient_serializer = PatientSerializer(patient_instance)
@@ -83,7 +83,7 @@ class PatientDetail(APIView):
             )
         return Response(data={'response: ': 'patient not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    @staticmethod
+    
     @swagger_auto_schema(
         request_body=PatientSerializer,
         responses={
@@ -91,9 +91,9 @@ class PatientDetail(APIView):
             400: 'Invalid request data'
         }
     )
-    def patch(request, user_id):
+    def patch(self,request, user_id):
         try:
-            patient_instance = Patient.objects.filter(baseuser_ptr=user_id).first()
+            patient_instance = Patient.objects.filter(user_id=user_id).first()
             patient_serializer = PatientSerializer(
                 patient_instance, data=request.data, partial=True)
             if patient_serializer.is_valid():
