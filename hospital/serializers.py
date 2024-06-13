@@ -82,9 +82,10 @@ class HospitalSerializer(ModelSerializer):
 
     def create(self, validated_data):
         hospital_administrator_data = validated_data.pop('hospital_administrator', None)
-        validated_data['hospital_administrator'] = HospitalAdministrator.objects.create_hospital_administrator(
-            **hospital_administrator_data
-        )
+        if hospital_administrator_data:
+            validated_data['hospital_administrator'] = HospitalAdministrator.objects.create_hospital_administrator(
+                **hospital_administrator_data
+            )
         hospital_instance = Hospital.objects.create(
             **validated_data,
         )

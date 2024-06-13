@@ -255,7 +255,7 @@ class BranchListCreateAPIView(APIView):
 
 class BranchRetrieveUpdateAPIView(APIView):
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsSuperUser,)
+    permission_classes = (IsSuperUser,IsHospitalAdministrator,)
 
     @swagger_auto_schema(
         responses={

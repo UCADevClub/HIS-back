@@ -11,7 +11,7 @@ from staff.permissions import (
     IsBranchAdministrator,
     IsPatientManager,
 )
-from staff.serializers import HospitalAdministratorSerializer, BranchAdministratorSerializer
+from staff.serializers import HospitalAdministratorSerializer, BranchAdministratorSerializer,DoctorSerializer, PatientManagerSerializer
 from staff.models import HospitalAdministrator, BranchAdministrator
 
 
@@ -40,7 +40,7 @@ class HospitalAdministratorSingleView(APIView):
             hospital_administrator_serializer = HospitalAdministratorSerializer(hospital_administrator_instance)
             return Response(
                 data=hospital_administrator_serializer.data,
-                status=status.HTTP_201_CREATED,
+                status=status.HTTP_200_OK,
             )
         return Response(data={'response': 'hospital administrator not found'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -54,7 +54,7 @@ class HospitalAdministratorView(APIView):
         IsSuperUser | IsHospitalAdministrator,
     )
 
-    @staticmethod
+    
     @swagger_auto_schema(
         responses={
             200: HospitalAdministratorSerializer(many=True),
@@ -62,10 +62,11 @@ class HospitalAdministratorView(APIView):
             404: 'No hospital administrators found'
         }
     )   
-    def get(request, pk):
+    def get(self,request):
         hospital_administrator_query = HospitalAdministrator.objects.all()
-        if not hospital_administrator_query:
-            return Response(data=hospital_administrator_query, status=status.HTTP_200_OK)
+        if  hospital_administrator_query:
+            hospital_administrator_serializer = HospitalAdministratorSerializer(hospital_administrator_query,many=True)
+            return Response(data=hospital_administrator_serializer.data, status=status.HTTP_200_OK)
         return Response(data={'response': 'hospital administrator is not found'}, status=status.HTTP_404_NOT_FOUND)
 
     @staticmethod
@@ -125,3 +126,36 @@ class BranchAdministratorView(APIView):
             },
             status=status.HTTP_400_BAD_REQUEST
         )
+
+class DoctorCreateView(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+
+    def post(self, request):
+        doctor_serializer = DoctorSerializer(data=request.data)
+        if doctor_serializer.is_valid():
+            doctor_serializer.save()
+            return Response(data={"message": "Doctor Created Successfully",
+                                  "data": doctor_serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(data={
+            "message": "Incorrect data",
+            "errors": doctor_serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+class PatientManagerCreateView(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+
+    def post(self,request):
+        patinet_manager_serializer = PatientManagerSerializer(data=request.data)
+        if patinet_manager_serializer.is_valid():
+            patinet_manager_serializer.save()
+            return Response(data={
+                "message":"Patient manager created successfully",
+                "data":patinet_manager_serializer.data},status=status.HTTP_201_CREATED
+            )
+        return Response(data={
+            "errors":patinet_manager_serializer.errors
+        },status=status.HTTP_400_BAD_REQUEST)
