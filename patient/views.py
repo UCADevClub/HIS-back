@@ -60,7 +60,7 @@ class PatientDetail(APIView):
             TokenAuthentication,
     )
     permission_classes = (
-            IsPatientManager | IsPatient,
+            IsPatientManager | IsAuthenticated,
     )
 
   
