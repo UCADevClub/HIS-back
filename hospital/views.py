@@ -18,6 +18,7 @@ from hospital.serializers import (
 )
 
 from staff.permissions import (
+    IsAdmin,
     IsSuperUser,
     IsHospitalAdministrator,
     IsBranchAdministrator,
@@ -32,7 +33,7 @@ class HospitalCreateView(APIView):
             TokenAuthentication,
     )
     permission_classes = (
-            IsHospitalAdministrator | IsSuperUser,
+            IsAdmin | IsSuperUser,
     )
 
     @staticmethod

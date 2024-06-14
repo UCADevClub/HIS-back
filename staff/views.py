@@ -6,6 +6,7 @@ from rest_framework.authentication import (
     TokenAuthentication
 )
 from staff.permissions import (
+    IsAdmin,
     IsSuperUser,
     IsHospitalAdministrator,
     IsBranchAdministrator,
@@ -21,7 +22,7 @@ class HospitalAdministratorSingleView(APIView):
     )
 
     permission_classes = (
-        IsSuperUser | IsHospitalAdministrator,
+        IsSuperUser | IsAdmin,
     )
 
     @staticmethod

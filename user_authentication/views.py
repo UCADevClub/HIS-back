@@ -1,7 +1,9 @@
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.views import APIView
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
+from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import get_user_model
 from .serializers import CustomAuthTokenSerializer
 
@@ -34,3 +36,18 @@ class TokenObtainView(ObtainAuthToken):
         }
 
         return Response(custom_response)
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        # Check for authentication
+        if not request.user.is_authenticated:
+            raise AuthenticationFailed('You are not authenticated')
+
+        # Get the token object for the user
+        token, _ = Token.objects.get_or_create(user=request.user)
+
+        # Delete the token
+        token.delete()
+
+        return Response({"message": "Successfully logged out."})

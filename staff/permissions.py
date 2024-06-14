@@ -22,3 +22,7 @@ class IsBranchAdministrator(BasePermission):
 class IsPatientManager(BasePermission):
     def has_permission(self, request, view):
         return request.user.is_patient_manager
+    
+class IsAdmin(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_admin
