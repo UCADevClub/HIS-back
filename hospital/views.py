@@ -150,31 +150,47 @@ class HospitalUpdateView(APIView):
     API endpoint for updating hospital data.
     """
     permission_classes = (
-            IsAuthenticated,
-            IsSuperUser,
-    )
-    
+        IsAuthenticated, 
+        IsHospitalAdministrator,
+        )
+
     @swagger_auto_schema(
-        request_body= HospitalSerializer,
-        responses= {
+        request_body=HospitalSerializer,
+        responses={
             200: HospitalSerializer,
-            400: 'Invalid request data'
+            400: 'Invalid request data',
+            403: 'Permission denied: User cannot update this hospital'
         }
     )
     def patch(self, request, pk):
         """
         Partially updates an existing hospital instance.
         """
+        user = request.user
+
         try:
             hospital = Hospital.objects.get(pk=pk)
         except Hospital.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        serializer = HospitalSerializer(hospital, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
-
+        # Check if user ID matches hospital administrator's user ID
+        if user.user_id != hospital.hospital_administrator.user_id and user.user_id != "1":
+            return Response({'message': 'Permission denied: User cannot update this hospital'}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            # Check if request body contains any update data
+            if not request.data:
+                return Response({'message': 'No update data provided'}, status=status.HTTP_409_CONFLICT)
+            else:
+                serializer = HospitalSerializer(hospital, data=request.data, partial=True)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response({
+                    'message': 'Hospital updated successfully',
+                    'data': serializer.data
+                    },
+                status=status.HTTP_200_OK
+                )
+                
 
 class HospitalListView(APIView):
     """
@@ -269,7 +285,7 @@ class BranchRetrieveUpdateAPIView(APIView):
         try:
             branch = Branch.objects.get(pk=pk)
         except Branch.DoesNotExist:
-            return Response({'error': 'Branch does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'Branch does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = BranchSerializer(branch)
         return Response(serializer.data)
@@ -278,7 +294,7 @@ class BranchRetrieveUpdateAPIView(APIView):
         try:
             branch = Branch.objects.get(pk=pk)
         except Branch.DoesNotExist:
-            return Response({'error': 'Branch does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'Branch does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = BranchSerializer(branch, data=request.data)
         if serializer.is_valid():
@@ -298,7 +314,7 @@ class BranchRetrieveUpdateAPIView(APIView):
         try:
             branch = Branch.objects.get(pk=pk)
         except Branch.DoesNotExist:
-            return Response({'error': 'Branch does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'Branch does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = BranchSerializer(branch, data=request.data, partial=True)
         if serializer.is_valid():
@@ -318,7 +334,7 @@ class BranchRetrieveUpdateAPIView(APIView):
         try:
             branch = Branch.objects.get(pk=pk)
         except Branch.DoesNotExist:
-            return Response({'error': 'Branch does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'Branch does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
         branch.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
