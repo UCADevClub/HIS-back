@@ -3,9 +3,9 @@ from hospital.views import (
     HospitalUpdateView,
     HospitalCreateView,
     HospitalListView,
-    BranchListCreateAPIView,
+    BranchListAPIView,
     BranchRetrieveUpdateAPIView,
-    BranchView,
+    BranchCreateView,
 )
 
 
@@ -19,9 +19,9 @@ urlpatterns = [
 
     # Branch URLs
     path('view-branch/<int:pk>', BranchRetrieveUpdateAPIView.as_view(), name='view-branch'),
-    path('create-branch/', BranchView.as_view(), name='create-branch'),
+    path('create-branch/', BranchCreateView.as_view(), name='create-branch'),
     # path('view-branch/<int:pk>', BranchView.as_view(), name='view-branch'),
-    path('list-branch/', BranchListCreateAPIView.as_view(), name='list-branch'),
+    path('list-branch/', BranchListAPIView.as_view(), name='list-branch'),
     
 
     

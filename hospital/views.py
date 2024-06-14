@@ -65,7 +65,7 @@ class HospitalCreateView(APIView):
             status=status.HTTP_400_BAD_REQUEST)
 
 
-class BranchView(APIView):
+class BranchCreateView(APIView):
     authentication_classes = (
             TokenAuthentication,
     )
@@ -174,7 +174,7 @@ class HospitalUpdateView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         # Check if user ID matches hospital administrator's user ID
-        if user.user_id != hospital.hospital_administrator.user_id and user.user_id != "1":
+        if user.user_id != hospital.hospital_administrator.user_id and not IsSuperUser:
             return Response({'message': 'Permission denied: User cannot update this hospital'}, status=status.HTTP_403_FORBIDDEN)
         else:
             # Check if request body contains any update data
@@ -224,7 +224,7 @@ class HospitalListView(APIView):
             return Response(serializer.data)
 
 
-class BranchListCreateAPIView(APIView):
+class BranchListAPIView(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsHospitalAdministrator | IsSuperUser,)
 
