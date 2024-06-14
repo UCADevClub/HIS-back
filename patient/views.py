@@ -60,7 +60,7 @@ class PatientDetail(APIView):
             TokenAuthentication,
     )
     permission_classes = (
-            IsPatientManager | IsPatient,
+            IsPatientManager | IsAuthenticated,
     )
 
   
@@ -73,7 +73,7 @@ class PatientDetail(APIView):
     )
     def get(self, request, user_id):
         patient_instance = Patient.objects.filter(
-            user_id=user_id,
+            baseuser_ptr=user_id,
         ).first()
         if patient_instance:
             patient_serializer = PatientSerializer(patient_instance)

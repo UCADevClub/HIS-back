@@ -13,6 +13,7 @@ class PatientSerializer(StandardUserSerializer):
     class Meta:
         model = Patient
         fields = (
+                'id',
                 'user_id',
                 'first_name',
                 'last_name',

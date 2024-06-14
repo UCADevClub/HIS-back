@@ -226,37 +226,37 @@ class BranchListCreateAPIView(APIView):
         serializer = BranchSerializer(branches, many=True)
         return Response(serializer.data)
 
-    @staticmethod
-    @swagger_auto_schema(
-        request_body=BranchSerializer,
-        responses={
-            200:BranchSerializer,
-            400: 'Invalid request data'
-        }
-    )
-    def post(request):
-        serializer = BranchSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(
-                {
-                        'message': 'Branch created successfully',
-                        'data': serializer.data
-                },
-                status=status.HTTP_201_CREATED
-            )
-        return Response(
-            {
-                    'message': 'Branch not created.',
-                    'error': serializer.errors,
-            },
-            status=status.HTTP_400_BAD_REQUEST
-        )
+    # @staticmethod
+    # @swagger_auto_schema(
+    #     request_body=BranchSerializer,
+    #     responses={
+    #         200:BranchSerializer,
+    #         400: 'Invalid request data'
+    #     }
+    # )
+    # def post(request):
+    #     serializer = BranchSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(
+    #             {
+    #                     'message': 'Branch created successfully',
+    #                     'data': serializer.data
+    #             },
+    #             status=status.HTTP_201_CREATED
+    #         )
+    #     return Response(
+    #         {
+    #                 'message': 'Branch not created.',
+    #                 'error': serializer.errors,
+    #         },
+    #         status=status.HTTP_400_BAD_REQUEST
+    #     )
 
 
 class BranchRetrieveUpdateAPIView(APIView):
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsSuperUser,)
+    permission_classes = (IsSuperUser,IsHospitalAdministrator,)
 
     @swagger_auto_schema(
         responses={

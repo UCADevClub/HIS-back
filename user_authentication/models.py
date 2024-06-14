@@ -75,6 +75,10 @@ class CustomUserManager(BaseUserManager):
     def create_patient(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_patient', True)
         return self.create_user(email=email, password=password, **extra_fields)
+    
+    def create_doctor(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_doctor', True)
+        return self.create_user(email=email,password=password, **extra_fields)
 
 
 class BaseUser(AbstractBaseUser, PermissionsMixin):
