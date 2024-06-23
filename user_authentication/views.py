@@ -28,7 +28,7 @@ class TokenObtainView(ObtainAuthToken):
 
         custom_response = {
             'token': token.key,
-            'user_id': user.id,
+            'id': user.id,
             'email': user.email,
             'first_name': user.first_name,
             'last_name': user.last_name,
