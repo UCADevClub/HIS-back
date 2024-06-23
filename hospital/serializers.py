@@ -147,6 +147,7 @@ class BranchSerializer(ModelSerializer):
             hospital=hospital_instance,
             **validated_data,
         )
+
         if phone_numbers_data:
             phone_numbers_instances = [BranchPhoneNumber.objects.create(**data) for data in phone_numbers_data]
             branch_instance.phone_numbers.set(phone_numbers_instances)
@@ -177,11 +178,12 @@ class BranchSerializer(ModelSerializer):
         patient_manager_data = validated_data.pop('patient_manager', None)
 
         if address_data:
-            address_serializer = BranchAddressSerializer(instance.address, data=address_data)
-            if address_serializer.is_valid():
+            address_serializer = BranchAddressSerializer(instance.address, data=address_data, partial=True)
+            if address_serializer.is_valid(raise_exception=True):
                 address_serializer.save()
 
         if phone_numbers_data:
+            instance.phone_numbers.clear()
             phone_numbers_instances = [BranchPhoneNumber.objects.create(**data) for data in phone_numbers_data]
             instance.phone_numbers.set(phone_numbers_instances)
 
@@ -190,8 +192,8 @@ class BranchSerializer(ModelSerializer):
             instance.director = director_instance
 
         if hospital_data:
-            hospital_serializer = HospitalSerializer(instance.hospital, data=hospital_data)
-            if hospital_serializer.is_valid():
+            hospital_serializer = HospitalSerializer(instance.hospital, data=hospital_data, partial=True)
+            if hospital_serializer.is_valid(raise_exception=True):
                 hospital_serializer.save()
 
         if doctors_data:
@@ -202,18 +204,15 @@ class BranchSerializer(ModelSerializer):
 
         if branch_administrator_data:
             if instance.branch_administrator:
-                # Update existing branch administrator
-                branch_administrator_serializer = BranchAdministratorSerializer(instance.branch_administrator,
-                                                                                data=branch_administrator_data)
+                branch_administrator_serializer = BranchAdministratorSerializer(
+                    instance.branch_administrator, data=branch_administrator_data, partial=True
+                )
             else:
-                # Create new branch administrator
                 branch_administrator_serializer = BranchAdministratorSerializer(data=branch_administrator_data)
 
-            if branch_administrator_serializer.is_valid():
+            if branch_administrator_serializer.is_valid(raise_exception=True):
                 branch_administrator = branch_administrator_serializer.save(branch=instance)
                 instance.branch_administrator = branch_administrator
-            else:
-                raise ValidationError(branch_administrator_serializer.errors)
 
         if patient_manager_data:
             patient_manager_instance = PatientManager.objects.create(**patient_manager_data)
@@ -221,7 +220,6 @@ class BranchSerializer(ModelSerializer):
 
         instance.save()
         return instance
-
 
 class DepartmentSerializer(ModelSerializer):
     class Meta:

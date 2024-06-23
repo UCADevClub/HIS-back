@@ -57,10 +57,8 @@ class Branch(models.Model):
         on_delete=models.CASCADE,
         related_name='branch',
     )
-    phone_numbers = models.ForeignKey(
+    phone_numbers = models.ManyToManyField(
         BranchPhoneNumber,
-        on_delete=models.SET_NULL,
-        null=True,
         related_name='branch',
     )
     director = models.OneToOneField(
