@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import ValidationError
 from rest_framework.authentication import (
     TokenAuthentication,
 )
@@ -24,7 +25,7 @@ from staff.permissions import (
     IsBranchAdministrator,
 )
 
-
+# !HOSPITAL  VIEWS
 class HospitalCreateView(APIView):
     """
     API endpoint for creating and updating hospital data.
@@ -50,6 +51,7 @@ class HospitalCreateView(APIView):
         Creates a new hospital instance.
         """
         hospital_serializer = HospitalSerializer(data=request.data)
+        print(hospital_serializer)
         if hospital_serializer.is_valid():
             hospital_serializer.save()
             return Response({
@@ -63,87 +65,6 @@ class HospitalCreateView(APIView):
                 'data': hospital_serializer.errors
         },
             status=status.HTTP_400_BAD_REQUEST)
-
-
-class BranchCreateView(APIView):
-    authentication_classes = (
-            TokenAuthentication,
-    )
-    permission_classes = (
-            IsHospitalAdministrator,
-    )
-
-    @staticmethod
-    @swagger_auto_schema(
-        request_body=BranchSerializer,
-        responses={
-            200:BranchSerializer,
-            400:'Invalid request data'
-
-        }
-    )
-    def patch(request, pk):
-        try:
-            branch_instance = Branch.objects.filter(id=pk).first()
-            branch_serializer = BranchSerializer(
-                branch_instance,
-                data=request.data,
-                partial=True,
-            )
-            if branch_serializer.is_valid():
-                branch_serializer.save()
-                return Response(
-                    data={
-                            'message': 'Updated successfully',
-                            'data': branch_serializer.data,
-                    },
-                    status=status.HTTP_200_OK
-                )
-            return Response(
-                data={
-                        'message': 'Invalid data provided',
-                        'data': branch_serializer.data,
-                },
-                status=status.HTTP_403_FORBIDDEN
-            )
-        except Branch.DoesNotExist:
-            return Response(
-                data={
-                        'message': f'Branch with id={pk} does not exists',
-                        'data': {},
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-    @staticmethod
-    @swagger_auto_schema(
-        request_body= BranchSerializer,
-        responses={
-            200:BranchSerializer,
-            400:'Invalid request data'
-        }
-    )
-    def post(request):
-        branch_serializer = BranchSerializer(data=request.data)
-        if branch_serializer.is_valid():
-            branch_serializer.save()
-            return Response(
-                data={
-                        'message': 'Branch created successfully',
-                        'data': branch_serializer.data,
-                },
-                status=status.HTTP_201_CREATED
-
-            )
-        return Response(
-            data={
-                    'message': 'Invalid data provided',
-                    'data': branch_serializer.errors,
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-
-        )
-
 
 class HospitalUpdateView(APIView):
     """
@@ -223,6 +144,112 @@ class HospitalListView(APIView):
             serializer = HospitalSerializer(hospitals, many=True)
             return Response(serializer.data)
 
+# !BRANCH VIEWS
+class BranchCreateView(APIView):
+    authentication_classes = (
+            TokenAuthentication,
+    )
+    permission_classes = (
+            IsHospitalAdministrator,
+    )
+
+    @staticmethod
+    @swagger_auto_schema(
+        request_body=BranchSerializer,
+        responses={
+            200:BranchSerializer,
+            400:'Invalid request data'
+
+        }
+    )
+
+    @staticmethod
+    @swagger_auto_schema(
+        request_body= BranchSerializer,
+        responses={
+            200:BranchSerializer,
+            400:'Invalid request data'
+        }
+    )
+    def post(request):
+        branch_serializer = BranchSerializer(data=request.data)
+        if branch_serializer.is_valid():
+            branch_serializer.save()
+            return Response(
+                data={
+                        'message': 'Branch created successfully',
+                        'data': branch_serializer.data,
+                },
+                status=status.HTTP_201_CREATED
+
+            )
+        return Response(
+            data={
+                    'message': 'Invalid data provided',
+                    'data': branch_serializer.errors,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+
+        )
+
+class BranchUpdateView(APIView):
+    """
+    API endpoint for updating hospital branch data.
+    """
+    permission_classes = (
+        IsAuthenticated,
+        IsHospitalAdministrator,
+    )
+
+    @swagger_auto_schema(
+        request_body=BranchSerializer,
+        responses={
+            200: BranchSerializer,
+            400: 'Invalid request data',
+            403: 'Permission denied: User cannot update this hospital'
+        }
+    )
+    def patch(self, request, pk):
+        try:
+            branch_instance = Branch.objects.filter(id=pk).first()
+            if not branch_instance:
+                return Response(
+                    data={
+                        'message': f'Branch with id={pk} does not exist',
+                        'data': {},
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            branch_serializer = BranchSerializer(
+                branch_instance,
+                data=request.data,
+                partial=True,
+            )
+            if branch_serializer.is_valid():
+                branch_serializer.save()
+                return Response(
+                    data={
+                        'message': 'Updated successfully',
+                        'data': branch_serializer.data,
+                    },
+                    status=status.HTTP_200_OK
+                )
+            return Response(
+                data={
+                    'message': 'Invalid data provided',
+                    'errors': branch_serializer.errors,
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except ValidationError as e:
+            return Response(
+                data={
+                    'message': 'Validation error',
+                    'errors': e.detail,
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 class BranchListAPIView(APIView):
     authentication_classes = (TokenAuthentication,)
