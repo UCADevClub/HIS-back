@@ -32,7 +32,7 @@ class PatientSerializer(StandardUserSerializer):
     def create(self, validated_data):
         address_data = validated_data.pop('address')
         primary_emergency_contact_data = validated_data.pop('primary_emergency_contact')
-        secondary_emergency_contact_data = validated_data.pop('secondary_emergency_contact')
+        secondary_emergency_contact_data = validated_data.pop('secondary_emergency_contact', None)
 
         address = Address.objects.create(**address_data)
         primary_emergency_contact = EmergencyContact.objects.create(**primary_emergency_contact_data)
