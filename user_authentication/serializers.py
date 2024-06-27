@@ -31,6 +31,9 @@ class StandardUserSerializer(ModelSerializer):
     address = AddressSerializer()
     primary_emergency_contact = EmergencyContactSerializer()
     secondary_emergency_contact = EmergencyContactSerializer(required=False)
+    date_of_birth =serializers.DateField(
+        input_formats=['%d-%m-%Y']
+    )
 
     class Meta:
         model = StandardUser
