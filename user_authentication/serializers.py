@@ -31,7 +31,7 @@ class StandardUserSerializer(ModelSerializer):
     address = AddressSerializer()
     primary_emergency_contact = EmergencyContactSerializer()
     secondary_emergency_contact = EmergencyContactSerializer(required=False)
-    date_of_birth =serializers.DateField(
+    date_of_birth =serializers.DateField(required = False, allow_null = True,
         input_formats=['%d-%m-%Y']
     )
 

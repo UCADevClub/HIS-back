@@ -4,7 +4,7 @@ from user_authentication.models import StandardUser, BaseUser
 
 class Speciality(models.Model):
     position = models.CharField(max_length=256)
-    description = models.TextField()
+    description = models.TextField(null=True,blank=True)
 
     def __str__(self):
         return self.position

@@ -24,7 +24,7 @@ class PatientManagerSerializer(StandardUserSerializer):
 
     class Meta(StandardUserSerializer.Meta):
         model = PatientManager
-        fields = StandardUserSerializer.Meta.fields
+        fields = ('id',)+ StandardUserSerializer.Meta.fields
 
     def create(self, validated_data):
         address_data = validated_data.pop('address')
@@ -135,37 +135,38 @@ class SpecialitySerializer(ModelSerializer):
 class DoctorSerializer(StandardUserSerializer):
     address = AddressSerializer()
     primary_emergency_contact = EmergencyContactSerializer()
-    secondary_emergency_contact = EmergencyContactSerializer(required=False)
+    secondary_emergency_contact = EmergencyContactSerializer(required=False,allow_null = True)
     speciality = SpecialitySerializer(many=True)  
 
     class Meta(StandardUserSerializer.Meta):
         model = Doctor
-        fields = StandardUserSerializer.Meta.fields + ('speciality','is_doctor','is_branch_director','is_department_director',)
+        fields =('id',)+ StandardUserSerializer.Meta.fields + ('speciality','is_doctor','is_branch_director','is_department_director',)
        
 
     def create(self, validated_data):
-        # Extract nested data
+        
         address_data = validated_data.pop('address')
         primary_emergency_contact_data = validated_data.pop('primary_emergency_contact', None)
         secondary_emergency_contact_data = validated_data.pop('secondary_emergency_contact', None)
         speciality_data = validated_data.pop('speciality')
 
-        # Create nested instances
+        
         address = Address.objects.create(**address_data)
         primary_emergency_contact = EmergencyContact.objects.create(**primary_emergency_contact_data)
         secondary_emergency_contact = EmergencyContact.objects.create(**secondary_emergency_contact_data) if secondary_emergency_contact_data else None
         
-        # Assign nested instances to the validated_data
+        
         validated_data['address'] = address
         validated_data['primary_emergency_contact'] = primary_emergency_contact
         validated_data['secondary_emergency_contact'] = secondary_emergency_contact
 
-        # Create the Doctor instance
+        
         doctor = Doctor.objects.create(**validated_data)
         
-        # Create and assign speciality instances
-        specialities = [Speciality.objects.create(**speciality) for speciality in speciality_data]
+        
+        specialities = [Speciality.objects.create(position=speciality.get('position'), description=speciality.get('description', '')) for speciality in speciality_data]
         doctor.speciality.set(specialities)
+
 
         return doctor
     
@@ -198,8 +199,11 @@ class DoctorSerializer(StandardUserSerializer):
                 instance.secondary_emergency_contact = secondary_emergency_contact_serializer.save()
 
         if speciality_data:
-            # Create new speciality instances if they don't already exist
-            specialities = [Speciality.objects.get_or_create(**spec)[0] for spec in speciality_data]
+           
+            specialities = [
+                Speciality.objects.get_or_create(position=spec.get('position'), defaults={'description': spec.get('description', '')})[0]
+                for spec in speciality_data
+            ]
             instance.speciality.set(specialities)
 
         for attr, value in validated_data.items():
