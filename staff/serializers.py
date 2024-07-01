@@ -161,7 +161,7 @@ class DoctorSerializer(StandardUserSerializer):
         validated_data['secondary_emergency_contact'] = secondary_emergency_contact
 
         
-        doctor = Doctor.objects.create(**validated_data)
+        doctor = Doctor.objects.create_doctor(**validated_data)
         
         
         specialities = [Speciality.objects.create(position=speciality.get('position'), description=speciality.get('description', '')) for speciality in speciality_data]
