@@ -10,6 +10,9 @@ from hospital.models import (
     Branch,
     BranchPhoneNumber,
     BranchAddress,
+    Allergy,
+    Vaccine,
+    Pill
 )
 from staff.models import (
     BranchAdministrator,
@@ -224,4 +227,19 @@ class BranchSerializer(ModelSerializer):
 class DepartmentSerializer(ModelSerializer):
     class Meta:
         model = Department
+        fields = "__all__"
+
+class AllergySerializer(ModelSerializer):
+    class Meta:
+        model = Allergy
+        fields = "__all__"
+
+class VaccineSerializer(ModelSerializer):
+    class Meta:
+        model = Vaccine
+        fields = "__all__"
+
+class PillSerializer(ModelSerializer):
+    class Meta:
+        model = Pill
         fields = "__all__"

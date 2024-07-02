@@ -245,6 +245,7 @@ class PatientManagerCreateView(APIView):
             "errors":patinet_manager_serializer.errors
         },status=status.HTTP_400_BAD_REQUEST)
     
+
 class PatientManagerListView(APIView):
 
     authentication_classes = (TokenAuthentication,)
@@ -256,6 +257,7 @@ class PatientManagerListView(APIView):
             patient_manager_serializer = PatientManagerSerializer(patient_manager_query, many=True)
             return Response(data=patient_manager_serializer.data, status=status.HTTP_200_OK)
         return Response(data={"message":"Objects not found"},status=status.HTTP_404_NOT_FOUND)
+
 
 class PatientManagerRetrieveUpdateDelete(APIView):
 
