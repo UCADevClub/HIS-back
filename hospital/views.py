@@ -504,7 +504,78 @@ class VaccineRetrieveUpdateDelete(APIView):
         vaccine_query.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+
+#Pill VIEWS
+class PillCreateView(APIView):
     
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+
+    def post(self,request):
+        pill_serializer = PillSerializer(data=request.data)
+        if pill_serializer.is_valid():
+            pill_serializer.save()
+            return Response(data={"message":"Pill created successfully","data":pill_serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(data=pill_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PillListView(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+
+    def get(self,request):
+        pill_query = Pill.objects.all()
+        if pill_query:
+            pill_serializer = PillSerializer(pill_query, many= True)
+            return Response(data=pill_serializer.data, status=status.HTTP_200_OK)
+        return Response(data={"message":"Pill not found"},status=status.HTTP_404_NOT_FOUND)
+
+
+class PillRetrieveUpdateDelete(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+
+    def get(self,request,pk):
+        pill_query = Pill.objects.get(pk=pk)
+        if pill_query:
+            pill_serializer = PillSerializer(pill_query)
+            return Response(data=pill_serializer.data, status=status.HTTP_200_OK)
+        return Response(data={"message":"Pill not found"},status=status.HTTP_404_NOT_FOUND)
+
+    def put(self,request,pk):
+        pill_query = Pill.objects.get(pk=pk)
+        if pill_query:
+            pill_serializer = PillSerializer(pill_query, data=request.data)
+            if pill_serializer.is_valid():
+                pill_serializer.save()
+                return Response(data={"message":"Pill updated successfully","data":pill_serializer.data}, status=status.HTTP_200_OK)
+            return Response(data=pill_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={"Pill not found"},status=status.HTTP_404_NOT_FOUND)
+
+    def patch(self,request,pk):
+        pill_query = Pill.objects.get(pk=pk)
+        if pill_query:
+            pill_serializer = PillSerializer(pill_query, data=request.data, partial = True)
+            if pill_serializer.is_valid():
+                pill_serializer.save()
+                return Response(data={"message":"Pill updated successfully","data":pill_serializer.data}, status=status.HTTP_200_OK)
+            return Response(data=pill_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={"Pill not found"},status=status.HTTP_404_NOT_FOUND)
+    
+    def delete(self,request,pk):
+        try:
+            pill_query = Pill.objects.get(pk=pk)
+        except Pill.DoesNotExist:
+            return Response(data={"Pill not found"},status=status.HTTP_404_NOT_FOUND)
+        
+        pill_query.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+        
+
 
 
     

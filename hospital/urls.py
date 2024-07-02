@@ -12,7 +12,10 @@ from hospital.views import (
     AllergyRetrieveUpdateDelete,
     VaccineCreateView,
     VaccineListView,
-    VaccineRetrieveUpdateDelete
+    VaccineRetrieveUpdateDelete,
+    PillCreateView,
+    PillListView,
+    PillRetrieveUpdateDelete
 )
 
 
@@ -38,6 +41,11 @@ urlpatterns = [
     #Vaccine URLs
     path('create-vaccine', VaccineCreateView.as_view(), name= 'create-vaccine'),
     path('list-vaccines',VaccineListView.as_view(),name='list-vaccines'),
-    path('view-vaccine/<int:pk>', VaccineRetrieveUpdateDelete.as_view(), name='view-vaccine')
+    path('view-vaccine/<int:pk>', VaccineRetrieveUpdateDelete.as_view(), name='view-vaccine'),
+
+    #Pill URLs
+    path('create-pill', PillCreateView.as_view(), name= 'create-pill'),
+    path('list-pills', PillListView.as_view(), name='list-pills'),
+    path('view-pill/<int:pk>', PillRetrieveUpdateDelete.as_view(), name='view-pill')
     
 ]
