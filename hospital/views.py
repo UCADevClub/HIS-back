@@ -8,8 +8,8 @@ from rest_framework.authentication import (
     TokenAuthentication,
 )
 
-from .serializers import HospitalSerializer
-from .models import Hospital
+from .serializers import HospitalSerializer, AllergySerializer, VaccineSerializer, PillSerializer
+from .models import Hospital, Allergy, Vaccine, Pill
 
 from hospital.models import (
     Branch,
@@ -365,3 +365,219 @@ class BranchRetrieveUpdateAPIView(APIView):
 
         branch.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+#Allergy VIEWS
+class AllergyCreateView(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+
+    def post(self,request):
+        allergy_serializer = AllergySerializer(data=request.data)
+        if allergy_serializer.is_valid():
+            allergy_serializer.save()
+            return Response(data={"message":"Allergy created successfully","data":allergy_serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(data=allergy_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AllergyListView(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+
+    def get (self,request):
+        allergy_query = Allergy.objects.all()
+        if allergy_query:
+            allergy_serializer = AllergySerializer(allergy_query,many = True)
+            return Response(data=allergy_serializer.data, status=status.HTTP_200_OK)
+        return Response({"message":"Allergy not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+
+class AllergyRetrieveUpdateDelete(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+    
+    def get (self,request,pk):
+        allergy_query = Allergy.objects.get(pk=pk)
+        if allergy_query:
+            allergy_seriazlizer = AllergySerializer(allergy_query)
+            return Response(data=allergy_seriazlizer.data, status=status.HTTP_200_OK)
+        return Response(data={"message":"Allergy not found"},status=status.HTTP_404_NOT_FOUND)
+    
+    def put (self,request,pk):
+        allergy_query = Allergy.objects.get(pk=pk)
+        if allergy_query:
+            allergy_serializer = AllergySerializer(allergy_query,data=request.data)
+            if allergy_serializer.is_valid():
+                allergy_serializer.save()
+                return Response(data={"message":"Allergy updated successfully","data":allergy_serializer.data},status=status.HTTP_200_OK)
+            return Response(data=allergy_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={"message":"Allergy not found"},status=status.HTTP_404_NOT_FOUND)
+    
+    def patch (self,request,pk):
+        allergy_query = Allergy.objects.get(pk=pk)
+        if allergy_query:
+            allergy_serializer = AllergySerializer(allergy_query, data=request.data, partial = True)
+            if allergy_serializer.is_valid():
+                allergy_serializer.save()
+                return Response(data={"message":"Allergy updated successfully","data":allergy_serializer.data},status=status.HTTP_200_OK)
+            return Response(data=allergy_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={"message":"Allergy not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    def delete (self,request,pk):
+        try: 
+            allergy_query = Allergy.objects.get(pk=pk)
+        except Allergy.DoesNotExist:
+            return Response(data={"message":"Allergy does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        
+        allergy_query.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+#Vaccine VIEWS
+class VaccineCreateView(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+
+    def post (self,request):
+        vaccine_serializer = VaccineSerializer(data=request.data)
+        if vaccine_serializer.is_valid():
+            vaccine_serializer.save()
+            return Response(data={"message":"Vaccine created successfully","data":vaccine_serializer.data},status=status.HTTP_201_CREATED)
+        return Response(data=vaccine_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class VaccineListView(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+
+    def get(self,rquest):
+        vaccine_query = Vaccine.objects.all()
+        if vaccine_query:
+            vaccine_serializer = VaccineSerializer(vaccine_query, many = True)
+            return Response(data=vaccine_serializer.data, status=status.HTTP_200_OK)
+        return Response(data={"message":"Vaccine not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class VaccineRetrieveUpdateDelete(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+
+    def get(self,request,pk):
+        vaccine_query = Vaccine.objects.get(pk=pk)
+        if vaccine_query:
+            vaccine_serializer = VaccineSerializer(vaccine_query)
+            return Response(data=vaccine_serializer.data, status=status.HTTP_200_OK)
+        return Response(data={"message":"Vaccine not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    def put(self,request,pk):
+        vaccine_query = Vaccine.objects.get(pk=pk)
+        if vaccine_query:
+            vaccine_serializer = VaccineSerializer(vaccine_query,data=request.data)
+            if vaccine_serializer.is_valid():
+                vaccine_serializer.save()
+                return Response(data={"message":"Vaccine updated successfully","data":vaccine_serializer.data}, status=status.HTTP_200_OK)
+            return Response(data=vaccine_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={"message":"Vaccine not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    def patch(self,request,pk):
+        vaccine_query = Vaccine.objects.get(pk=pk)
+        if vaccine_query:
+            vaccine_serializer = VaccineSerializer(vaccine_query,data=request.data, partial = True)
+            if vaccine_serializer.is_valid():
+                vaccine_serializer.save()
+                return Response(data={"message":"Vaccine updated successfully","data":vaccine_serializer.data}, status=status.HTTP_200_OK)
+            return Response(data=vaccine_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={"message":"Vaccine not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    def delete(self,request,pk):
+        try:
+            vaccine_query = Vaccine.objects.get(pk=pk)
+        except Vaccine.DoesNotExist:
+            return Response(data={"message":"Vaccine does not exist"},status=status.HTTP_404_NOT_FOUND)
+        
+        vaccine_query.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+#Pill VIEWS
+class PillCreateView(APIView):
+    
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+
+    def post(self,request):
+        pill_serializer = PillSerializer(data=request.data)
+        if pill_serializer.is_valid():
+            pill_serializer.save()
+            return Response(data={"message":"Pill created successfully","data":pill_serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(data=pill_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PillListView(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+
+    def get(self,request):
+        pill_query = Pill.objects.all()
+        if pill_query:
+            pill_serializer = PillSerializer(pill_query, many= True)
+            return Response(data=pill_serializer.data, status=status.HTTP_200_OK)
+        return Response(data={"message":"Pill not found"},status=status.HTTP_404_NOT_FOUND)
+
+
+class PillRetrieveUpdateDelete(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+
+    def get(self,request,pk):
+        pill_query = Pill.objects.get(pk=pk)
+        if pill_query:
+            pill_serializer = PillSerializer(pill_query)
+            return Response(data=pill_serializer.data, status=status.HTTP_200_OK)
+        return Response(data={"message":"Pill not found"},status=status.HTTP_404_NOT_FOUND)
+
+    def put(self,request,pk):
+        pill_query = Pill.objects.get(pk=pk)
+        if pill_query:
+            pill_serializer = PillSerializer(pill_query, data=request.data)
+            if pill_serializer.is_valid():
+                pill_serializer.save()
+                return Response(data={"message":"Pill updated successfully","data":pill_serializer.data}, status=status.HTTP_200_OK)
+            return Response(data=pill_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={"Pill not found"},status=status.HTTP_404_NOT_FOUND)
+
+    def patch(self,request,pk):
+        pill_query = Pill.objects.get(pk=pk)
+        if pill_query:
+            pill_serializer = PillSerializer(pill_query, data=request.data, partial = True)
+            if pill_serializer.is_valid():
+                pill_serializer.save()
+                return Response(data={"message":"Pill updated successfully","data":pill_serializer.data}, status=status.HTTP_200_OK)
+            return Response(data=pill_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={"Pill not found"},status=status.HTTP_404_NOT_FOUND)
+    
+    def delete(self,request,pk):
+        try:
+            pill_query = Pill.objects.get(pk=pk)
+        except Pill.DoesNotExist:
+            return Response(data={"Pill not found"},status=status.HTTP_404_NOT_FOUND)
+        
+        pill_query.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+        
+
+
+
+    
+
+        

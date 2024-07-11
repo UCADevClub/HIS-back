@@ -7,6 +7,15 @@ from hospital.views import (
     BranchRetrieveUpdateAPIView,
     BranchCreateView,
     BranchUpdateView,
+    AllergyCreateView,
+    AllergyListView,
+    AllergyRetrieveUpdateDelete,
+    VaccineCreateView,
+    VaccineListView,
+    VaccineRetrieveUpdateDelete,
+    PillCreateView,
+    PillListView,
+    PillRetrieveUpdateDelete
 )
 
 
@@ -23,7 +32,20 @@ urlpatterns = [
     path('create-branch/', BranchCreateView.as_view(), name='create-branch'),
     path('list-branch/', BranchListAPIView.as_view(), name='list-branch'),
     path('update-branch/<int:pk>', BranchUpdateView.as_view(), name='update-branch'),
-    
 
+    #Allergy URLs
+    path('create-allergy', AllergyCreateView.as_view(), name='create-allergy'),
+    path('list-allergies', AllergyListView.as_view(), name='list-allergies'),
+    path('view-allergy/<int:pk>', AllergyRetrieveUpdateDelete.as_view(), name='view-allergy'),
+
+    #Vaccine URLs
+    path('create-vaccine', VaccineCreateView.as_view(), name= 'create-vaccine'),
+    path('list-vaccines',VaccineListView.as_view(),name='list-vaccines'),
+    path('view-vaccine/<int:pk>', VaccineRetrieveUpdateDelete.as_view(), name='view-vaccine'),
+
+    #Pill URLs
+    path('create-pill', PillCreateView.as_view(), name= 'create-pill'),
+    path('list-pills', PillListView.as_view(), name='list-pills'),
+    path('view-pill/<int:pk>', PillRetrieveUpdateDelete.as_view(), name='view-pill')
     
 ]

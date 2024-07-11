@@ -116,3 +116,54 @@ class Department(models.Model):
     
     class Meta:
         db_table = 'Department'
+    
+
+class Allergy(models.Model):
+    name = models.CharField(max_length=128, unique=True)
+    description = models.TextField()
+    symptoms = models.TextField()
+    diagnostic_method = models.TextField()
+    treatment_method = models.TextField()
+    types = models.CharField()
+    restrictions = models.TextField()
+
+    def __str__(self):
+        return f'{self.name}'
+    
+    class Meta:
+        db_table = 'Allergy'
+
+
+class Vaccine(models.Model):
+    name = models.CharField(max_length=128, unique=True)
+    description = models.TextField()
+    contraindications = models.TextField()
+    reaction = models.TextField()
+    composition = models.TextField()
+    diseases_prevention = models.TextField()
+    symptoms = models.TextField()
+
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        db_table = 'Vaccine'
+
+
+class Pill(models.Model):
+    name = models.CharField(max_length=128, unique=True)
+    purpose = models.TextField()
+    composition = models.TextField()
+    indications = models.TextField()
+    contraindications = models.TextField()
+    side_effects = models.TextField()
+    special_instructions = models.TextField()
+    dosage_and_administration = models.TextField()
+    storage_conditions = models.TextField()
+    expiry_date = models.DateField()
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = 'Pill'

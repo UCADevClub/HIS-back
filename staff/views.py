@@ -13,7 +13,7 @@ from staff.permissions import (
     IsPatientManager,
 )
 from staff.serializers import HospitalAdministratorSerializer, BranchAdministratorSerializer,DoctorSerializer, PatientManagerSerializer
-from staff.models import HospitalAdministrator, BranchAdministrator
+from staff.models import HospitalAdministrator, BranchAdministrator,Doctor,PatientManager
 
 
 class HospitalAdministratorSingleView(APIView):
@@ -127,7 +127,7 @@ class BranchAdministratorView(APIView):
             },
             status=status.HTTP_400_BAD_REQUEST
         )
-
+#DOCTOR VIEWS
 class DoctorCreateView(APIView):
 
     authentication_classes = (TokenAuthentication,)
@@ -144,6 +144,90 @@ class DoctorCreateView(APIView):
             "errors": doctor_serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
 
+
+class DoctorListView(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+    
+    def get(self,request):
+        doctor_query = Doctor.objects.all()
+        doctor_query_serializer = DoctorSerializer(doctor_query,many = True)
+        if doctor_query_serializer:
+            return Response(data=doctor_query_serializer.data, status=status.HTTP_200_OK)
+        return Response(data={"message":"Doctors Not Found"}, status=status.HTTP_404_NOT_FOUND)
+    
+
+class RetrieveUpdateDeleteDoctor(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+    
+    def get (self, request, *args, **kwargs):
+        pk = kwargs.get("pk", None)
+        if not pk:
+            return Response({"message": "Method GET not allowed"})
+        try:
+            instance = Doctor.objects.get(pk=pk)
+        except:
+            return Response({"message":"Object does not exist"})
+        doctor_serializer = DoctorSerializer(instance)
+        return Response(data=doctor_serializer.data, status=status.HTTP_200_OK)
+    
+    def put (self, request,*args,**kwargs):
+        pk = kwargs.get("pk", None)
+        if not pk:
+            return Response({"message":"Method PUT not allowed"})
+        try:
+            instance = Doctor.objects.get(pk=pk)
+        except:
+            return Response({"message":"Object does not exist"})
+        doctor_serializer = DoctorSerializer(instance,data=request.data)
+        if doctor_serializer.is_valid():
+            doctor_serializer.save()
+            return Response(data={"message":"Doctor successfully updated","data":doctor_serializer.data}, status=status.HTTP_200_OK)
+        return Response(data=doctor_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    
+    def patch(self, request, *args, **kwargs):
+        pk = kwargs.get("pk", None)
+        if not pk:
+            return Response({"message": "Method GET not allowed"})
+        try:
+            instance = Doctor.objects.get(pk=pk)
+        except:
+            return Response({"message":"Object does not exist"})
+        doctor_serializer = DoctorSerializer(instance,data=request.data,partial = True)
+        if doctor_serializer.is_valid():
+            doctor_serializer.save()
+            return Response(data={"message":"Doctor successfully updated","data":doctor_serializer.data}, status=status.HTTP_200_OK)
+        return Response(data=doctor_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        try:
+            instance = Doctor.objects.get(pk=pk)
+        except Doctor.DoesNotExist:
+            return Response({'message': 'Object does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class DoctorSearch(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+    
+    def get(self, request, *args, **kwargs):
+        name = request.query_params.get('name', None)
+        if not name:
+            return Response({"message": "Please provide a name parameter for searching"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        doctors = Doctor.objects.filter(first_name__icontains=name) | Doctor.objects.filter(last_name__icontains=name)
+        serializer = DoctorSerializer(doctors, many=True)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+#PatientManager VIEWS
 class PatientManagerCreateView(APIView):
 
     authentication_classes = (TokenAuthentication,)
@@ -160,3 +244,58 @@ class PatientManagerCreateView(APIView):
         return Response(data={
             "errors":patinet_manager_serializer.errors
         },status=status.HTTP_400_BAD_REQUEST)
+    
+
+class PatientManagerListView(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+
+    def get(self,request):
+        patient_manager_query = PatientManager.objects.all()
+        if patient_manager_query:
+            patient_manager_serializer = PatientManagerSerializer(patient_manager_query, many=True)
+            return Response(data=patient_manager_serializer.data, status=status.HTTP_200_OK)
+        return Response(data={"message":"Objects not found"},status=status.HTTP_404_NOT_FOUND)
+
+
+class PatientManagerRetrieveUpdateDelete(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+
+    def get (self,request,pk):
+        patient_manager_query = PatientManager.objects.get(pk=pk)
+        if patient_manager_query:
+            patient_manager_serializer = PatientManagerSerializer(patient_manager_query)
+            return Response(data=patient_manager_serializer.data,status=status.HTTP_200_OK)
+        return Response(data={"message":"PatientManager not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+    def put(self,request,pk):
+        patient_manager_query= PatientManager.objects.get(pk=pk)
+        if patient_manager_query:
+            patient_manager_serializer = PatientManagerSerializer(patient_manager_query,data=request.data)
+            if patient_manager_serializer.is_valid():
+                patient_manager_serializer.save()
+                return Response(data={"message":"Patient Manager updated successfully","data":patient_manager_serializer.data}, status=status.HTTP_200_OK)
+            return Response(data=patient_manager_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"Patient Manager Not Found"},status=status.HTTP_404_NOT_FOUND)
+    
+    def patch(self, request, pk):
+        patient_manager_query= PatientManager.objects.get(pk=pk)
+        if patient_manager_query:
+            patient_manager_serializer = PatientManagerSerializer(patient_manager_query,data=request.data, partial=True)
+            if patient_manager_serializer.is_valid():
+                patient_manager_serializer.save()
+                return Response(data={"message":"Patient Manager updated successfully","data":patient_manager_serializer.data}, status=status.HTTP_200_OK)
+            return Response(data=patient_manager_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"Patient Manager Not Found"},status=status.HTTP_404_NOT_FOUND)
+    
+    def delete(self,request,pk):
+        try:
+            instance = PatientManager.objects.get(pk=pk)
+        except PatientManager.DoesNotExist:
+            return Response({'message': 'Object does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
