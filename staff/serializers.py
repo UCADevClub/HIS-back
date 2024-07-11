@@ -83,7 +83,7 @@ class BranchAdministratorSerializer(ModelSerializer):
             'first_name',
             'middle_name',
             'last_name',
-            'email',
+            'email'
         )
 
     def create(self, validated_data):

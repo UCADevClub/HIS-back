@@ -162,7 +162,7 @@ class BranchSerializer(ModelSerializer):
         branch_instance.doctors.set([Doctor.objects.create(**data) for data in doctors_data])
 
         if branch_administrator_data:
-            branch_administrator_instance = BranchAdministrator.objects.create(**branch_administrator_data)
+            branch_administrator_instance = BranchAdministrator.objects.create_branch_administrator(**branch_administrator_data)
             branch_instance.branch_administrator = branch_administrator_instance
 
         if patient_manager_data:
