@@ -72,7 +72,7 @@ class HospitalUpdateView(APIView):
     """
     permission_classes = (
         IsAuthenticated, 
-        IsHospitalAdministrator,
+        IsHospitalAdministrator | IsSuperUser,
         )
 
     @swagger_auto_schema(
@@ -150,7 +150,7 @@ class BranchCreateView(APIView):
             TokenAuthentication,
     )
     permission_classes = (
-            IsHospitalAdministrator,
+            IsHospitalAdministrator | IsSuperUser,
     )
 
     @staticmethod
@@ -198,7 +198,7 @@ class BranchUpdateView(APIView):
     """
     permission_classes = (
         IsAuthenticated,
-        IsHospitalAdministrator,
+        IsBranchAdministrator | IsSuperUser,
     )
 
     @swagger_auto_schema(
@@ -206,7 +206,7 @@ class BranchUpdateView(APIView):
         responses={
             200: BranchSerializer,
             400: 'Invalid request data',
-            403: 'Permission denied: User cannot update this hospital'
+            403: 'Permission denied: User cannot update this hospital`s branch'
         }
     )
     def patch(self, request, pk):
@@ -299,7 +299,7 @@ class BranchListAPIView(APIView):
 
 class BranchRetrieveUpdateAPIView(APIView):
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsSuperUser,IsHospitalAdministrator,)
+    permission_classes = (IsSuperUser | IsHospitalAdministrator,)
 
     @swagger_auto_schema(
         responses={
