@@ -12,7 +12,7 @@ from staff.permissions import (
     IsBranchAdministrator,
     IsPatientManager,
 )
-from staff.serializers import HospitalAdministratorSerializer, BranchAdministratorSerializer,DoctorSerializer, PatientManagerSerializer
+from staff.serializers import HospitalAdministratorSerializer, BranchAdministratorSerializer,DoctorSerializer, PatientManagerSerializer,SpecialitySerializer
 from staff.models import HospitalAdministrator, BranchAdministrator,Doctor,PatientManager
 
 
@@ -299,3 +299,12 @@ class PatientManagerRetrieveUpdateDelete(APIView):
 
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+#Speciality VIEWS
+class SpecialityCreateAPIView(APIView):
+    def post(self, request):
+        serializer = SpecialitySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
