@@ -186,7 +186,8 @@ class RetrieveUpdateDeleteDoctor(APIView):
         if doctor_serializer.is_valid():
             doctor_serializer.save()
             return Response(data={"message":"Doctor successfully updated","data":doctor_serializer.data}, status=status.HTTP_200_OK)
-        return Response(data=doctor_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={"message":"Incorrect data",
+                              "errors":doctor_serializer.errors},status=status.HTTP_400_BAD_REQUEST)
     
     def patch(self, request, *args, **kwargs):
         pk = kwargs.get("pk", None)
@@ -200,7 +201,8 @@ class RetrieveUpdateDeleteDoctor(APIView):
         if doctor_serializer.is_valid():
             doctor_serializer.save()
             return Response(data={"message":"Doctor successfully updated","data":doctor_serializer.data}, status=status.HTTP_200_OK)
-        return Response(data=doctor_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={"message": "Incorrect data",
+                              "errors":doctor_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         try:
@@ -241,7 +243,7 @@ class PatientManagerCreateView(APIView):
                 "message":"Patient manager created successfully",
                 "data":patinet_manager_serializer.data},status=status.HTTP_201_CREATED
             )
-        return Response(data={
+        return Response(data={"message":"Incorrect data",
             "errors":patinet_manager_serializer.errors
         },status=status.HTTP_400_BAD_REQUEST)
     
@@ -288,7 +290,8 @@ class PatientManagerRetrieveUpdateDelete(APIView):
             if patient_manager_serializer.is_valid():
                 patient_manager_serializer.save()
                 return Response(data={"message":"Patient Manager updated successfully","data":patient_manager_serializer.data}, status=status.HTTP_200_OK)
-            return Response(data=patient_manager_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"message":"Incorrect data",
+                                  "errors":patient_manager_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"Patient Manager Not Found"},status=status.HTTP_404_NOT_FOUND)
     
     def delete(self,request,pk):
@@ -307,4 +310,5 @@ class SpecialityCreateAPIView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={"message":"Incorrect data",
+                              "errors":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
