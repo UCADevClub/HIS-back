@@ -13,7 +13,7 @@ from staff.permissions import (
     IsPatientManager,
 )
 from staff.serializers import HospitalAdministratorSerializer, BranchAdministratorSerializer,DoctorSerializer, PatientManagerSerializer,SpecialitySerializer
-from staff.models import HospitalAdministrator, BranchAdministrator,Doctor,PatientManager
+from staff.models import HospitalAdministrator, BranchAdministrator,Doctor,PatientManager,Speciality
 
 
 class HospitalAdministratorSingleView(APIView):
@@ -305,6 +305,10 @@ class PatientManagerRetrieveUpdateDelete(APIView):
 
 #Speciality VIEWS
 class SpecialityCreateAPIView(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+
     def post(self, request):
         serializer = SpecialitySerializer(data=request.data)
         if serializer.is_valid():
@@ -312,3 +316,64 @@ class SpecialityCreateAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(data={"message":"Incorrect data",
                               "errors":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class SpecialityListView(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+
+    def get(self,request):
+        speciality_query = Speciality.objects.all()
+        if speciality_query:
+            speciality_serializer = SpecialitySerializer(speciality_query, many=True)
+            return Response(data=speciality_serializer.data, status=status.HTTP_200_OK)
+        return Response(data={"message":"Speciality not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class SpecialityRetrieveUpdateDelete(APIView):
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsBranchAdministrator,)
+
+    def get(self,request,pk):
+        speciality_query = Speciality.objects.get(pk=pk)
+        if speciality_query:
+            speciality_serializer = SpecialitySerializer(speciality_query)
+            return Response(data=speciality_serializer.data,status=status.HTTP_200_OK)
+        return Response(data={"message":"Speciality not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self,request,pk):
+        speciality_query = Speciality.objects.get(pk=pk)
+        if speciality_query:
+            speciality_serializer = SpecialitySerializer(speciality_query, data=request.data)
+            if speciality_serializer.is_valid():
+                speciality_serializer.save()
+                return Response(data={"message":"Speciality updated successfully","data":speciality_serializer.data}, status=status.HTTP_200_OK)
+            return Response(data={"message":"Incorrect data","errors":speciality_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={"message":"Speciality not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    def patch(self,request,pk):
+        speciality_query = Speciality.objects.get(pk=pk)
+        if speciality_query:
+            speciality_serializer = SpecialitySerializer(speciality_query, data=request.data, partial=True)
+            if speciality_serializer.is_valid():
+                speciality_serializer.save()
+                return Response(data={"message":"Speciality updated successfully","data":speciality_serializer.data}, status=status.HTTP_200_OK)
+            return Response(data={"message":"Incorrect data","errors":speciality_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={"message":"Speciality not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self,request,pk):
+        try:
+            speciality_query = Speciality.objects.get(pk=pk)
+        except Speciality.DoesNotExist:
+            return Response(data={"message":"Speciality does not exist"},status=status.HTTP_404_NOT_FOUND)
+        
+        speciality_query.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+            
+        
+
+        
+    
+    
