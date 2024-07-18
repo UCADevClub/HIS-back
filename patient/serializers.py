@@ -50,6 +50,7 @@ class PatientSerializer(StandardUserSerializer):
         return Patient.objects.create_patient(**validated_data)
 
     def update(self, instance, validated_data):
+        
         address_data = validated_data.pop('address', None)
         primary_emergency_contact_data = validated_data.pop('primary_emergency_contact', None)
         secondary_emergency_contact_data = validated_data.pop('secondary_emergency_contact', None)
