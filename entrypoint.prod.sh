@@ -13,5 +13,7 @@ fi
 
 exec "$@"
 python manage.py migrate --fake user_authentication zero
+python manage.py migrate --fake hospital zero
+python manage.py makemigrations hospital
 python manage.py makemigrations user_authentication
 python manage.py migrate
