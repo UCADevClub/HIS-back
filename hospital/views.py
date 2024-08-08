@@ -388,10 +388,9 @@ class AllergyListView(APIView):
 
     def get (self,request):
         allergy_query = Allergy.objects.all()
-        if allergy_query:
-            allergy_serializer = AllergySerializer(allergy_query,many = True)
-            return Response(data=allergy_serializer.data, status=status.HTTP_200_OK)
-        return Response({"message":"Allergy not found"}, status=status.HTTP_404_NOT_FOUND)
+        allergy_serializer = AllergySerializer(allergy_query,many = True)
+        return Response(data=allergy_serializer.data, status=status.HTTP_200_OK)
+        
     
 
 class AllergyRetrieveUpdateDelete(APIView):
@@ -457,10 +456,9 @@ class VaccineListView(APIView):
 
     def get(self,rquest):
         vaccine_query = Vaccine.objects.all()
-        if vaccine_query:
-            vaccine_serializer = VaccineSerializer(vaccine_query, many = True)
-            return Response(data=vaccine_serializer.data, status=status.HTTP_200_OK)
-        return Response(data={"message":"Vaccine not found"}, status=status.HTTP_404_NOT_FOUND)
+        vaccine_serializer = VaccineSerializer(vaccine_query, many = True)
+        return Response(data=vaccine_serializer.data, status=status.HTTP_200_OK)
+        
 
 
 class VaccineRetrieveUpdateDelete(APIView):
@@ -526,10 +524,9 @@ class PillListView(APIView):
 
     def get(self,request):
         pill_query = Pill.objects.all()
-        if pill_query:
-            pill_serializer = PillSerializer(pill_query, many= True)
-            return Response(data=pill_serializer.data, status=status.HTTP_200_OK)
-        return Response(data={"message":"Pill not found"},status=status.HTTP_404_NOT_FOUND)
+        pill_serializer = PillSerializer(pill_query, many= True)
+        return Response(data=pill_serializer.data, status=status.HTTP_200_OK)
+        
 
 
 class PillRetrieveUpdateDelete(APIView):
