@@ -93,7 +93,7 @@ class PatientDetail(APIView):
     )
     def patch(self,request, user_id):
         try:
-            patient_instance = Patient.objects.filter(user_id=user_id).first()
+            patient_instance = Patient.objects.filter(baseuser_ptr=user_id).first()
             patient_serializer = PatientSerializer(
                 patient_instance, data=request.data, partial=True)
             if patient_serializer.is_valid():

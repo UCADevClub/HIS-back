@@ -1,3 +1,4 @@
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from staff.models import (
     PatientManager,
@@ -136,7 +137,7 @@ class DoctorSerializer(StandardUserSerializer):
     address = AddressSerializer()
     primary_emergency_contact = EmergencyContactSerializer()
     secondary_emergency_contact = EmergencyContactSerializer(required=False,allow_null = True)
-    speciality = SpecialitySerializer(many=True)  
+    speciality = serializers.PrimaryKeyRelatedField(queryset = Speciality.objects.all(), many = True)
 
     class Meta(StandardUserSerializer.Meta):
         model = Doctor
@@ -163,11 +164,7 @@ class DoctorSerializer(StandardUserSerializer):
         
         doctor = Doctor.objects.create_doctor(**validated_data)
         
-        
-        specialities = [Speciality.objects.create(position=speciality.get('position'), description=speciality.get('description', '')) for speciality in speciality_data]
-        doctor.speciality.set(specialities)
-
-
+        doctor.speciality.set(speciality_data)
         return doctor
     
     def update(self, instance, validated_data):
@@ -200,10 +197,8 @@ class DoctorSerializer(StandardUserSerializer):
 
         if speciality_data:
            
-            specialities = [
-                Speciality.objects.get_or_create(position=spec.get('position'), defaults={'description': spec.get('description', '')})[0]
-                for spec in speciality_data
-            ]
+            specialities = Speciality.objects.filter(id__in=[spec.id for spec in speciality_data])
+            
             instance.speciality.set(specialities)
 
         for attr, value in validated_data.items():

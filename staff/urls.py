@@ -9,7 +9,10 @@ from staff.views import (
     DoctorSearch,
     PatientManagerCreateView,
     PatientManagerListView,
-    PatientManagerRetrieveUpdateDelete
+    PatientManagerRetrieveUpdateDelete,
+    SpecialityCreateAPIView,
+    SpecialityListView,
+    SpecialityRetrieveUpdateDelete
 
 )
 
@@ -27,5 +30,10 @@ urlpatterns = [
     #Patient Manager URLs
     path('create-patient-manager',PatientManagerCreateView.as_view(), name='create-patient-manager'),
     path('list-patient-managers', PatientManagerListView.as_view(), name='list-patient-managers'),
-    path('view-patient-manager/<int:pk>',PatientManagerRetrieveUpdateDelete.as_view(), name='view-patient-manager')
+    path('view-patient-manager/<int:pk>',PatientManagerRetrieveUpdateDelete.as_view(), name='view-patient-manager'),
+
+    #Speciality URLs
+    path('create-speciality', SpecialityCreateAPIView.as_view(), name='create-speciality'),
+    path('list-specialities', SpecialityListView.as_view(), name='list-specialities'),
+    path('view-speciality/<int:pk>', SpecialityRetrieveUpdateDelete.as_view(), name='view-speciality')
 ]
