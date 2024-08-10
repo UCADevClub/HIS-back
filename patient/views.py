@@ -21,6 +21,7 @@ from patient.permissions import (
 )
 from staff.permissions import (
     IsPatientManager,
+    IsSuperUser,
 )
 
 
@@ -60,7 +61,7 @@ class PatientDetail(APIView):
             TokenAuthentication,
     )
     permission_classes = (
-            IsPatientManager | IsAuthenticated,
+            IsPatientManager | IsAuthenticated | IsSuperUser,
     )
 
   
@@ -163,7 +164,7 @@ class PatientSearch(APIView):
 
         if full_name_or_inn.isdigit():
             inn = full_name_or_inn
-            query = Q(inn__icontains=inn)
+            query = Q(user_id__icontains=inn)
         else:
             inn = None
             names = full_name_or_inn.split(" ")
