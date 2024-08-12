@@ -37,6 +37,9 @@ urlpatterns = [
 
     # hospital
     path('hospital/', include('hospital.urls')),
+
     path('appointment/', include('appointment.urls')),
+
+    path('treatment/', include('treatment.urls')),
     
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

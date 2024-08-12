@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'staff',
     'hospital',
     'appointment',
+    'treatment',
 ]
 
 AUTH_USER_MODEL = 'user_authentication.BaseUser'

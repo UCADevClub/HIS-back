@@ -16,10 +16,10 @@ class Appointment(models.Model):
         ('paid', 'Paid'),
     ]
 
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, blank=True)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, blank=True)
     talon = models.CharField(max_length=10, unique=True, blank=True)
-    complaint = models.TextField()
+    complaint = models.TextField(blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='booked')
     payment_status = models.CharField(max_length=10, choices=PAYMENT_STATUS_CHOICES, default='not_paid')
     created_at = models.DateTimeField(auto_now_add=True)

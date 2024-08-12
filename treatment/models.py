@@ -1,4 +1,10 @@
 from django.db import models
+from django.core.files.storage import FileSystemStorage
+from appointment.models import Appointment
+from staff.models import Doctor
+
+fs = FileSystemStorage(location='/media/labs')
+
 
 class ObjectiveExamination(models.Model):
     GENERAL_CONDITION_CHOICES = [
@@ -213,49 +219,81 @@ class ObjectiveExamination(models.Model):
         ('positive', 'Положительные')
     ]
 
-    general_condition = models.CharField(max_length=50, choices=GENERAL_CONDITION_CHOICES)
-    consciousness = models.CharField(max_length=50, choices=CONSCIOUSNESS_CHOICES)
-    position = models.CharField(max_length=50, choices=POSITION_CHOICES)
-    skin_condition = models.CharField(max_length=50, choices=SKIN_CONDITION_CHOICES)
-    edema = models.CharField(max_length=50, choices=EDEMA_CHOICES)
+    general_condition = models.CharField(max_length=50, choices=GENERAL_CONDITION_CHOICES, blank=True, null=True)
+    consciousness = models.CharField(max_length=50, choices=CONSCIOUSNESS_CHOICES, blank=True, null=True)
+    position = models.CharField(max_length=50, choices=POSITION_CHOICES, blank=True, null=True)
+    skin_condition = models.CharField(max_length=50, choices=SKIN_CONDITION_CHOICES, blank=True, null=True)
+    edema = models.CharField(max_length=50, choices=EDEMA_CHOICES, blank=True, null=True)
     edema_comments = models.TextField(blank=True, null=True)
-
-    nail_condition = models.CharField(max_length=50, choices=NAIL_CONDITION_CHOICES)
-    joint_condition = models.CharField(max_length=50, choices=JOINT_CONDITION_CHOICES)
+    nail_condition = models.CharField(max_length=50, choices=NAIL_CONDITION_CHOICES, blank=True, null=True)
+    joint_condition = models.CharField(max_length=50, choices=JOINT_CONDITION_CHOICES, blank=True, null=True)
     joint_comments = models.TextField(blank=True, null=True)
-
-    lymph_nodes = models.CharField(max_length=100, choices=LYMPH_NODES_CHOICES)
-    nasal_breathing = models.CharField(max_length=50, choices=NASAL_BREATHING_CHOICES)
-    chest_participation = models.CharField(max_length=50, choices=CHEST_PARTICIPATION_CHOICES)
-    muscle_participation = models.CharField(max_length=100, choices=MUSCLE_PARTICIPATION_CHOICES)
-    lung_auscultation = models.CharField(max_length=50, choices=LUNG_AUSCULTATION_CHOICES)
-    heart_area = models.CharField(max_length=50, choices=HEART_AREA_CHOICES)
-    pericardial_pulsation = models.CharField(max_length=50, choices=PERICARDIAL_PULSATION_CHOICES)
-    epigastric_pulsation = models.CharField(max_length=50, choices=EPIGASTRIC_PULSATION_CHOICES)
-    cyanosis = models.CharField(max_length=50, choices=CYANOSIS_CHOICES)
-    neck_veins = models.CharField(max_length=50, choices=NECK_VEINS_CHOICES)
-    heart_tones = models.CharField(max_length=50, choices=HEART_TONES_CHOICES)
-    systolic_murmur = models.CharField(max_length=50, choices=SYSTOLIC_MURMUR_CHOICES)
-    diastolic_murmur = models.CharField(max_length=50, choices=DIASTOLIC_MURMUR_CHOICES)
-    oral_mucosa = models.CharField(max_length=50, choices=ORAL_MUCOSA_CHOICES)
-    tongue = models.CharField(max_length=50, choices=TONGUE_CHOICES)
-    pharynx = models.CharField(max_length=50, choices=PHARYNX_CHOICES)
-    tonsils = models.CharField(max_length=50, choices=TONSILS_CHOICES)
-    abdomen = models.CharField(max_length=100, choices=ABDOMEN_CHOICES)
+    lymph_nodes = models.CharField(max_length=100, choices=LYMPH_NODES_CHOICES, blank=True, null=True)
+    nasal_breathing = models.CharField(max_length=50, choices=NASAL_BREATHING_CHOICES, blank=True, null=True)
+    chest_participation = models.CharField(max_length=50, choices=CHEST_PARTICIPATION_CHOICES, blank=True, null=True)
+    muscle_participation = models.CharField(max_length=100, choices=MUSCLE_PARTICIPATION_CHOICES, blank=True, null=True)
+    lung_auscultation = models.CharField(max_length=50, choices=LUNG_AUSCULTATION_CHOICES, blank=True, null=True)
+    heart_area = models.CharField(max_length=50, choices=HEART_AREA_CHOICES, blank=True, null=True)
+    pericardial_pulsation = models.CharField(max_length=50, choices=PERICARDIAL_PULSATION_CHOICES, blank=True, null=True)
+    epigastric_pulsation = models.CharField(max_length=50, choices=EPIGASTRIC_PULSATION_CHOICES, blank=True, null=True)
+    cyanosis = models.CharField(max_length=50, choices=CYANOSIS_CHOICES, blank=True, null=True)
+    neck_veins = models.CharField(max_length=50, choices=NECK_VEINS_CHOICES, blank=True, null=True)
+    heart_tones = models.CharField(max_length=50, choices=HEART_TONES_CHOICES, blank=True, null=True)
+    systolic_murmur = models.CharField(max_length=50, choices=SYSTOLIC_MURMUR_CHOICES, blank=True, null=True)
+    diastolic_murmur = models.CharField(max_length=50, choices=DIASTOLIC_MURMUR_CHOICES, blank=True, null=True)
+    oral_mucosa = models.CharField(max_length=50, choices=ORAL_MUCOSA_CHOICES, blank=True, null=True)
+    tongue = models.CharField(max_length=50, choices=TONGUE_CHOICES, blank=True, null=True)
+    pharynx = models.CharField(max_length=50, choices=PHARYNX_CHOICES, blank=True, null=True)
+    tonsils = models.CharField(max_length=50, choices=TONSILS_CHOICES, blank=True, null=True)
+    abdomen = models.CharField(max_length=100, choices=ABDOMEN_CHOICES, blank=True, null=True)
     abdomen_comments = models.TextField(blank=True, null=True)
-    liver = models.CharField(max_length=50, choices=LIVER_CHOICES)
-    gallbladder = models.CharField(max_length=50, choices=GALLBLADDER_CHOICES)
-    stool = models.CharField(max_length=50, choices=STOOL_CHOICES)
+    liver = models.CharField(max_length=50, choices=LIVER_CHOICES, blank=True, null=True)
+    gallbladder = models.CharField(max_length=50, choices=GALLBLADDER_CHOICES, blank=True, null=True)
+    stool = models.CharField(max_length=50, choices=STOOL_CHOICES, blank=True, null=True)
     stool_comments = models.TextField(blank=True, null=True)
-
-    urination = models.CharField(max_length=100, choices=URINATION_CHOICES)
+    urination = models.CharField(max_length=100, choices=URINATION_CHOICES, blank=True, null=True)
     urination_comments = models.TextField(blank=True, null=True)
+    tapping_symptom = models.CharField(max_length=50, choices=TAPPING_SYMPTOM_CHOICES, blank=True, null=True)
+    neurological_status = models.CharField(max_length=50, choices=NEUROLOGICAL_STATUS_CHOICES, blank=True, null=True)
+    eye_slits = models.CharField(max_length=50, choices=EYE_SLITS_CHOICES, blank=True, null=True)
+    face = models.CharField(max_length=50, choices=FACE_CHOICES, blank=True, null=True)
+    dizziness = models.CharField(max_length=50, choices=DIZZINESS_CHOICES, blank=True, null=True)
+    meningeal_symptoms = models.CharField(max_length=50, choices=MENINGEAL_SYMPTOMS_CHOICES, blank=True, null=True)
 
-    tapping_symptom = models.CharField(max_length=50, choices=TAPPING_SYMPTOM_CHOICES)
-    neurological_status = models.CharField(max_length=50, choices=NEUROLOGICAL_STATUS_CHOICES)
-    eye_slits = models.CharField(max_length=50, choices=EYE_SLITS_CHOICES)
-    face = models.CharField(max_length=50, choices=FACE_CHOICES)
-    dizziness = models.CharField(max_length=50, choices=DIZZINESS_CHOICES)
-    meningeal_symptoms = models.CharField(max_length=50, choices=MENINGEAL_SYMPTOMS_CHOICES)
+
+class Referral(models.Model):
+    appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE, blank=True, null=True)
+    referral_conclusion = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Referral for {self.appointment.patient} on {self.appointment.created_at}"
+    
+
+class Medications(models.Model):
+    medication_name = models.CharField(max_length=255)
+    dosage = models.TextField()
+    frequency = models.TextField()
+
+    def __str__(self):
+        return f"{self.medication_name} - {self.dosage} ({self.frequency})"
 
 
+class Treatment(models.Model):
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
+    objective_examination = models.OneToOneField(ObjectiveExamination, on_delete=models.SET_NULL, null=True, blank=True)
+    examination_plan = models.TextField(blank=True, null=True)
+
+    # Laboratory and Instrumental Study Results
+    lab_tests = models.FileField(upload_to='labs/', blank=True, null=True)
+    
+    # Referral replaced with new model
+    referral = models.OneToOneField(Referral, on_delete=models.SET_NULL, null=True, blank=True)
+
+    justification_and_formulation = models.TextField(blank=True, null=True)
+    recommendations = models.TextField(blank=True, null=True)
+
+    # Medications
+    medications = models.ManyToManyField(Medications, related_name='treatments', blank=True)
+
+    def __str__(self):
+        return f"Treatment for {self.appointment.patient} on {self.appointment.created_at}"
