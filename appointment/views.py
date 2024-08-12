@@ -1,8 +1,9 @@
+from datetime import datetime
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Appointment
-from .serializers import AppointmentCreateSerializer, AppointmentPaymentStatusUpdateSerializer, AppointmentStatusUpdateSerializer
+from .serializers import AppointmentCreateSerializer, AppointmentPaymentStatusUpdateSerializer, AppointmentSerializer, AppointmentStatusUpdateSerializer
 
 class AppointmentCreateView(APIView):
     def post(self, request, *args, **kwargs):
@@ -71,7 +72,7 @@ class AppointmentDetailView(APIView):
 
                 response_data["last_completed_talon"] = last_completed_talon.talon if last_completed_talon else None
 
-        serializer = AppointmentCreateSerializer(appointment)
+        serializer = AppointmentSerializer(appointment)
         response_data.update(serializer.data)
 
         return Response(
@@ -81,9 +82,6 @@ class AppointmentDetailView(APIView):
             },
             status=status.HTTP_200_OK
         )
-
-
-
 
 
 class AppointmentStatusUpdateView(APIView):
@@ -148,3 +146,15 @@ class AppointmentPaymentStatusUpdateView(APIView):
             },
             status=status.HTTP_400_BAD_REQUEST
         )
+    
+
+class AppointmentListView(APIView):
+    def get(self, request, doctor_id, format=None):
+        today = datetime.now().date()
+        appointments = Appointment.objects.filter(doctor__id=doctor_id, created_at__date=today)
+        
+        if not appointments.exists():
+            return Response({"detail": "На сегодня пока что ничего нет."}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = AppointmentSerializer(appointments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
