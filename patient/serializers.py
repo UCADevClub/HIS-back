@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from hospital.serializers import AllergySerializer, VaccineSerializer
 from patient.models import Patient
 from user_authentication.serializers import (
     StandardUserSerializer,
@@ -99,3 +100,34 @@ class PatientSerializer(StandardUserSerializer):
 
         instance.save()
         return instance
+
+
+class PatientGetSerializer(StandardUserSerializer):
+    address = AddressSerializer()
+    primary_emergency_contact = EmergencyContactSerializer()
+    secondary_emergency_contact = EmergencyContactSerializer(required=False, allow_null=True)
+    allergies = AllergySerializer(many=True, required=False)
+    vaccines = VaccineSerializer(many=True, required=False)
+
+    class Meta:
+        model = Patient
+        fields = (
+            'id',
+            'user_id',
+            'first_name',
+            'last_name',
+            'middle_name',
+            'email',
+            'citizenship',
+            'date_of_birth',
+            'phone_number',
+            'gender',
+            'address',
+            'primary_emergency_contact',
+            'secondary_emergency_contact',
+            'marital_status',
+            'blood_group',
+            'vision',
+            'allergies',
+            'vaccines'
+        )
