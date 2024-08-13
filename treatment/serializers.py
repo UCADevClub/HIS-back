@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from appointment.models import Appointment
-from appointment.serializers import AppointmentCreateSerializer
+from appointment.serializers import AppointmentCreateSerializer, AppointmentSerializer
 from .models import Medications, ObjectiveExamination, Referral, Treatment
 
 
@@ -23,20 +23,113 @@ class ObjectiveExaminationSerializer(serializers.ModelSerializer):
 
 
 class ReferralSerializer(serializers.ModelSerializer):
+    appointment = AppointmentSerializer()
+
+    class Meta:
+        model = Referral
+        fields = '__all__'
+
+
+class ReferralCreateSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Referral
         fields = '__all__'
 
     def create(self, validated_data):
-        # Создаем новый объект Referral
-        return Referral.objects.create(**validated_data)
+        # Extract appointment data
+        appointment_data = validated_data.pop('appointment', None)
+        
+        # Create the Referral instance
+        referral = Referral.objects.create(**validated_data)
+        
+        # If appointment data is provided, update the related Appointment
+        if appointment_data:
+            # Get or create the related Appointment instance
+            appointment_id = appointment_data.get('id')
+            if appointment_id:
+                appointment = Appointment.objects.filter(id=appointment_id).first()
+                if appointment:
+                    appointment.is_referral = True
+                    appointment.save()
+        
+        return referral
+
+class ReferralUpdateConclusionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Referral
+        fields = ['referral_conclusion']
 
     def update(self, instance, validated_data):
-        # Обновляем существующий объект Referral
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+        # Update only the referral_conclusion field
+        instance.referral_conclusion = validated_data.get('referral_conclusion', instance.referral_conclusion)
         instance.save()
         return instance
+
+
+class ReferralDoctorUpdateSerializer(serializers.ModelSerializer):
+    appointment = AppointmentCreateSerializer()
+
+    class Meta:
+        model = Referral
+        fields = ['appointment']
+
+    def create(self, validated_data):
+        appointment_data = validated_data.pop('appointment', None)
+
+        # Create or update the appointment
+        if appointment_data:
+            appointment_serializer = AppointmentCreateSerializer(data=appointment_data)
+            if appointment_serializer.is_valid(raise_exception=True):
+                appointment = appointment_serializer.save()
+                # Set `is_referral` to True
+                appointment.is_referral = True
+                appointment.save()
+        else:
+            appointment = None
+        
+        # Create a new Referral instance
+        referral = Referral.objects.create(appointment=appointment, **validated_data)
+        return referral
+
+    def update(self, instance, validated_data):
+        appointment_data = validated_data.pop('appointment', None)
+
+        # Update or create the appointment
+        if appointment_data:
+            appointment_id = appointment_data.get('id', None)
+            
+            if appointment_id:
+                try:
+                    # Update existing appointment
+                    appointment = Appointment.objects.get(id=appointment_id)
+                    # Set `is_referral` to True
+                    appointment.is_referral = True
+                    appointment.save()
+                except Appointment.DoesNotExist:
+                    raise serializers.ValidationError("Appointment does not exist")
+            else:
+                # Create a new appointment
+                appointment_serializer = AppointmentCreateSerializer(data=appointment_data)
+                if appointment_serializer.is_valid(raise_exception=True):
+                    appointment = appointment_serializer.save()
+                    # Set `is_referral` to True
+                    appointment.is_referral = True
+                    appointment.save()
+            
+            # Assign the appointment to the referral
+            instance.appointment = appointment
+
+        # Update other fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        # Save the updated referral instance
+        instance.save()
+        return instance
+
+
+
 
 
 class MedicationsSerializer(serializers.ModelSerializer):
@@ -47,7 +140,7 @@ class MedicationsSerializer(serializers.ModelSerializer):
 
 class TreatmentCreateSerializer(serializers.ModelSerializer):
     objective_examination = ObjectiveExaminationSerializer(required=False, allow_null=True)
-    referral = ReferralSerializer(required=False, allow_null=True)
+    referral = ReferralCreateSerializer(required=False, allow_null=True)
     medications = MedicationsSerializer(many=True, required=False, allow_null=True)
     appointment = serializers.PrimaryKeyRelatedField(queryset=Appointment.objects.all(), required=False)
 
@@ -91,7 +184,7 @@ class TreatmentSerializer(serializers.ModelSerializer):
     objective_examination = ObjectiveExaminationSerializer(required=False, allow_null=True)
     referral = ReferralSerializer(required=False, allow_null=True)
     medications = MedicationsSerializer(many=True, required=False, allow_null=True)
-    appointment = AppointmentCreateSerializer()  # Use AppointmentSerializer to show full details
+    appointment = AppointmentSerializer()
 
     class Meta:
         model = Treatment
@@ -100,7 +193,7 @@ class TreatmentSerializer(serializers.ModelSerializer):
 
 class TreatmentUpdateSerializer(serializers.ModelSerializer):
     objective_examination = ObjectiveExaminationSerializer(required=False, allow_null=True)
-    referral = ReferralSerializer(required=False, allow_null=True)
+    referral = ReferralDoctorUpdateSerializer(required=False, allow_null=True)
     medications = MedicationsSerializer(many=True, required=False, allow_null=True)
     
     class Meta:
@@ -136,13 +229,13 @@ class TreatmentUpdateSerializer(serializers.ModelSerializer):
         # Update or create Referral
         if referral_data:
             if instance.referral:
-                referral_serializer = ReferralSerializer(
+                referral_serializer = ReferralDoctorUpdateSerializer(
                     instance.referral, data=referral_data, partial=True
                 )
                 if referral_serializer.is_valid(raise_exception=True):
                     instance.referral = referral_serializer.save()
             else:
-                referral_serializer = ReferralSerializer(data=referral_data)
+                referral_serializer = ReferralDoctorUpdateSerializer(data=referral_data)
                 if referral_serializer.is_valid(raise_exception=True):
                     instance.referral = referral_serializer.save()
 
