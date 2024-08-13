@@ -19,9 +19,10 @@ class Appointment(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, blank=True)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, blank=True)
     talon = models.CharField(max_length=10, unique=True, blank=True)
-    complaint = models.TextField(blank=True)
+    reason = models.TextField(blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='booked')
     payment_status = models.CharField(max_length=10, choices=PAYMENT_STATUS_CHOICES, default='not_paid')
+    is_referral = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -41,19 +42,21 @@ class Appointment(models.Model):
                 created_at__date=today
             ).count()
 
-            sequential_number = str(count + 1).zfill(2)
+            # Ensure sequential_number is three digits long
+            sequential_number = str(count + 1).zfill(3)
             talon = f"{speciality_initial}{sequential_number}"
 
             # Ensure the talon is unique
             while Appointment.objects.filter(talon=talon).exists():
                 count += 1
-                sequential_number = str(count + 1).zfill(2)
+                sequential_number = str(count + 1).zfill(3)
                 talon = f"{speciality_initial}{sequential_number}"
 
-                if count > 99:  # Assuming there won't be more than 99 appointments per day
+                if count > 999:  # Adjust this if you expect more than 999 appointments per day
                     raise IntegrityError("Unable to generate a unique talon after multiple attempts.")
 
             return talon
+
 
     def __str__(self):
         return f"Appointment with Dr. {self.doctor} for {self.patient} on {self.created_at.strftime('%Y-%m-%d %H:%M:%S')}"
