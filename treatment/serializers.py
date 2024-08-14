@@ -22,6 +22,7 @@ class ObjectiveExaminationSerializer(serializers.ModelSerializer):
         return instance
 
 
+#Referral Serializers
 class ReferralSerializer(serializers.ModelSerializer):
     appointment = AppointmentSerializer()
 
@@ -129,15 +130,13 @@ class ReferralDoctorUpdateSerializer(serializers.ModelSerializer):
         return instance
 
 
-
-
-
 class MedicationsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Medications
         fields = '__all__'
 
 
+#Treatment Serializers
 class TreatmentCreateSerializer(serializers.ModelSerializer):
     objective_examination = ObjectiveExaminationSerializer(required=False, allow_null=True)
     referral = ReferralCreateSerializer(required=False, allow_null=True)
@@ -250,6 +249,37 @@ class TreatmentUpdateSerializer(serializers.ModelSerializer):
         # Update other fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
+
+        instance.save()
+        return instance
+
+
+class TreatmentReferralUpdateSerializer(serializers.ModelSerializer):
+    referral = ReferralUpdateConclusionSerializer()
+    lab_tests = serializers.ListField(child=serializers.CharField(), required=False)  # Или используйте нужный вам тип данных
+
+    class Meta:
+        model = Treatment
+        fields = ['referral', 'lab_tests']  # Убедитесь, что включены все необходимые поля
+
+    def update(self, instance, validated_data):
+        referral_data = validated_data.get('referral', None)
+        lab_tests_data = validated_data.get('lab_tests', None)
+
+        if referral_data:
+            referral = instance.referral
+            if referral:
+                referral_serializer = ReferralUpdateConclusionSerializer(
+                    referral, data=referral_data, partial=True
+                )
+                if referral_serializer.is_valid(raise_exception=True):
+                    referral_serializer.save()
+            else:
+                raise serializers.ValidationError("Referral does not exist in this treatment.")
+
+        if lab_tests_data is not None:
+            # Обновляем поле lab_tests
+            instance.lab_tests = lab_tests_data
 
         instance.save()
         return instance
