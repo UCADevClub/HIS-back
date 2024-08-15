@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from appointment.models import Appointment
-from appointment.serializers import AppointmentCreateSerializer, AppointmentSerializer
+from appointment.serializers import AppointmentCreateSerializer, AppointmentSerializer, AppointmentTreatmentListSerializer, AppointmentTreatmentSerializer
 from .models import Medications, ObjectiveExamination, Referral, Treatment
 
 
@@ -24,7 +24,7 @@ class ObjectiveExaminationSerializer(serializers.ModelSerializer):
 
 #Referral Serializers
 class ReferralSerializer(serializers.ModelSerializer):
-    appointment = AppointmentSerializer()
+    appointment = AppointmentCreateSerializer()
 
     class Meta:
         model = Referral
@@ -141,7 +141,7 @@ class TreatmentCreateSerializer(serializers.ModelSerializer):
     objective_examination = ObjectiveExaminationSerializer(required=False, allow_null=True)
     referral = ReferralCreateSerializer(required=False, allow_null=True)
     medications = MedicationsSerializer(many=True, required=False, allow_null=True)
-    appointment = serializers.PrimaryKeyRelatedField(queryset=Appointment.objects.all(), required=False)
+    appointment = serializers.PrimaryKeyRelatedField(queryset=Appointment.objects.all(), required=True)
 
     class Meta:
         model = Treatment
@@ -151,7 +151,11 @@ class TreatmentCreateSerializer(serializers.ModelSerializer):
         objective_examination_data = validated_data.pop('objective_examination', None)
         referral_data = validated_data.pop('referral', None)
         medications_data = validated_data.pop('medications', [])
-        appointment = validated_data.pop('appointment', None)
+        appointment = validated_data.pop('appointment')
+
+        # Update appointment status to 'in_progress'
+        appointment.status = "in_progress"
+        appointment.save()
 
         # Create or update ObjectiveExamination
         objective_examination = None
@@ -183,7 +187,7 @@ class TreatmentSerializer(serializers.ModelSerializer):
     objective_examination = ObjectiveExaminationSerializer(required=False, allow_null=True)
     referral = ReferralSerializer(required=False, allow_null=True)
     medications = MedicationsSerializer(many=True, required=False, allow_null=True)
-    appointment = AppointmentSerializer()
+    appointment = AppointmentTreatmentSerializer()
 
     class Meta:
         model = Treatment
@@ -204,7 +208,8 @@ class TreatmentUpdateSerializer(serializers.ModelSerializer):
             'referral',
             'justification_and_formulation',
             'recommendations',
-            'medications'
+            'medications',
+            'category'
         ]
 
     def update(self, instance, validated_data):
@@ -256,11 +261,11 @@ class TreatmentUpdateSerializer(serializers.ModelSerializer):
 
 class TreatmentReferralUpdateSerializer(serializers.ModelSerializer):
     referral = ReferralUpdateConclusionSerializer()
-    lab_tests = serializers.ListField(child=serializers.CharField(), required=False)  # Или используйте нужный вам тип данных
+    lab_tests = serializers.FileField(required=False)  # Adjust to FileField for single file uploads
 
     class Meta:
         model = Treatment
-        fields = ['referral', 'lab_tests']  # Убедитесь, что включены все необходимые поля
+        fields = ['referral', 'lab_tests']  # Ensure all necessary fields are included
 
     def update(self, instance, validated_data):
         referral_data = validated_data.get('referral', None)
@@ -278,8 +283,21 @@ class TreatmentReferralUpdateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Referral does not exist in this treatment.")
 
         if lab_tests_data is not None:
-            # Обновляем поле lab_tests
+            # Set the lab_tests field to the uploaded file
             instance.lab_tests = lab_tests_data
 
         instance.save()
         return instance
+
+
+class TreatmentListSerializer(serializers.ModelSerializer):
+    appointment = AppointmentTreatmentListSerializer()
+
+    class Meta:
+        model = Treatment
+        fields = [
+            'id',
+            "appointment",
+            "category",
+
+        ]

@@ -5,10 +5,11 @@ from staff.models import Doctor
 
 class Appointment(models.Model):
     STATUS_CHOICES = [
-        ('booked', 'Booked'),
-        ('in_progress', 'In Progress'),
-        ('completed', 'Completed'),
-        ('canceled', 'Canceled'),
+        ('booked', 'Ожидание приема'),
+        ('in_progress', 'На приеме'),
+        ('completed', 'Выписан'),
+        ('canceled', 'Отменен'),
+        ('critical', 'Критический'),
     ]
 
     PAYMENT_STATUS_CHOICES = [

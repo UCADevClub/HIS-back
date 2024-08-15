@@ -294,6 +294,7 @@ class Treatment(models.Model):
 
     # Medications
     medications = models.ManyToManyField(Medications, related_name='treatments', blank=True)
+    category = models.CharField(blank=True, null=True, max_length=50)
 
     def __str__(self):
         return f"Treatment for {self.appointment.patient} on {self.appointment.created_at}"

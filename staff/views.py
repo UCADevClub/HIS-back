@@ -12,7 +12,7 @@ from staff.permissions import (
     IsBranchAdministrator,
     IsPatientManager,
 )
-from staff.serializers import HospitalAdministratorSerializer, BranchAdministratorSerializer,DoctorSerializer, PatientManagerSerializer,SpecialitySerializer
+from staff.serializers import DoctorCreateSerializer, HospitalAdministratorSerializer, BranchAdministratorSerializer,DoctorSerializer, PatientManagerSerializer,SpecialitySerializer
 from staff.models import HospitalAdministrator, BranchAdministrator,Doctor,PatientManager,Speciality
 
 
@@ -134,7 +134,7 @@ class DoctorCreateView(APIView):
     permission_classes = (IsBranchAdministrator,)
 
     def post(self, request):
-        doctor_serializer = DoctorSerializer(data=request.data)
+        doctor_serializer = DoctorCreateSerializer(data=request.data)
         if doctor_serializer.is_valid():
             doctor_serializer.save()
             return Response(data={"message": "Doctor Created Successfully",

@@ -131,3 +131,43 @@ class PatientGetSerializer(StandardUserSerializer):
             'allergies',
             'vaccines'
         )
+
+
+class PatientAppointmentSerializer(StandardUserSerializer):
+    address = AddressSerializer()
+    allergies = AllergySerializer(many=True, required=False)
+    vaccines = VaccineSerializer(many=True, required=False)
+
+    class Meta:
+        model = Patient
+        fields = (            
+            'first_name',
+            'last_name',
+            'phone_number',
+            'gender',
+
+        )
+
+class PatientTreatmentSerializer(StandardUserSerializer):
+    address = AddressSerializer()
+    primary_emergency_contact = EmergencyContactSerializer()
+    secondary_emergency_contact = EmergencyContactSerializer(required=False, allow_null=True)
+    allergies = AllergySerializer(many=True, required=False)
+    vaccines = VaccineSerializer(many=True, required=False)
+
+    class Meta:
+        model = Patient
+        fields = (
+            'id',
+            'user_id',
+            'first_name',
+            'last_name',
+            'middle_name',
+            'email',
+            'phone_number',
+            'gender',
+            'blood_group',
+            'vision',
+            'allergies',
+            'vaccines'
+        )

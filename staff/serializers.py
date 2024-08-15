@@ -133,11 +133,25 @@ class SpecialitySerializer(serializers.ModelSerializer):
         model = Speciality
         fields = ['id', 'position', 'description', 'room_number']
 
+
 class DoctorSerializer(StandardUserSerializer):
     address = AddressSerializer()
     primary_emergency_contact = EmergencyContactSerializer()
     secondary_emergency_contact = EmergencyContactSerializer(required=False, allow_null=True)
     speciality = SpecialitySerializer(many=True)
+
+    class Meta(StandardUserSerializer.Meta):
+        model = Doctor
+        fields = ('id',) + StandardUserSerializer.Meta.fields + (
+            'speciality', 'is_doctor', 'is_branch_director', 'is_department_director',
+        )
+
+
+class DoctorCreateSerializer(StandardUserSerializer):
+    address = AddressSerializer()
+    primary_emergency_contact = EmergencyContactSerializer()
+    secondary_emergency_contact = EmergencyContactSerializer(required=False, allow_null=True)
+    speciality = serializers.PrimaryKeyRelatedField(queryset=Speciality.objects.all(), required=True, many=True)
 
     class Meta(StandardUserSerializer.Meta):
         model = Doctor
@@ -199,3 +213,20 @@ class DoctorSerializer(StandardUserSerializer):
 
         instance.save()
         return instance
+
+
+class DoctorAppointmentSerializer(StandardUserSerializer):
+    address = AddressSerializer()
+    primary_emergency_contact = EmergencyContactSerializer()
+    secondary_emergency_contact = EmergencyContactSerializer(required=False, allow_null=True)
+    speciality = SpecialitySerializer(many=True)
+
+    class Meta(StandardUserSerializer.Meta):
+        model = Doctor
+        fields = [
+            'id',
+            'first_name',
+            'last_name',
+            'phone_number',
+            'speciality',
+        ]

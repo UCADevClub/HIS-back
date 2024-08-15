@@ -1,18 +1,33 @@
 from rest_framework import serializers
 from patient.models import Patient
-from patient.serializers import PatientGetSerializer, PatientSerializer
+from patient.serializers import PatientAppointmentSerializer, PatientGetSerializer, PatientSerializer, PatientTreatmentSerializer
 from staff.models import Doctor
-from staff.serializers import DoctorSerializer
+from staff.serializers import DoctorAppointmentSerializer
 from .models import Appointment
 
 class AppointmentSerializer(serializers.ModelSerializer):
-    patient = PatientGetSerializer()
-    doctor = DoctorSerializer()
+    patient = PatientAppointmentSerializer()
+    doctor = DoctorAppointmentSerializer()
 
     class Meta:
         model = Appointment
-        fields = ['id', 'talon', 'reason', 'status', 'payment_status', 'is_referral', 'doctor', 'patient']
+        fields = ['id', 'talon', 'reason', 'status', 'payment_status', 'is_referral', 'doctor', 'patient', 'created_at']
 
+
+class AppointmentTreatmentListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Appointment
+        fields = ['reason', 'status','created_at']
+
+
+class AppointmentTreatmentSerializer(serializers.ModelSerializer):
+    patient = PatientTreatmentSerializer()
+    doctor = DoctorAppointmentSerializer()
+
+    class Meta:
+        model = Appointment
+        fields = ['id', 'talon', 'reason', 'status', 'payment_status', 'is_referral', 'doctor', 'patient', 'created_at']
 
 
 class AppointmentCreateSerializer(serializers.ModelSerializer):
