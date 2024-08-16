@@ -1,11 +1,30 @@
 from datetime import datetime
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from .models import Appointment
 from .serializers import AppointmentCreateSerializer, AppointmentPaymentStatusUpdateSerializer, AppointmentSerializer, AppointmentStatusUpdateSerializer
+from rest_framework.authentication import (
+     TokenAuthentication
+)
+from staff.permissions import (
+    IsPatientManager,
+    IsSuperUser,
+    IsDoctor
+)
+from patient.permissions import (
+    IsPatient
+)
 
 class AppointmentCreateView(APIView):
+
+    authentication_classes = (
+            TokenAuthentication,
+    )
+    permission_classes = [IsAuthenticated, IsDoctor | IsPatientManager]
+
+
     def post(self, request, *args, **kwargs):
         serializer = AppointmentCreateSerializer(data=request.data)
         if serializer.is_valid():
@@ -27,6 +46,12 @@ class AppointmentCreateView(APIView):
 
    
 class AppointmentDetailView(APIView):
+
+    authentication_classes = (
+            TokenAuthentication,
+    )
+    permission_classes = [IsAuthenticated, IsDoctor | IsPatient | IsPatientManager]
+
     def get(self, request, *args, **kwargs):
         appointment_id = kwargs.get('pk')
         try:
@@ -85,6 +110,12 @@ class AppointmentDetailView(APIView):
 
 
 class AppointmentStatusUpdateView(APIView):
+
+    authentication_classes = (
+            TokenAuthentication,
+    )
+    permission_classes = [IsAuthenticated, IsDoctor | IsPatient]
+
     def patch(self, request, *args, **kwargs):
         appointment_id = kwargs.get('pk')
         try:
@@ -117,6 +148,12 @@ class AppointmentStatusUpdateView(APIView):
     
 
 class AppointmentPaymentStatusUpdateView(APIView):
+
+    authentication_classes = (
+            TokenAuthentication,
+    )
+    permission_classes = [IsAuthenticated, IsPatientManager]
+
     def patch(self, request, *args, **kwargs):
         appointment_id = kwargs.get('pk')
         try:
@@ -149,6 +186,12 @@ class AppointmentPaymentStatusUpdateView(APIView):
     
 
 class AppointmentListView(APIView):
+
+    authentication_classes = (
+            TokenAuthentication,
+    )
+    permission_classes = [IsAuthenticated, IsDoctor]
+
     def get(self, request, doctor_id, format=None):
         today = datetime.now().date()
         appointments = Appointment.objects.filter(doctor__id=doctor_id, created_at__date=today)
