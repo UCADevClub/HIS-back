@@ -12,8 +12,26 @@ from .serializers import (
     TreatmentUpdateSerializer, 
     TreatmentReferralUpdateSerializer
     )
+from rest_framework.authentication import (
+    SessionAuthentication,
+    BasicAuthentication, TokenAuthentication
+)
+from staff.permissions import (
+    IsPatientManager,
+    IsSuperUser,
+    IsDoctor
+)
+from patient.permissions import (
+    IsPatient
+)
 
 class TreatmentView(APIView):
+
+    authentication_classes = (
+            TokenAuthentication,
+    )
+    permission_classes = [IsAuthenticated, IsDoctor | IsPatient]
+
     def post(self, request, *args, **kwargs):
         # Получаем ID из запроса
         appointment_id = request.data.get('appointment')
@@ -68,7 +86,11 @@ class TreatmentView(APIView):
 
 
 class TreatmentUpdateView(APIView):
-    permission_classes = [IsAuthenticated]
+    authentication_classes = (
+            TokenAuthentication,
+    )
+    permission_classes = [IsAuthenticated, IsDoctor]
+
 
     def get_object(self, pk):
         try:
@@ -108,6 +130,11 @@ class TreatmentUpdateView(APIView):
     
 
 class TreatmentDetailView(APIView):
+
+    authentication_classes = (
+            TokenAuthentication,
+    )
+    permission_classes = [IsAuthenticated, IsDoctor | IsPatient]
     
     def get_object(self, pk):
         try:
@@ -122,6 +149,12 @@ class TreatmentDetailView(APIView):
 
 
 class TreatmentListView(APIView):
+
+    authentication_classes = (
+            TokenAuthentication,
+    )
+    permission_classes = [IsAuthenticated, IsDoctor | IsPatient]
+
     def get(self, request, patient_id, format=None):
         category = request.query_params.get('category', None)
 
