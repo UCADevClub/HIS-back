@@ -94,6 +94,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     is_patient_manager = models.BooleanField(default=False)
     is_branch_administrator = models.BooleanField(default=False)
     is_hospital_administrator = models.BooleanField(default=False)
+    is_doctor = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 
@@ -145,5 +146,5 @@ class StandardUser(BaseUser):
         choices=MARITAL_OPTIONS,
         default='single',
     )
-    is_doctor = models.BooleanField(default=False)
+
     is_patient = models.BooleanField(default=False)

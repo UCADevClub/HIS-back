@@ -173,7 +173,7 @@ class DoctorCreateSerializer(StandardUserSerializer):
         validated_data['primary_emergency_contact'] = primary_emergency_contact
         validated_data['secondary_emergency_contact'] = secondary_emergency_contact
 
-        doctor = Doctor.objects.create(**validated_data)
+        doctor = Doctor.objects.create_doctor(**validated_data)
         doctor.speciality.set(speciality_data)
         return doctor
 
