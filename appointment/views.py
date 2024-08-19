@@ -197,7 +197,7 @@ class AppointmentListView(APIView):
         appointments = Appointment.objects.filter(doctor__id=doctor_id, created_at__date=today)
         
         if not appointments.exists():
-            return Response({"detail": "На сегодня пока что ничего нет."}, status=status.HTTP_404_NOT_FOUND)
+            return Response([],)
         
         serializer = AppointmentSerializer(appointments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
