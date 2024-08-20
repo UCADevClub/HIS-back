@@ -51,7 +51,7 @@ class PatientSerializer(StandardUserSerializer):
         primary_emergency_contact = EmergencyContact.objects.create(**primary_emergency_contact_data)
         secondary_emergency_contact = EmergencyContact.objects.create(**secondary_emergency_contact_data) if secondary_emergency_contact_data else None
 
-        patient = Patient.objects.create(
+        patient = Patient.objects.create_patient(
             address=address,
             primary_emergency_contact=primary_emergency_contact,
             secondary_emergency_contact=secondary_emergency_contact,
