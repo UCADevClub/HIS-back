@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.db import models
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -189,16 +190,27 @@ class AppointmentPaymentStatusUpdateView(APIView):
 class AppointmentListView(APIView):
 
     authentication_classes = (
-            TokenAuthentication,
+        TokenAuthentication,
     )
-    permission_classes = [ IsDoctor | IsPatientManager | IsBranchAdministrator | IsSuperUser, ]
+    permission_classes = [IsDoctor | IsPatientManager | IsBranchAdministrator | IsSuperUser,]
 
     def get(self, request, doctor_id, format=None):
         today = datetime.now().date()
-        appointments = Appointment.objects.filter(doctor__id=doctor_id, created_at__date=today)
+        appointments = Appointment.objects.filter(
+            doctor__id=doctor_id, 
+            created_at__date=today
+        ).exclude(status__in=['completed', 'canceled']).order_by(
+            models.Case(
+                models.When(status='critical', then=models.Value(0)),
+                models.When(status='in_progress', then=models.Value(1)),
+                models.When(status='booked', then=models.Value(2)),
+                output_field=models.IntegerField(),
+            ),
+            'created_at'  
+        )
         
         if not appointments.exists():
-            return Response([],)
+            return Response([], status=status.HTTP_200_OK)
         
         serializer = AppointmentSerializer(appointments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -209,11 +221,17 @@ class AppointmentListAdminView(APIView):
     authentication_classes = (
         TokenAuthentication,
     )
+    permission_classes = [IsSuperUser | IsBranchAdministrator | IsPatientManager]
 
-    permission_classes = [IsSuperUser | IsBranchAdministrator | IsPatientManager,]
-
-    def get(self,request):
-        appointments = Appointment.objects.all()
-        serializer = AppointmentSerializer(appointments, many = True)
+    def get(self, request):
+        appointments = Appointment.objects.exclude(status__in=['completed', 'canceled']).order_by(
+            models.Case(
+                models.When(status='critical', then=models.Value(0)),
+                models.When(status='in_progress', then=models.Value(1)),
+                models.When(status='booked', then=models.Value(2)),
+                output_field=models.IntegerField(),
+            ),
+            'created_at'  
+        )
+        serializer = AppointmentSerializer(appointments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
