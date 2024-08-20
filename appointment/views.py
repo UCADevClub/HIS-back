@@ -153,7 +153,7 @@ class AppointmentPaymentStatusUpdateView(APIView):
     authentication_classes = (
             TokenAuthentication,
     )
-    permission_classes = [IsAuthenticated, IsPatientManager]
+    permission_classes = [IsAuthenticated | IsPatientManager | IsDoctor ,]
 
     def patch(self, request, *args, **kwargs):
         appointment_id = kwargs.get('pk')
@@ -191,7 +191,7 @@ class AppointmentListView(APIView):
     authentication_classes = (
             TokenAuthentication,
     )
-    permission_classes = [ IsDoctor| IsPatientManager | IsBranchAdministrator | IsSuperUser, ]
+    permission_classes = [ IsDoctor | IsPatientManager | IsBranchAdministrator | IsSuperUser, ]
 
     def get(self, request, doctor_id, format=None):
         today = datetime.now().date()
