@@ -11,7 +11,8 @@ from rest_framework.authentication import (
 from staff.permissions import (
     IsPatientManager,
     IsSuperUser,
-    IsDoctor
+    IsDoctor,
+    IsBranchAdministrator
 )
 from patient.permissions import (
     IsPatient
@@ -190,7 +191,7 @@ class AppointmentListView(APIView):
     authentication_classes = (
             TokenAuthentication,
     )
-    permission_classes = [IsAuthenticated, IsDoctor]
+    permission_classes = [ IsDoctor| IsPatientManager | IsBranchAdministrator | IsSuperUser, ]
 
     def get(self, request, doctor_id, format=None):
         today = datetime.now().date()
