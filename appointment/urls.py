@@ -4,7 +4,8 @@ from .views import (
     AppointmentListView, 
     AppointmentPaymentStatusUpdateView,
     AppointmentStatusUpdateView,
-    AppointmentDetailView
+    AppointmentDetailView,
+    AppointmentListAdminView
     )
 
 app_name = 'appointment'
@@ -15,4 +16,5 @@ urlpatterns = [
     path('<int:pk>/update-payment-status/', AppointmentPaymentStatusUpdateView.as_view(), name='appointment-update-payment-status'),
     path('<int:pk>/', AppointmentDetailView.as_view(), name='appointment-detail'),
     path('doctor/<doctor_id>/today/', AppointmentListView.as_view(), name='appointment-detail'),
+    path('list-appointments', AppointmentListAdminView.as_view(), name='list-appointments')
 ]

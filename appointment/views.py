@@ -202,3 +202,18 @@ class AppointmentListView(APIView):
         
         serializer = AppointmentSerializer(appointments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AppointmentListAdminView(APIView):
+
+    authentication_classes = (
+        TokenAuthentication,
+    )
+
+    permission_classes = [IsSuperUser | IsBranchAdministrator | IsPatientManager,]
+
+    def get(self,request):
+        appointments = Appointment.objects.all()
+        serializer = AppointmentSerializer(appointments, many = True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    

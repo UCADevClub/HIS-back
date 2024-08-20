@@ -145,6 +145,9 @@ class PatientAppointmentSerializer(StandardUserSerializer):
             'last_name',
             'phone_number',
             'gender',
+            'allergies',
+            'vaccines',
+            'address'
 
         )
 
