@@ -131,7 +131,7 @@ class HospitalAdministratorSerializer(ModelSerializer):
 class SpecialitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Speciality
-        fields = ['id', 'position', 'description', 'room_number']
+        fields = ['id', 'position', 'description']
 
 
 class DoctorSerializer(StandardUserSerializer):
@@ -143,7 +143,7 @@ class DoctorSerializer(StandardUserSerializer):
     class Meta(StandardUserSerializer.Meta):
         model = Doctor
         fields = ('id',) + StandardUserSerializer.Meta.fields + (
-            'speciality', 'is_doctor', 'is_branch_director', 'is_department_director',
+            'speciality', 'is_doctor', 'is_branch_director', 'is_department_director', 'room_number',
         )
 
 

@@ -5,7 +5,6 @@ from user_authentication.models import StandardUser, BaseUser
 class Speciality(models.Model):
     position = models.CharField(unique=True, max_length=256)
     description = models.TextField(null=True,blank=True)
-    room_number = models.CharField(max_length=256, default="N/A")
 
     def __str__(self):
         return self.position
@@ -19,6 +18,7 @@ class Doctor(StandardUser):
         Speciality,
         related_name='doctors',
     )
+    room_number = models.CharField(max_length=256, default="N/A")
     is_doctor = True
     is_branch_director = models.BooleanField(default=False)
     is_department_director = models.BooleanField(default=False)
