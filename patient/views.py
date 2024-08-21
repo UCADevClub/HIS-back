@@ -93,6 +93,8 @@ class PatientDetail(APIView):
         }
     )
     def patch(self,request, user_id):
+        self.permission_classes = [IsPatientManager]
+        self.check_permissions(request)
         try:
             patient_instance = Patient.objects.filter(baseuser_ptr=user_id).first()
             patient_serializer = PatientSerializer(
