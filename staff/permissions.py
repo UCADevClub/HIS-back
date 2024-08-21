@@ -30,3 +30,15 @@ class IsAdmin(BasePermission):
 class IsDoctor(BasePermission):
     def has_permission(self, request, view):
         return request.user.is_doctor
+    def has_object_permission(self, request, view, obj):
+        if not request.user.is_doctor:
+            return False
+
+        allowed_fields = {'vaccines', 'allergies', 'vision', 'blood_group'}
+        if request.method in ['PATCH', 'PUT']:
+            data_keys = set(request.data.keys())
+            if data_keys.issubset(allowed_fields):
+                return True
+            return False
+
+        return True

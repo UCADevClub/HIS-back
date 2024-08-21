@@ -22,6 +22,7 @@ from patient.permissions import (
 from staff.permissions import (
     IsPatientManager,
     IsSuperUser,
+    IsDoctor
 )
 
 
@@ -92,20 +93,27 @@ class PatientDetail(APIView):
             400: 'Invalid request data'
         }
     )
-    def patch(self,request, user_id):
-        self.permission_classes = [IsPatientManager]
+    def patch(self, request, user_id):
+        self.permission_classes = [IsPatientManager | IsDoctor]
         self.check_permissions(request)
         try:
             patient_instance = Patient.objects.filter(baseuser_ptr=user_id).first()
+            if not patient_instance:
+                raise Http404("Patient not found")
+            
+            # Use partial=True to allow partial updates
             patient_serializer = PatientSerializer(
                 patient_instance, data=request.data, partial=True)
+            
+            # Check permissions for the specific fields being updated
+            self.check_object_permissions(request, patient_instance)
+            
             if patient_serializer.is_valid():
                 patient_serializer.save()
                 return Response(patient_serializer.data, status=status.HTTP_200_OK)
             return Response(patient_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Http404 as error:
-            return Response(data={f'{error=}'}, status=status.HTTP_404_NOT_FOUND)
-
+            return Response(data={'detail': str(error)}, status=status.HTTP_404_NOT_FOUND)
 
 class PatientList(APIView):
 
