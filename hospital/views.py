@@ -23,6 +23,11 @@ from staff.permissions import (
     IsSuperUser,
     IsHospitalAdministrator,
     IsBranchAdministrator,
+    IsDoctor,
+    IsPatientManager,
+)
+from patient.permissions import (
+    IsPatient,
 )
 
 # !HOSPITAL  VIEWS
@@ -384,7 +389,7 @@ class AllergyCreateView(APIView):
 class AllergyListView(APIView):
 
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsBranchAdministrator,)
+    permission_classes = (IsBranchAdministrator | IsPatient | IsPatientManager | IsDoctor,)
 
     def get (self,request):
         allergy_query = Allergy.objects.all()
@@ -452,7 +457,7 @@ class VaccineCreateView(APIView):
 class VaccineListView(APIView):
 
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsBranchAdministrator,)
+    permission_classes = (IsBranchAdministrator | IsPatient | IsPatientManager | IsDoctor,)
 
     def get(self,rquest):
         vaccine_query = Vaccine.objects.all()
@@ -520,7 +525,7 @@ class PillCreateView(APIView):
 class PillListView(APIView):
 
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsBranchAdministrator,)
+    permission_classes = (IsBranchAdministrator | IsPatient | IsPatientManager | IsDoctor,)
 
     def get(self,request):
         pill_query = Pill.objects.all()
