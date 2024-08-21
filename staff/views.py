@@ -5,12 +5,16 @@ from rest_framework.response import Response
 from rest_framework.authentication import (
     TokenAuthentication
 )
+from patient.permissions import( 
+    IsPatient,
+)
 from staff.permissions import (
     IsAdmin,
     IsSuperUser,
     IsHospitalAdministrator,
     IsBranchAdministrator,
     IsPatientManager,
+    IsDoctor,
 )
 from staff.serializers import DoctorCreateSerializer, HospitalAdministratorSerializer, BranchAdministratorSerializer,DoctorSerializer, PatientManagerSerializer,SpecialitySerializer
 from staff.models import HospitalAdministrator, BranchAdministrator,Doctor,PatientManager,Speciality
@@ -148,7 +152,7 @@ class DoctorCreateView(APIView):
 class DoctorListView(APIView):
 
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsBranchAdministrator,)
+    permission_classes = (IsBranchAdministrator | IsPatientManager | IsPatient | IsDoctor,)
     
     def get(self,request):
         doctor_query = Doctor.objects.all()
