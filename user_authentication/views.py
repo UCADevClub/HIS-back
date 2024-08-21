@@ -33,6 +33,12 @@ class TokenObtainView(ObtainAuthToken):
             'first_name': user.first_name,
             'last_name': user.last_name,
             'middle_name': user.middle_name if hasattr(user, 'middle_name') else None,
+            'is_patient': user.is_patient,
+            'is_doctor': user.is_doctor,
+            'is_patient_manager': user.is_patient_manager,
+            'is_branch_administrator': user.is_branch_administrator,
+            'is_hospital_administrator': user.is_hospital_administrator,
+            'is_superuser': user.is_superuser
         }
 
         return Response(custom_response)

@@ -79,10 +79,6 @@ class CustomUserManager(BaseUserManager):
     def create_doctor(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_doctor', True)
         return self.create_user(email=email,password=password, **extra_fields)
-    
-    def create_patient(self,email,password=None, **extra_fields):
-        extra_fields.setdefault('is_patient', True)
-        return self.create_user(email=email,password=password, **extra_fields)
 
 
 class BaseUser(AbstractBaseUser, PermissionsMixin):
@@ -99,6 +95,9 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     is_branch_administrator = models.BooleanField(default=False)
     is_hospital_administrator = models.BooleanField(default=False)
     is_doctor = models.BooleanField(default=False)
+    is_patient = models.BooleanField(default=False)
+    
+
 
     objects = CustomUserManager()
 
@@ -150,5 +149,3 @@ class StandardUser(BaseUser):
         choices=MARITAL_OPTIONS,
         default='single',
     )
-
-    is_patient = models.BooleanField(default=False)
