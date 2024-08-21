@@ -221,7 +221,7 @@ class AppointmentListAdminView(APIView):
     authentication_classes = (
         TokenAuthentication,
     )
-    permission_classes = [IsSuperUser | IsBranchAdministrator | IsPatientManager]
+    permission_classes = [IsSuperUser | IsBranchAdministrator | IsPatientManager | IsPatient,]
 
     def get(self, request):
         appointments = Appointment.objects.exclude(status__in=['completed', 'canceled']).order_by(
