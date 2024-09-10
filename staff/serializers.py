@@ -138,7 +138,7 @@ class DoctorSerializer(StandardUserSerializer):
     address = AddressSerializer()
     primary_emergency_contact = EmergencyContactSerializer()
     secondary_emergency_contact = EmergencyContactSerializer(required=False, allow_null=True)
-    speciality = SpecialitySerializer(many=True)
+    speciality = serializers.PrimaryKeyRelatedField(queryset=Speciality.objects.all(),many=True)
 
     class Meta(StandardUserSerializer.Meta):
         model = Doctor
@@ -205,7 +205,7 @@ class DoctorCreateSerializer(StandardUserSerializer):
             if secondary_emergency_contact_serializer.is_valid(raise_exception=True):
                 instance.secondary_emergency_contact = secondary_emergency_contact_serializer.save()
 
-        if speciality_data:
+        if speciality_data is not None:
             instance.speciality.set(speciality_data)
 
         for attr, value in validated_data.items():
