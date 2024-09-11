@@ -297,7 +297,7 @@ class TreatmentListSerializer(serializers.ModelSerializer):
         model = Treatment
         fields = [
             'id',
-            "appointment",
+            "appointment",  
             "category",
-
+            "justification_and_formulation"
         ]

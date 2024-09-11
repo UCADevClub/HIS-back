@@ -156,7 +156,7 @@ class DoctorCreateSerializer(StandardUserSerializer):
     class Meta(StandardUserSerializer.Meta):
         model = Doctor
         fields = ('id',) + StandardUserSerializer.Meta.fields + (
-            'speciality', 'is_doctor', 'is_branch_director', 'is_department_director',
+            'speciality', 'is_doctor', 'is_branch_director', 'is_department_director', 'room_number',
         )
 
     def create(self, validated_data):
