@@ -154,7 +154,7 @@ class AppointmentPaymentStatusUpdateView(APIView):
     authentication_classes = (
             TokenAuthentication,
     )
-    permission_classes = [IsAuthenticated | IsPatientManager | IsDoctor ,]
+    permission_classes = [IsPatientManager,]
 
     def patch(self, request, *args, **kwargs):
         appointment_id = kwargs.get('pk')
