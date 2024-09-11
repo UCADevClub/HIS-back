@@ -186,7 +186,7 @@ class RetrieveUpdateDeleteDoctor(APIView):
             instance = Doctor.objects.get(pk=pk)
         except:
             return Response({"message":"Object does not exist"})
-        doctor_serializer = DoctorSerializer(instance,data=request.data)
+        doctor_serializer = DoctorCreateSerializer(instance,data=request.data)
         if doctor_serializer.is_valid():
             doctor_serializer.save()
             return Response(data={"message":"Doctor successfully updated","data":doctor_serializer.data}, status=status.HTTP_200_OK)
