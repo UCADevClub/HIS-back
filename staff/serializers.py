@@ -145,7 +145,44 @@ class DoctorSerializer(StandardUserSerializer):
         fields = ('id',) + StandardUserSerializer.Meta.fields + (
             'speciality', 'is_doctor', 'is_branch_director', 'is_department_director', 'room_number',
         )
+    def update(self, instance, validated_data):
+        address_data = validated_data.pop('address', None)
+        primary_emergency_contact_data = validated_data.pop('primary_emergency_contact', None)
+        secondary_emergency_contact_data = validated_data.pop('secondary_emergency_contact', None)
+        speciality_data = validated_data.pop('speciality', None)
 
+        if address_data:
+            address_serializer = AddressSerializer(instance.address, data=address_data, partial=True)
+            if address_serializer.is_valid(raise_exception=True):
+                address_serializer.save()
+
+        if primary_emergency_contact_data:
+            primary_emergency_contact_serializer = EmergencyContactSerializer(
+                instance.primary_emergency_contact, data=primary_emergency_contact_data, partial=True
+            )
+            if primary_emergency_contact_serializer.is_valid(raise_exception=True):
+                primary_emergency_contact_serializer.save()
+
+        if secondary_emergency_contact_data:
+            if instance.secondary_emergency_contact:
+                secondary_emergency_contact_serializer = EmergencyContactSerializer(
+                    instance.secondary_emergency_contact, data=secondary_emergency_contact_data, partial=True
+                )
+            else:
+                secondary_emergency_contact_serializer = EmergencyContactSerializer(data=secondary_emergency_contact_data)
+            if secondary_emergency_contact_serializer.is_valid(raise_exception=True):
+                instance.secondary_emergency_contact = secondary_emergency_contact_serializer.save()
+
+        if speciality_data is not None:
+            instance.speciality.set(speciality_data)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
+
+    
 
 class DoctorCreateSerializer(StandardUserSerializer):
     address = AddressSerializer()
