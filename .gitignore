@@ -217,3 +217,5 @@ ENV/
 # developer settings
 local_test.py
 docker-compose.yml
+
+static_files

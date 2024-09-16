@@ -221,17 +221,9 @@ class AppointmentListAdminView(APIView):
     authentication_classes = (
         TokenAuthentication,
     )
-    permission_classes = [IsSuperUser | IsBranchAdministrator | IsPatientManager | IsPatient,]
+    permission_classes = [IsSuperUser | IsBranchAdministrator | IsPatientManager,]
 
     def get(self, request):
-        appointments = Appointment.objects.exclude(status__in=['completed', 'canceled']).order_by(
-            models.Case(
-                models.When(status='critical', then=models.Value(0)),
-                models.When(status='in_progress', then=models.Value(1)),
-                models.When(status='booked', then=models.Value(2)),
-                output_field=models.IntegerField(),
-            ),
-            'created_at'  
-        )
+        appointments = Appointment.objects.all()
         serializer = AppointmentSerializer(appointments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
