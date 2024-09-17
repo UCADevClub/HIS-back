@@ -140,7 +140,8 @@ class PatientAppointmentSerializer(StandardUserSerializer):
 
     class Meta:
         model = Patient
-        fields = (            
+        fields = (    
+            'id',        
             'first_name',
             'last_name',
             'phone_number',
