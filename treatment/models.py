@@ -279,6 +279,11 @@ class Medications(models.Model):
 
 
 class Treatment(models.Model):
+    STATUS_CHOICES = [
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='in_progress')
     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
     objective_examination = models.OneToOneField(ObjectiveExamination, on_delete=models.SET_NULL, null=True, blank=True)
     examination_plan = models.TextField(blank=True, null=True)

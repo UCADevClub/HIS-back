@@ -19,6 +19,8 @@ class Appointment(models.Model):
 
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, blank=True)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, blank=True)
+    referral_doctor = models.ForeignKey(Doctor, related_name='referral_appointments', on_delete=models.SET_NULL,
+                                        blank=True, null=True)
     talon = models.CharField(max_length=10, unique=True, blank=True)
     reason = models.TextField(blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='booked')

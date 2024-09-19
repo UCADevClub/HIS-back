@@ -65,32 +65,36 @@ class TreatmentView(APIView):
                     return Response({"error": "No treatments found"}, status=status.HTTP_404_NOT_FOUND)
                 serializer = TreatmentSerializer(treatments, many=True)
                 return Response(serializer.data, status=status.HTTP_200_OK)
-        
+
         else:
-            # Если is_referral = True
+            # If is_referral = True
             treatments = Treatment.objects.filter(referral__appointment=appointment)
             if not treatments.exists():
-                return Response({"error": "No treatments found"}, status=status.HTTP_404_NOT_FOUND)
-            
-            # Обновляем статус referral на 'in_progress'
+            # Creating new Treatment if no treatments exist for referral
+                serializer = TreatmentCreateSerializer(data=request.data)
+                if serializer.is_valid():
+                    treatment = serializer.save()
+                    # Update referral appointment status to 'in_progress'
+                    appointment.status = 'in_progress'
+                    appointment.save()
+                    response_serializer = TreatmentSerializer(treatment)
+                    return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # If treatments exist, return existing Treatments
             for treatment in treatments:
                 if treatment.referral and treatment.referral.appointment.status == 'booked':
                     treatment.referral.appointment.status = 'in_progress'
-                    treatment.referral.appointment.save()  # Сохраняем изменения в referral.appointment
-                    treatment.save()  # Сохраняем изменения в treatment
-            
-            serializer = TreatmentSerializer(treatments, many=True)
+                    treatment.referral.appointment.save()  # Save changes in referral.appointment
+                    treatment.save()  # Save changes in treatment
+
+            serializer = TreatmentCreateSerializer(treatments, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        
-        return Response({"error": "Invalid appointment status or referral status"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TreatmentUpdateView(APIView):
-    authentication_classes = (
-            TokenAuthentication,
-    )
+    authentication_classes = (TokenAuthentication,)
     permission_classes = [IsAuthenticated, IsDoctor]
-
 
     def get_object(self, pk):
         try:
@@ -101,33 +105,39 @@ class TreatmentUpdateView(APIView):
     def patch(self, request, pk, format=None):
         treatment = self.get_object(pk)
         appointment = treatment.appointment
-        referral = treatment.referral
+        referral_doctor = appointment.referral_doctor  # Access referral_doctor from Appointment
+        appointment_doctor = appointment.doctor
 
-        # Determine the appropriate serializer based on the presence of referral
-        if referral is None:
-            serializer = TreatmentUpdateSerializer(treatment, data=request.data, partial=True)
-            
-            # Check if the user is the doctor associated with the Appointment
-            if request.user.id != appointment.doctor.id:
-                return Response({"error": "You are not authorized to update this treatment."}, status=status.HTTP_403_FORBIDDEN)
-        
-        else:
-            if request.user.id == appointment.doctor.id:
+        # Ensure treatment has not been marked as completed
+        if treatment.status == 'completed':
+            return Response({"error": "Treatment has been completed and cannot be updated."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Determine who is making the update
+        if request.user.id == appointment_doctor.id:
+            # Appointment doctor is making the update
+            if treatment.referral and treatment.referral.referral_conclusion:
+                # Referral doctor has already updated the conclusion, so this is the final update
                 serializer = TreatmentUpdateSerializer(treatment, data=request.data, partial=True)
-            elif request.user.id == referral.appointment.doctor.id:
-                serializer = TreatmentReferralUpdateSerializer(treatment, data=request.data, partial=True)
-            
-            # Check if the user is either the doctor associated with the Appointment or the doctor associated with the Referral
-            if request.user.id not in [appointment.doctor.id, referral.appointment.doctor.id]:
-                return Response({"error": "You are not authorized to update this treatment."}, status=status.HTTP_403_FORBIDDEN)
+                # Finalize treatment after this update
+                treatment.status = 'completed'
+                treatment.save()
+            else:
+                # Regular update by appointment doctor
+                serializer = TreatmentUpdateSerializer(treatment, data=request.data, partial=True)
+        elif referral_doctor and request.user.id == referral_doctor.id:
+            # Referral doctor is making the update
+            serializer = TreatmentReferralUpdateSerializer(treatment, data=request.data, partial=True)
+        else:
+            # Neither the appointment doctor nor the referral doctor
+            return Response({"error": "You are not authorized to update this treatment."}, status=status.HTTP_403_FORBIDDEN)
 
         # Validate and save the serializer
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 
 class TreatmentDetailView(APIView):
 
