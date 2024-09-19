@@ -11,7 +11,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Appointment
-        fields = ['id', 'talon', 'reason', 'status', 'payment_status', 'is_referral', 'doctor', 'patient', 'created_at']
+        fields = ['id', 'talon', 'reason', 'status', 'payment_status', 'is_referral', 'doctor','referral_doctor','patient', 'created_at']
 
 
 class AppointmentTreatmentListSerializer(serializers.ModelSerializer):
@@ -27,16 +27,28 @@ class AppointmentTreatmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Appointment
-        fields = ['id', 'talon', 'reason', 'status', 'payment_status', 'is_referral', 'doctor', 'patient', 'created_at']
+        fields = ['id', 'talon', 'reason', 'status', 'payment_status', 'is_referral', 'doctor', 'patient','referral_doctor', 'created_at']
 
 
 class AppointmentCreateSerializer(serializers.ModelSerializer):
     patient = serializers.PrimaryKeyRelatedField(queryset=Patient.objects.all())
     doctor = serializers.PrimaryKeyRelatedField(queryset=Doctor.objects.all())
+    referral_doctor = serializers.PrimaryKeyRelatedField(queryset=Doctor.objects.all(), required=False, allow_null=True)
 
     class Meta:
         model = Appointment
-        fields = ['id', 'talon', 'reason', 'status', 'payment_status', 'is_referral', 'doctor', 'patient']
+        fields = ['id', 'talon', 'reason', 'status', 'payment_status', 'is_referral', 'doctor', 'patient','referral_doctor']
+
+    def validate(self, data):
+        # If is_referral is True, ensure referral_doctor is provided
+        if data.get('is_referral') and not data.get('referral_doctor'):
+            raise serializers.ValidationError("A referral doctor must be provided if the appointment is a referral.")
+
+        # If is_referral is False, ensure referral_doctor is set to None
+        if not data.get('is_referral'):
+            data['referral_doctor'] = None
+
+        return data
 
     def create(self, validated_data):
         appointment = Appointment.objects.create(**validated_data)
