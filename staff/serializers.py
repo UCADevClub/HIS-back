@@ -267,3 +267,16 @@ class DoctorAppointmentSerializer(StandardUserSerializer):
             'phone_number',
             'speciality',
         ]
+
+class DoctorReferralAppointmentSerializer(StandardUserSerializer):
+    speciality = SpecialitySerializer(many=True)
+
+    class Meta(StandardUserSerializer.Meta):
+        model = Doctor
+        fields = [
+            'id',
+            'first_name',
+            'last_name',
+            'phone_number',
+            'speciality',
+        ]

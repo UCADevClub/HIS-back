@@ -1,7 +1,8 @@
 from rest_framework import serializers
-
-from appointment.models import Appointment
-from appointment.serializers import AppointmentCreateSerializer, AppointmentSerializer, AppointmentTreatmentListSerializer, AppointmentTreatmentSerializer
+from django.core.exceptions import ValidationError
+from appointment.models import Appointment, ReferralAppointment
+from appointment.serializers import (AppointmentCreateSerializer, AppointmentSerializer, AppointmentTreatmentListSerializer, AppointmentTreatmentSerializer,
+                                     ReferralAppointmentCreateSerializer,ReferralAppointmentSerializer,)
 from .models import Medications, ObjectiveExamination, Referral, Treatment
 
 
@@ -142,43 +143,68 @@ class TreatmentCreateSerializer(serializers.ModelSerializer):
     referral = ReferralCreateSerializer(required=False, allow_null=True)
     medications = MedicationsSerializer(many=True, required=False, allow_null=True)
     appointment = serializers.PrimaryKeyRelatedField(queryset=Appointment.objects.all(), required=True)
+    referral_appointment = ReferralAppointmentCreateSerializer(required=False, allow_null=True)
 
     class Meta:
         model = Treatment
         fields = '__all__'
+
+    def validate(self, data):
+        # Check if is_referral is True, referral_doctor must be provided
+        if data.get('is_referral'):
+            referral_appointment_data = data.get('referral_appointment')
+            if not referral_appointment_data or not referral_appointment_data.get('referral_doctor'):
+                raise ValidationError({
+                    'referral_doctor': 'Referral doctor is required when treatment is a referral.'
+                })
+        return data
 
     def create(self, validated_data):
         objective_examination_data = validated_data.pop('objective_examination', None)
         referral_data = validated_data.pop('referral', None)
         medications_data = validated_data.pop('medications', [])
         appointment = validated_data.pop('appointment')
+        referral_appointment_data = validated_data.pop('referral_appointment', None)
 
-        # Update appointment status to 'in_progress'
         appointment.status = "in_progress"
         appointment.save()
 
-        # Create or update ObjectiveExamination
         objective_examination = None
         if objective_examination_data:
             objective_examination = ObjectiveExamination.objects.create(**objective_examination_data)
 
-        # Create or update Referral
-        referral = None
-        if appointment.is_referral:
+        treatment = Treatment.objects.create(
+            objective_examination=objective_examination,
+            appointment=appointment,
+            **validated_data
+        )
+
+        if treatment.is_referral and referral_appointment_data:
+            # Create the Referral object
             if referral_data:
                 referral = Referral.objects.create(appointment=appointment, **referral_data)
             else:
                 referral = Referral.objects.create(appointment=appointment)
 
-        # Create Treatment
-        treatment = Treatment.objects.create(
-            objective_examination=objective_examination,
-            referral=referral,
-            appointment=appointment,
-            **validated_data
-        )
+            treatment.referral = referral
+            treatment.save()
 
-        # Add Medications
+            # **Ensure 'appointment' in referral_appointment_data is a pk**
+            referral_appointment_data['appointment'] = appointment.pk
+
+            # Create ReferralAppointment without treatment
+            referral_appointment_serializer = ReferralAppointmentCreateSerializer(data=referral_appointment_data)
+            referral_appointment_serializer.is_valid(raise_exception=True)
+            referral_appointment = referral_appointment_serializer.save()
+
+            # Assign the treatment to the ReferralAppointment
+            referral_appointment.treatment = treatment
+            referral_appointment.save()
+
+            # Link the ReferralAppointment to the Treatment
+            treatment.referral_appointment = referral_appointment
+            treatment.save()
+
         if medications_data:
             for medication_data in medications_data:
                 medication, created = Medications.objects.get_or_create(**medication_data)
@@ -186,11 +212,13 @@ class TreatmentCreateSerializer(serializers.ModelSerializer):
 
         return treatment
 
+
 class TreatmentSerializer(serializers.ModelSerializer):
     objective_examination = ObjectiveExaminationSerializer(required=False, allow_null=True)
     referral = ReferralSerializer(required=False, allow_null=True)
     medications = MedicationsSerializer(many=True, required=False, allow_null=True)
     appointment = AppointmentTreatmentSerializer()
+    referral_appointment = ReferralAppointmentSerializer(required=False, allow_null=True)  # Add this line
 
     class Meta:
         model = Treatment

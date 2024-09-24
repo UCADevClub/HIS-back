@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.files.storage import FileSystemStorage
-from appointment.models import Appointment
+from appointment.models import Appointment,ReferralAppointment
 from staff.models import Doctor
 
 fs = FileSystemStorage(location='/media/labs')
@@ -292,6 +292,9 @@ class Treatment(models.Model):
     lab_tests = models.FileField(upload_to='labs/', blank=True, null=True)
     
     # Referral replaced with new model
+    is_referral = models.BooleanField(default=False)
+    referral_appointment = models.OneToOneField(ReferralAppointment, on_delete=models.SET_NULL,
+                                                related_name='treatment_ref_appointment',null=True, blank=True)
     referral = models.OneToOneField(Referral, on_delete=models.SET_NULL, null=True, blank=True)
 
     justification_and_formulation = models.TextField(blank=True, null=True)

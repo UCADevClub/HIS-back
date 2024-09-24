@@ -19,13 +19,10 @@ class Appointment(models.Model):
 
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, blank=True)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, blank=True)
-    referral_doctor = models.ForeignKey(Doctor, related_name='referral_appointments', on_delete=models.SET_NULL,
-                                        blank=True, null=True)
     talon = models.CharField(max_length=10, unique=True, blank=True)
     reason = models.TextField(blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='booked')
     payment_status = models.CharField(max_length=10, choices=PAYMENT_STATUS_CHOICES, default='not_paid')
-    is_referral = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -63,3 +60,15 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f"Appointment with Dr. {self.doctor} for {self.patient} on {self.created_at.strftime('%Y-%m-%d %H:%M:%S')}"
+
+class ReferralAppointment(models.Model):
+    appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE)
+    referral_doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, blank=True,null=True)
+    treatment = models.ForeignKey('treatment.Treatment', on_delete=models.CASCADE, blank=True,null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'Referral Appointment'
+
+    def __str__(self):
+        return f"Referral of {self.appointment.patient} to Dr. {self.appointment.doctor} on {self.created_at.strftime('%Y-%m-%d %H:%M:%S')}"

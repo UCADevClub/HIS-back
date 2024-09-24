@@ -24,7 +24,7 @@ class AppointmentCreateView(APIView):
     authentication_classes = (
             TokenAuthentication,
     )
-    permission_classes = [IsAuthenticated, IsDoctor | IsPatientManager]
+    permission_classes = [ IsDoctor | IsPatientManager,]
 
 
     def post(self, request, *args, **kwargs):
