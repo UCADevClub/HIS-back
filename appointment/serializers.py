@@ -88,3 +88,7 @@ class ReferralAppointmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReferralAppointment
         fields = ['id','appointment', 'referral_doctor','created_at']
+
+class AllAppointmentsSerializer(serializers.ModelSerializer):
+    referral_appointment = ReferralAppointmentSerializer(many=True)
+    appointment = AppointmentTreatmentSerializer(many=True)

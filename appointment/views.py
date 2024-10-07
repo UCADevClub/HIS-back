@@ -4,8 +4,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from .models import Appointment
-from .serializers import AppointmentCreateSerializer, AppointmentPaymentStatusUpdateSerializer, AppointmentSerializer, AppointmentStatusUpdateSerializer
+from .models import Appointment, ReferralAppointment
+from .serializers import (AppointmentCreateSerializer, AppointmentPaymentStatusUpdateSerializer, AppointmentSerializer,
+                          AppointmentStatusUpdateSerializer, AllAppointmentsSerializer, ReferralAppointmentSerializer)
 from rest_framework.authentication import (
      TokenAuthentication
 )
@@ -212,8 +213,21 @@ class AppointmentListView(APIView):
         if not appointments.exists():
             return Response([], status=status.HTTP_200_OK)
         
-        serializer = AppointmentSerializer(appointments, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        appointments_serializer = AppointmentSerializer(appointments, many=True)
+        referral_appointments = ReferralAppointment.objects.filter(
+            referral_doctor__id = doctor_id,
+            created_at__date=today
+        )
+        if not referral_appointments.exists():
+            return Response([], status=status.HTTP_200_OK)
+        referral_appointments_serializer = ReferralAppointmentSerializer(referral_appointments, many=True)
+        combined_data = {
+            "appointments": appointments_serializer.data,
+            "referral_appointments": referral_appointments_serializer.data
+        }
+        return Response(combined_data, status=status.HTTP_200_OK)
+
+
 
 
 class AppointmentListAdminView(APIView):
@@ -225,5 +239,22 @@ class AppointmentListAdminView(APIView):
 
     def get(self, request):
         appointments = Appointment.objects.all()
-        serializer = AppointmentSerializer(appointments, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        appointments_serializer = AppointmentSerializer(appointments, many=True)
+        referral_appointments = ReferralAppointment.objects.all()
+        referral_appointments_serializer = ReferralAppointmentSerializer(referral_appointments,many=True)
+        combined_data = {
+            "appointments": appointments_serializer.data,
+            "referral_appointments": referral_appointments_serializer.data,
+        }
+
+        return Response(combined_data, status=status.HTTP_200_OK)
+
+# class DoctorListAppointmentsView(APIView):
+#     authentication_classes = (
+#         TokenAuthentication,
+#     )
+#     permission_classes = [IsDoctor,]
+
+    # def get(self,request):
+        
+
