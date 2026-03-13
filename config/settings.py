@@ -26,7 +26,7 @@ PROJECT_DIR = path.dirname(__file__)
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 SECRET_KEY = environ.get('SECRET_KEY')
-DEBUG = bool(environ.get('DEBUG', default=1))
+DEBUG = int(environ.get('DEBUG', default=1))
 ALLOWED_HOSTS = environ.get('DJANGO_ALLOWED_HOSTS').split()
 
 # Application definition
@@ -71,6 +71,7 @@ REST_FRAMEWORK = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -186,8 +187,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static_files/'
-STATIC_ROOT = path.join(BASE_DIR, 'static_files/')
+STATIC_URL = '/static/'
+STATIC_ROOT = path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
